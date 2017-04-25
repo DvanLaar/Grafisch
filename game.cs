@@ -24,7 +24,7 @@ class Game
             for (int y = 0; y < 256; y++)
             {
                 int location = (x + dx) + (y + dy) * screen.width;
-                screen.pixels[location] = x;
+                screen.pixels[location] = (x << 16) + (y << 8);
             }
         }
 	}
