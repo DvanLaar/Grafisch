@@ -7,27 +7,43 @@ class Game
 {
 	// member variables
 	public Surface screen;
+    public float a;
 	// initialize
 	public void Init()
 	{
+        a = 0;
 	}
 	// tick: renders one frame
 	public void Tick()
 	{
-		screen.Clear( 0 );
-		screen.Print( "hello world", 2, 2, 0xffffff );
-        screen.Line(2, 20, 160, 20, 0xff0000);
-        int dx = screen.width / 2 - 128;
-        int dy = screen.height / 2 - 128;
-        for (int x = 0; x < 256; x++)
+        screen.Clear(0);
+        a += 0.1f;
+        float[] x = new float[] {-1, 1, 1, -1};
+        float[] y = new float[] { 1, 1, -1, -1 };
+        float[] rx = new float[4];
+        float[] ry = new float[4];
+
+        for (int i = 0; i < 4; i++)
         {
-            for (int y = 0; y < 256; y++)
-            {
-                int location = (x + dx) + (y + dy) * screen.width;
-                screen.pixels[location] = (x << 16) + (y << 8);
-            }
+            rx[i] = (float)(x[i] * Math.Cos(a) - y[i] * Math.Sin(a));
+            ry[i] = (float)(x[i] * Math.Sin(a) + y[i] * Math.Cos(a));
         }
+
+        screen.Line(TX(rx[0]), TY(ry[0]), TX(rx[1]), TY(ry[1]), 0xffffff);
+        screen.Line(TX(rx[1]), TY(ry[1]), TX(rx[2]), TY(ry[2]), 0xffffff);
+        screen.Line(TX(rx[2]), TY(ry[2]), TX(rx[3]), TY(ry[3]), 0xffffff);
+        screen.Line(TX(rx[3]), TY(ry[3]), TX(rx[0]), TY(ry[0]), 0xffffff);
 	}
+
+    private int TX(float x)
+    {
+        return (int)((x + 2) * screen.width / 4);
+    }
+
+    private int TY(float y)
+    {
+        return (int)((-y + 2) * screen.height / 4);
+    }
 }
 
 } // namespace Template
