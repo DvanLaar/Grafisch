@@ -8,6 +8,9 @@ class Game
 	// member variables
 	public Surface screen;
     public float a;
+
+    public float minX = -5, maxX = 2, minY = -5, maxY = 2;
+
 	// initialize
 	public void Init()
 	{
@@ -35,14 +38,22 @@ class Game
         screen.Line(TX(rx[3]), TY(ry[3]), TX(rx[0]), TY(ry[0]), 0xffffff);
 	}
 
+    /// <summary>
+    /// Transforms X-coordinate from world coordinates to screen coordinates
+    /// </summary>
     private int TX(float x)
     {
-        return (int)((x + 2) * screen.width / 4);
+        float worldWidth = maxX - minX;
+        return (int)((x - minX)*(screen.width/worldWidth));
     }
 
+    /// <summary>
+    /// Transforms Y-coordinate from world coordinates to screen coordinates
+    /// </summary>
     private int TY(float y)
     {
-        return (int)((-y + 2) * screen.height / 4);
+        float worldHeight = maxY - minY;
+        return (int)((-y+maxY)*(screen.height/worldHeight));
     }
 }
 
