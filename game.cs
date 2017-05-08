@@ -9,7 +9,6 @@ namespace Template {
         // member variables
         public Surface screen;
 
-        public float minX = -1, maxX = 1, minY = -1, maxY = 1;
         public float zoomSpeed = 0.1f;
         public float translateXSpeed = 0.1f;
         public float translateYSpeed = 0.1f;
@@ -103,6 +102,8 @@ namespace Template {
                 prevValue = value;
             }
         }
+
+        public float minX = -1, maxX = 1, minY = -1, maxY = 1;
 
         /// <summary>
         /// Transforms X-coordinate from world coordinates to screen coordinates
