@@ -10,8 +10,8 @@ namespace Template {
         public Surface screen;
 
         public float zoomSpeed = 0.1f;
-        public float translateXSpeed = 0.1f;
-        public float translateYSpeed = 0.1f;
+        public float stdTranslateXSpeed = 0.025f;
+        public float stdTranslateYSpeed = 0.025f;
 
         // initialize
         public void Init()
@@ -28,8 +28,8 @@ namespace Template {
             DrawGridLines(0x008800, 0x004400, 1f, 1f);
             PlotFunction(0.1f, 0xff0000);
             PlotPolarFunction(0.01f, 0x0000ff,0,(float)Math.PI*10f);
-            screen.Print("x*sin(x)",5,5, 0xff0000);
-            screen.Print("t*sin(t)*cos(t)    (polar coordinates)", 5, 25, 0x0000ff);
+            screen.Print(labelFunction(),5,5, 0xff0000);
+            screen.Print(labelPolarFunction(), 5, 25, 0x0000ff);
         }
 
         private void DrawLine(float x1, float y1, float x2, float y2, int color)
@@ -46,6 +46,9 @@ namespace Template {
             if (keyboard[Key.X]
                 && minX + zoomSpeed < maxX - zoomSpeed
                 && minY + zoomSpeed < maxY - zoomSpeed) { minX += zoomSpeed; maxX -= zoomSpeed; minY += zoomSpeed; maxY -= zoomSpeed; }
+
+            float translateXSpeed = stdTranslateXSpeed * (maxX - minX);
+            float translateYSpeed = stdTranslateYSpeed * (maxY - minY);
             //Move left
             if (keyboard[Key.Left]) { minX -= translateXSpeed; maxX -= translateXSpeed; }
             //Move right
@@ -125,10 +128,19 @@ namespace Template {
             return (int)((-y + maxY) * (screen.height / worldHeight));
         }
 
+        private String labelFunction()
+        {
+            return "x*sin(x)";
+        }
 
         private float evaluateFunction(float x)
         {
             return (float)(Math.Sin(x) * x);
+        }
+
+        private String labelPolarFunction()
+        {
+            return "t*sin(t)*cos(t)  (polar coordinates)";
         }
 
         private float evaluatePolarFunction(float theta)
