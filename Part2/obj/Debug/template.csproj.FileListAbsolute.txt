@@ -5,3 +5,4 @@ C:\_UNI\Grafisch\Part2\bin\Debug\OpenTK.dll
 C:\_UNI\Grafisch\Part2\obj\Debug\template.csprojResolveAssemblyReference.cache
 C:\_UNI\Grafisch\Part2\obj\Debug\template.exe
 C:\_UNI\Grafisch\Part2\obj\Debug\template.pdb
+C:\_UNI\Grafisch\Part2\bin\Debug\heightmap.png
