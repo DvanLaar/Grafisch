@@ -21,7 +21,7 @@ namespace Template {
         // tick: renders one frame
         public void Tick()
         {
-            screen.Clear(0x00ffff);
+            screen.Clear(0x000000);
 
             KeyboardInput();
 
