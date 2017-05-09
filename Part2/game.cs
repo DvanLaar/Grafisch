@@ -237,10 +237,6 @@ namespace Template
         {
             KeyboardInput();
 
-        }
-
-        public void RenderGL()
-        {
             Matrix4 M = Matrix4.CreateFromAxisAngle(new Vector3(0, 0, 1), angle);
             M *= Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), lookAngle);
             M *= Matrix4.CreateTranslation(0, 0, -1.5f);
@@ -251,23 +247,28 @@ namespace Template
             GL.UniformMatrix4(uniform_mview, false, ref M);
             GL.Uniform3(uniform_lpoint, ref LightPoint);
             GL.Uniform3(uniform_lcolor, ref LightColor);
+        }
 
+        public void RenderGL()
+        {
+            GL.Disable(EnableCap.Blend);
+
+            // Draw the height map:
             GL.EnableVertexAttribArray(attribute_vpos);
             GL.EnableVertexAttribArray(attribute_vcol);
             GL.EnableVertexAttribArray(attribute_vnorm);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 127 * 127 * 2 * 3);
 
-            // Draw the point of the light source:
-            GL.UseProgram(-1);
-            
+            // Draw the point of the light source
+            // Make the point a round
             GL.Enable(EnableCap.PointSmooth);
+            // Draw the point above all else
             GL.Enable(EnableCap.Blend);
-            // GL.BlendFunc(BlendingFactorSrc.ConstantAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
+            // Make it a large point so we can actually see it
             GL.PointSize(10f);
-
+            
             GL.Begin(PrimitiveType.Points);
-            GL.Color3(1f, 1f, 0f);
             GL.Vertex3(LightPoint);
             GL.End();
         }

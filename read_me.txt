@@ -25,25 +25,28 @@ Besturing:
 W               - Verhoog het lichtpunt
 S               - Verlaag het lichtpunt
 A               - Verplaats het lichtpunt positief over de X-as
-D               - Verokaats het lichtpunt negatief over de X-as
+D               - Verplaats het lichtpunt negatief over de X-as
+Q               - Verplaats het lichtpunt positief over de Y-as
+E               - Verplaats het lichtpunt negatief over de Y-as
 Pijl omhoog     - Draai camera omhoog
 Pijl omlaag     - Draai camera omlaag
 
 Uitleg:
-Voor de diffuse shading moeten eerst de normals worden bepaalt.
+Voor de diffuse shading moeten eerst de normalen worden bepaalt.
 Voor elk vakje (1 pixel van de heightmap) worden er twee triangles aangemaakt.
-Voor elk van deze triangles wordt de normal bepaald als genormalizeerd cross-product van
-twee vectoren die de triangle opspannen. De normal per vertex wordt dan bepaald als gemiddelde
-van de normals van de aanliggende triangles. (Als de vertex aan de rand ligt wordt er extra
-gemiddeld met z-as unit vectors om het bepalen van de normalen makkelijker te maken)
-Deze normals worden vervolgens aan een attribute verbonden om ze te kunnen gebruiken binnen de shaders.
+Voor elk van deze triangles wordt de normaal bepaald als genormaalizeerd cross-product van
+twee vectoren die de triangle opspannen. De normaal per vertex wordt dan bepaald als gemiddelde
+van de normalen van de aanliggende triangles. (Als de vertex aan de rand ligt wordt er extra
+gemiddeld met z-as unit vectors om het bepalen van de normaalen makkelijker te maken)
+Deze normalen worden vervolgens aan een attribute verbonden om ze te kunnen gebruiken binnen de shaders.
 Doormiddel van uniform variables wordt een locatie van een lichtpunt en de kleur/intensiteit
-van eeen lichtpunt naar de shader gestuurd.
-De normals worden door de vertex shader naar de fragment shader gestuurd (samen met de positie).
+van een lichtpunt naar de shader gestuurd.
+De normalen worden door de vertex shader naar de fragment shader gestuurd (samen met de positie).
 In de fragment shader wordt eerst de helderheid van het licht op de pixel bepaald (op basis van het inverse
-kwadraat van de afstand tot het lichtpunt) en de het dotproduct van de normal met een vector
-richting de lichtbron. Voor de uiteindelijke kleur wort deze helderheid, het dotproduct, de lichtkleur
+kwadraat van de afstand tot het lichtpunt) en het inproduct van de normaal met een vector
+richting de lichtbron. Voor de uiteindelijke kleur wort deze helderheid, het inproduct, de lichtkleur
 en de kleur van de vertex zelf met elkaar vermenigvuldigt.
 (Er zit geen Ambient belichting bij)
 
-
+Verder hebben we ook nog een punt toegevoegd op de positie van de lightbron. Deze verplaatst mee als men de lichtbron beweegt. Zo zijn goed de belichtseffecten in te zien in het programma.
+Dit punt werd ook door de shaders aangeroepen dus hebben we een speciaal geval in de shader geschreven voor het geval dat een punt zich signficant dicht bij de lichtbron in zit. In dit geval neemt het de kleur van het licht aan.
