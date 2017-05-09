@@ -6,3 +6,10 @@ C:\_UNI\Grafisch\Part2\obj\Debug\template.csprojResolveAssemblyReference.cache
 C:\_UNI\Grafisch\Part2\obj\Debug\template.exe
 C:\_UNI\Grafisch\Part2\obj\Debug\template.pdb
 C:\_UNI\Grafisch\Part2\bin\Debug\heightmap.png
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Part2\bin\Debug\template.exe.config
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Part2\obj\Debug\template.csprojResolveAssemblyReference.cache
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Part2\bin\Debug\heightmap.png
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Part2\bin\Debug\template.exe
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Part2\bin\Debug\template.pdb
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Part2\obj\Debug\template.exe
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Part2\obj\Debug\template.pdb

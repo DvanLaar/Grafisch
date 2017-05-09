@@ -21,7 +21,7 @@ namespace Template {
         // tick: renders one frame
         public void Tick()
         {
-            screen.Clear(0);
+            screen.Clear(0x00ffff);
 
             KeyboardInput();
 
@@ -87,7 +87,7 @@ namespace Template {
             if (stepSize <= 0f) //To avoid infinite loop
                 return;
             float prevValue = evaluateFunction(minX);
-            for (float x = minX + stepSize; x <= maxX; x += stepSize)
+            for (float x = minX + stepSize; x < maxX + stepSize ; x += stepSize)
             {
                 float value = evaluateFunction(x);
                 DrawLine(x - stepSize, prevValue, x, value, color);
@@ -147,6 +147,5 @@ namespace Template {
         {
             return (float)(theta*Math.Cos(theta)*Math.Sin(theta));
         }
-
     }
 } // namespace Template
