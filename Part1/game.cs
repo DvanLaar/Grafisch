@@ -13,6 +13,8 @@ namespace Template {
         public float stdTranslateXSpeed = 0.025f;
         public float stdTranslateYSpeed = 0.025f;
 
+        public float minX = -1, maxX = 1, minY = -1, maxY = 1;
+
         // initialize
         public void Init()
         {
@@ -87,6 +89,7 @@ namespace Template {
             if (stepSize <= 0f) //To avoid infinite loop
                 return;
             float prevValue = evaluateFunction(minX);
+            //Evaluate and draw line
             for (float x = minX + stepSize; x < maxX + stepSize ; x += stepSize)
             {
                 float value = evaluateFunction(x);
@@ -100,6 +103,7 @@ namespace Template {
             if (stepSize <= 0f) //To avoid infinite loop
                 return;
             float prevValue = evaluatePolarFunction(minTheta);
+            //Evaluate and draw line
             for (float theta = minTheta + stepSize; theta < maxTheta + stepSize; theta += stepSize)
             {
                 float value = evaluatePolarFunction(theta);
@@ -107,8 +111,6 @@ namespace Template {
                 prevValue = value;
             }
         }
-
-        public float minX = -1, maxX = 1, minY = -1, maxY = 1;
 
         /// <summary>
         /// Transforms X-coordinate from world coordinates to screen coordinates

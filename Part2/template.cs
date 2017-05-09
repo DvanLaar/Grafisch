@@ -72,14 +72,6 @@ namespace Template
             GL.LoadIdentity();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
-            // This gives a red square, which we don't want. :(
-            /* // draw screen filling quad
-            GL.Begin(PrimitiveType.Quads);
-            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-1.0f, -1.0f);
-            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(+1.0f, -1.0f);
-            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(+1.0f, +1.0f);
-            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-1.0f, +1.0f);
-            GL.End(); */
 
             // prepare for generic OpenGL rendering 
             GL.Enable(EnableCap.DepthTest);

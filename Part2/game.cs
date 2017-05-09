@@ -15,14 +15,14 @@ namespace Template
 
         private float angle = 0.0f, lookAngle = 1.9f;
         private Surface map;
-        // private float[,] h;
-        // private float[,] colordif;
         private float[] vertexData, colorData, normalData;
-        private int VBO;
-        private int programID, vsID, fsID, attribute_vpos, attribute_vcol, attribute_vnorm , uniform_mview,uniform_lpoint, uniform_lcolor, vbo_pos, vbo_col, vbo_norm;
+        private int programID, vsID, fsID,
+                    attribute_vpos, attribute_vcol, attribute_vnorm,
+                    uniform_mview,uniform_lpoint, uniform_lcolor,
+                    vbo_pos, vbo_col, vbo_norm;
         private Stopwatch lastDraw;
 
-        private Vector3 LightPoint = new Vector3(0,0,3f);
+        private Vector3 LightPoint = new Vector3(0,0,10f);
         private Vector3 LightColor = new Vector3(1f,1f,1f);
 
         private Vector3[,] TriangleNormals1;
@@ -32,18 +32,8 @@ namespace Template
         public void Init()
         {
             map = new Surface("heightmap.png");
-            /*
-            h = new float[128, 128];
-            colordif = new float[128, 128];
-            Random r = new Random();
-            for (int y = 0; y < 128; y++)
-                for (int x = 0; x < 128; x++)
-                {
-                    h[x, y] = ((float)(map.pixels[x + y * 128] & 255)) / 256;
-                    colordif[x, y] = 0.5f * (float)r.NextDouble();
-                }
-            */
 
+            //To scale the island
             float scale = 1f / 128;
             float hscale = -0.2f;
 
@@ -63,6 +53,7 @@ namespace Template
                 for (int j = 0; j < 128; j++)
                 {
                     float height = 1f / 215 * (map.pixels[i + 128 * j] & 255);
+                    //bit of randomness to the colors to make the island more beautifull
                     float color = (float)(0.3 * r.NextDouble());
                     if (height >= 0.015)
                     {
@@ -75,6 +66,7 @@ namespace Template
                 }
 
             //Triangle normals
+            //1 think boundary around the real normals to make the normal "averaging" for the real triangles easier (this will only affect the boundary normals)
             TriangleNormals1 = new Vector3[128+2, 128+2];
             TriangleNormals2 = new Vector3[128+2, 128+2];
 
@@ -91,11 +83,12 @@ namespace Template
             {
                 for (int j = 0; j < 127; j++)
                 {
+                    //The four corners of the quad
                     Vector3 v1 = new Vector3(i * scale, j * scale, hscale * (1f / 215 * (map.pixels[i + 128 * j] & 255)));
                     Vector3 v2 = new Vector3(i * scale, (j+1) * scale, hscale * (1f / 215 * (map.pixels[i + 128 * (j + 1)] & 255)));
                     Vector3 v3 = new Vector3((i+1) * scale, j * scale, hscale * (1f / 215 * (map.pixels[(i + 1) + 128 * j] & 255)));
                     Vector3 v4 = new Vector3((i + 1) * scale, (j+1) * scale, hscale * (1f / 215 * (map.pixels[(i + 1) + 128 * (j + 1)] & 255)));
-
+                    //Normal for the bottom-left and top-right triangles
                     TriangleNormals1[i+1, j+1] = Vector3.Cross(v3-v1,v2-v1).Normalized();
                     TriangleNormals2[i+1, j+1] = Vector3.Cross(v4-v2, v4-v3).Normalized();
                 }
@@ -106,7 +99,7 @@ namespace Template
             {
                 for (int j = 0; j < 127; j++)
                 {
-                    // dit geeft aan welke vertex van het vierkant we willen:
+                    //Which vertex is where in the square
                     int[] dx = { 0, 1, 0, 0, 1, 1 };
                     int[] dy = { 0, 0, 1, 1, 0, 1 };
                     for (int k = 0; k < 6; k++)
@@ -123,7 +116,7 @@ namespace Template
                         colorData[inVertexData + 0] = colors[x, y].X;
                         colorData[inVertexData + 1] = colors[x, y].Y;
                         colorData[inVertexData + 2] = colors[x, y].Z;
-                        //Normals
+                        //Normals (averaging over the triangles the vertex is connected to)
                         Vector3 sum = new Vector3();
                         sum += TriangleNormals1[x+1, y+1];
                         sum += TriangleNormals2[x+1, y + 1 - 1];
@@ -139,13 +132,6 @@ namespace Template
                 }
 
             }
-            /*
-            VBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(vertexData.Length * 4), vertexData, BufferUsageHint.StaticDraw);
-            GL.EnableClientState(ArrayCap.VertexArray);
-            GL.VertexPointer(3, VertexPointerType.Float, 12, 0);
-            */
 
             // Load the shaders:
             programID = GL.CreateProgram();
@@ -173,7 +159,7 @@ namespace Template
             GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(colorData.Length * 4), colorData, BufferUsageHint.StaticDraw);
             GL.VertexAttribPointer(attribute_vcol, 3, VertexAttribPointerType.Float, false, 0, 0);
 
-            // assign the color VBO to the norm attribute
+            // assign the normal VBO to the norm attribute
             vbo_norm = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_norm);
             GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(normalData.Length * 4), normalData, BufferUsageHint.StaticDraw);
@@ -194,9 +180,11 @@ namespace Template
         private void KeyboardInput()
         {
             KeyboardState keyboard = Keyboard.GetState();
+            //Angle of camera
             if (keyboard[Key.Up]) lookAngle += 0.01f;
             if (keyboard[Key.Down]) lookAngle -= 0.01f;
-            if (keyboard[Key.W]) LightPoint += Vector3.UnitZ*0.1f;
+            //Location of the lightsource
+            if (keyboard[Key.W]) LightPoint += Vector3.UnitZ * 0.1f;
             if (keyboard[Key.S]) LightPoint -= Vector3.UnitZ * 0.1f;
             if (keyboard[Key.A]) LightPoint += Vector3.UnitX * 0.1f;
             if (keyboard[Key.D]) LightPoint -= Vector3.UnitX * 0.1f;
@@ -220,6 +208,7 @@ namespace Template
             M *= Matrix4.CreateTranslation(0, 0, -1);
             M *= Matrix4.CreatePerspectiveFieldOfView(1.6f, 1.3f, .1f, 1000);
 
+            //Set the shader and the uniform variables
             GL.UseProgram(programID);
             GL.UniformMatrix4(uniform_mview, false, ref M);
             GL.Uniform3(uniform_lpoint,ref LightPoint);
@@ -228,43 +217,10 @@ namespace Template
 
         public void RenderGL()
         {
-            /*
-            var M = Matrix4.CreatePerspectiveFieldOfView(1.6f, 1.3f, 0.1f, 1000);
-            GL.LoadMatrix(ref M);
-            GL.Translate(0, 0, -1);
-            GL.Rotate(110, 1, 0, 0);
-            GL.Rotate((a / 100f) * 180 / Math.PI, 0, 0, 1);
-            */
-
-            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-            // GL.Color4(0.0, 1.0, 0.0, 0.5);
-
-            // GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            // GL.DrawArrays(PrimitiveType.Triangles, 0, 127 * 127 * 2 * 3);
-
             GL.EnableVertexAttribArray(attribute_vpos);
             GL.EnableVertexAttribArray(attribute_vcol);
             GL.EnableVertexAttribArray(attribute_vnorm);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 127 * 127 * 2 * 3);
-
-            /*
-            GL.Begin(PrimitiveType.Quads);
-            float scale = 0.009f;
-            float hscale = -0.1f;
-            float xoffset = -(128 * scale) / 2f;
-            float yoffset = -(128 * scale) / 2f;
-
-            for (int y = 0; y < 127; y++)
-                for (int x = 0; x < 127; x++)
-                {
-                    GL.Color3(0, h[x, y] >= 0.015f ? 1f - colordif[x, y] : 0f, h[x, y] < 0.015f ? 1f - colordif[x, y] : 0f);
-                    GL.Vertex3(xoffset + x * scale, xoffset + y * scale, hscale * h[x, y]);
-                    GL.Vertex3(xoffset + scale + x * scale, xoffset + y * scale, hscale * h[x + 1, y]);
-                    GL.Vertex3(xoffset + scale + x * scale, xoffset + scale + y * scale, hscale * h[x + 1, y + 1]);
-                    GL.Vertex3(xoffset + x * scale, xoffset + scale + y * scale, hscale * h[x, y + 1]);
-                }
-            GL.End();
-            */
         }
     }
 
