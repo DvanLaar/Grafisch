@@ -12,7 +12,7 @@ namespace Template
     {
         // member variables
         public Surface screen;
-        
+
         private float angle = 0.0f, lookAngle = 1.9f;
         private Surface map;
         // private float[,] h;
@@ -20,7 +20,6 @@ namespace Template
         private float[] vertexData, colorData;
         private int VBO;
         private int programID, vsID, fsID, attribute_vpos, attribute_vcol, uniform_mview, vbo_pos, vbo_col;
-
         private Stopwatch lastDraw;
 
         // initialize
@@ -39,7 +38,7 @@ namespace Template
                 }
             */
 
-            float scale = 1f/128;
+            float scale = 1f / 128;
             float hscale = -0.2f;
 
             // there are 127 * 127 * 2 triangles
@@ -49,6 +48,25 @@ namespace Template
             // initialise position and color VBO's:
             vertexData = new float[127 * 127 * 2 * 3 * 3];
             colorData = new float[127 * 127 * 2 * 3 * 3];
+
+            Random r = new Random();
+
+            Vector3[,] colors = new Vector3[128, 128];
+            for (int i = 0; i < 128; i++)
+                for (int j = 0; j < 128; j++)
+                {
+                    float height = 1f / 215 * (map.pixels[i + 128 * j] & 255);
+                    float color = (float)(0.3 * r.NextDouble());
+                    if (height >= 0.015)
+                    {
+                        colors[i, j] = new Vector3(0.4f, .9f - color, 0.1f);
+                    }
+                    else
+                    {
+                        colors[i, j] = new Vector3(.56f + color, .27f + color, .1f);
+                    }
+                }
+
             for (int i = 0; i < 127; i++)
             {
                 for (int j = 0; j < 127; j++)
@@ -59,16 +77,16 @@ namespace Template
                     for (int k = 0; k < 6; k++)
                     {
                         int x = i + dx[k], y = j + dy[k];
-                        float color = 1f / 215 * (map.pixels[x + 128 * y] & 255);
+                        float height = 1f / 215 * (map.pixels[x + 128 * y] & 255);
 
                         int inVertexData = ((i * 127 + j) * 6 + k) * 3;
                         vertexData[inVertexData + 0] = (x - 63.5f) * scale; // x-coordinate
                         vertexData[inVertexData + 1] = (y - 63.5f) * scale; // y-coordinate
-                        vertexData[inVertexData + 2] = hscale * color; // z-coordinate
+                        vertexData[inVertexData + 2] = hscale * height; // z-coordinate
 
-                        colorData[inVertexData + 0] = 0f;
-                        colorData[inVertexData + 1] = color;
-                        colorData[inVertexData + 2] = 1.0f - color;
+                        colorData[inVertexData + 0] = colors[x, y].X;
+                        colorData[inVertexData + 1] = colors[x, y].Y;
+                        colorData[inVertexData + 2] = colors[x, y].Z;
                     }
                 }
             }
@@ -82,18 +100,21 @@ namespace Template
 
             // Load the shaders:
             programID = GL.CreateProgram();
-            LoadShader("../../shaders/vs.glsl", ShaderType.VertexShader,   programID, out vsID);
+            LoadShader("../../shaders/vs.glsl", ShaderType.VertexShader, programID, out vsID);
             LoadShader("../../shaders/fs.glsl", ShaderType.FragmentShader, programID, out fsID);
-            GL.LinkProgram(programID);
+            GL.LinkProgram(programID);
+
             // Connect the shader variable names with our variables:
             attribute_vpos = GL.GetAttribLocation(programID, "vPosition");
             attribute_vcol = GL.GetAttribLocation(programID, "vColor");
-            uniform_mview = GL.GetUniformLocation(programID, "M");
+            uniform_mview = GL.GetUniformLocation(programID, "M");
+
             // assign the color VBO to the pos attribute
             vbo_pos = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_pos);
             GL.BufferData<float>(BufferTarget.ArrayBuffer, (IntPtr)(vertexData.Length * 4), vertexData, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(attribute_vpos, 3, VertexAttribPointerType.Float, false, 0, 0);
+            GL.VertexAttribPointer(attribute_vpos, 3, VertexAttribPointerType.Float, false, 0, 0);
+
             // assign the color VBO to the col attribute
             vbo_col = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_col);
@@ -134,7 +155,8 @@ namespace Template
             Matrix4 M = Matrix4.CreateFromAxisAngle(new Vector3(0, 0, 1), angle);
             M *= Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), lookAngle);
             M *= Matrix4.CreateTranslation(0, 0, -1);
-            M *= Matrix4.CreatePerspectiveFieldOfView(1.6f, 1.3f, .1f, 1000);
+            M *= Matrix4.CreatePerspectiveFieldOfView(1.6f, 1.3f, .1f, 1000);
+
             GL.UseProgram(programID);
             GL.UniformMatrix4(uniform_mview, false, ref M);
         }
