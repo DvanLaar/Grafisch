@@ -100,7 +100,7 @@ namespace Template {
             if (stepSize <= 0f) //To avoid infinite loop
                 return;
             float prevValue = evaluatePolarFunction(minTheta);
-            for (float theta = minTheta + stepSize; theta <= maxTheta; theta += stepSize)
+            for (float theta = minTheta + stepSize; theta < maxTheta + stepSize; theta += stepSize)
             {
                 float value = evaluatePolarFunction(theta);
                 DrawLine(prevValue * (float)Math.Cos(theta - stepSize), prevValue * (float)Math.Sin(theta - stepSize), value * (float)Math.Cos(theta), value * (float)Math.Sin(theta), color);
