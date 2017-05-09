@@ -1,24 +1,30 @@
 #version 330
-in vec4 color;
+in vec3 color;
 in vec3 normal;
 in vec3 pos;
 
 out vec4 outputColor;
 
-//Data for diffuse light
+// Data for diffuse light
 uniform vec3 lightpoint;
 uniform vec3 lightcolor;
 
 void main()
 {
-	//Inverse square law
-	float dist = length(lightpoint - pos);
-	float brightness = 100f / dist / dist;
+    vec3 toLight = lightpoint - pos;
 
-	//Variables for diffuse shading
-	vec3 L = normalize (lightpoint - pos);
-	float dotprod = max(dot(L,normal),0.0);
+    // Use the inverse square law to get the brightness at distance 'toLeft'
+    float distance = length(toLight);
 
-	vec4 lc = vec4(lightcolor,1f);
-	outputColor = clamp(brightness*dotprod*lc*color,0.0,1.0);
+    if (distance < 1e-15) {
+        outputColor = vec4(1f, 1f, 1f, 1f);
+    }
+
+    float brightness = (distance < 2f ? 2.5f : 10f / (distance * distance));
+    // float brightness = 1f;
+
+    // Calculate the angle of incidence for diffuse shading
+    float cosAlpha = max(dot(normalize(toLight), normal), 0f);
+
+    outputColor = vec4(clamp(brightness * cosAlpha * lightcolor * color, 0f, 1f), 1f);
 }
