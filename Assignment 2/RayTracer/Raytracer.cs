@@ -45,7 +45,6 @@ namespace template
             //Doesn't work yet as no real lighting system has been implemented
             scene.AddLight(new Light(new Vector3(0,5,5),new Vector3(1f,1f,1f)));
 
-            camera.Position += new Vector3(0f,0f,0.5f);
         }
 
         public void Render(Surface screen)
