@@ -1,6 +1,3 @@
-*.config
-*.csproj
 */bin/*
 */obj/*
 *.vs*
-*packages*
