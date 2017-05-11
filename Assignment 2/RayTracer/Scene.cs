@@ -10,6 +10,7 @@ namespace template
 {
     public class Scene
     {
+        public static final EPS = 1e-8;
 
         public List<Primitive> primitives;
         public List<Light> lights;
@@ -32,17 +33,12 @@ namespace template
 
         public Intersection Intersect(Ray ray)
         {
-            if (primitives.Count == 0)
-                return null;
             Intersection intersect = null;
             foreach(Primitive primitive in primitives)
             {
                 Intersection inters = primitive.Intersect(ray);
-                if (intersect == null)
-                    intersect = inters;
-                else if (inters == null)
-                    continue;
-                else if (inters.value < intersect.value)
+                if (inters == null) continue;
+                if (intersect == null || (EPS < inters.value && inters.value < intersect.value))
                     intersect = inters;
             }
             return intersect;
