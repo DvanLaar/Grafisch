@@ -10,7 +10,7 @@ namespace template
 {
     public class Scene
     {
-        public static final EPS = 1e-8;
+        public static float EPS = 1e-8f;
 
         public List<Primitive> primitives;
         public List<Light> lights;
