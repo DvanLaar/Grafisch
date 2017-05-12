@@ -13,10 +13,13 @@ namespace template
         public Vector3 origin;
         public Vector3 direction;
 
-        public Ray(Vector3 origin, Vector3 direction)
+        public int depth;
+
+        public Ray(Vector3 origin, Vector3 direction,int depth = 0)
         {
             this.origin = origin;
             this.direction = direction;
+            this.depth = depth;
         }
     }
 }
