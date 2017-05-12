@@ -10,3 +10,4 @@ C:\_UNI\Grafisch\Assignment 2\RayTracer\obj\Debug\raytracer.csprojResolveAssembl
 C:\_UNI\Grafisch\Assignment 2\RayTracer\obj\Debug\Raytracer.exe
 C:\_UNI\Grafisch\Assignment 2\RayTracer\obj\Debug\Raytracer.pdb
 C:\_UNI\Grafisch\Assignment 2\RayTracer\bin\Debug\Textures\jb.png
+C:\_UNI\Grafisch\Assignment 2\RayTracer\bin\Debug\Objects\teapot.obj
