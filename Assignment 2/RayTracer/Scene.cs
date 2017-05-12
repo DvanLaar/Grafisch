@@ -10,7 +10,7 @@ namespace template
 {
     public class Scene
     {
-        public static float EPS = 1e-8f;
+        public static float EPS = 1e-4f;
 
         public List<Primitive> primitives;
         public List<Light> lights;
@@ -31,6 +31,7 @@ namespace template
             lights.Add(light);
         }
 
+        //Used for primary and secondary rays
         public Intersection Intersect(Ray ray)
         {
             Intersection intersect = null;
@@ -43,5 +44,30 @@ namespace template
             }
             return intersect;
         }
+
+        //Used for non-directional light
+        public bool HasIntersectMax(Ray ray, float maxdistance)
+        {
+            foreach (Primitive primitive in primitives)
+            {
+                Intersection intersect = primitive.Intersect(ray);
+                if (intersect != null && EPS < intersect.value && intersect.value < maxdistance - EPS)
+                    return true;
+            }
+            return false;
+        }
+
+        //Used for directional light
+        public bool HasIntersect(Ray ray)
+        {
+            foreach (Primitive primitive in primitives)
+            {
+                Intersection intersect = primitive.Intersect(ray);
+                if (intersect != null && EPS < intersect.value)
+                    return true;
+            }
+            return false;
+        }
+
     }
 }

@@ -67,7 +67,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="game.cs" />
+    <Compile Include="Lights\DirectionalLight.cs" />
     <Compile Include="Lights\Light.cs" />
+    <Compile Include="Lights\PointLight.cs" />
+    <Compile Include="Material.cs" />
     <Compile Include="Primitives\Intersection.cs" />
     <Compile Include="Primitives\Plane.cs" />
     <Compile Include="Primitives\Primitive.cs" />

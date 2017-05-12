@@ -12,6 +12,7 @@ namespace template
 {
     public class Raytracer
     {
+        public static float EPS = 1e-8f;
 
         public Camera camera;
         public Scene scene;
@@ -30,27 +31,29 @@ namespace template
             camera = new Camera();
             scene = new Scene();
 
-            scene.AddPrimitive(new Sphere(new Vector3(0, 0, 6f), 1.5f, new Vector3(1f, 0f, 0f)));
-            scene.AddPrimitive(new Sphere(new Vector3(3f, 0, 6f), 0.5f, new Vector3(0f, 1f, 0f)));
-            scene.AddPrimitive(new Sphere(new Vector3(-3f, 0, 6f), 1, new Vector3(0f, 0f, 1f)));
+            scene.AddPrimitive(new Sphere(new Vector3(0, 0, 6f), 1.5f, new Vector3(1f, 0f, 0f),1f));
+            scene.AddPrimitive(new Sphere(new Vector3(3f, 0, 6f), 0.5f, new Vector3(0f, 1f, 0f),1f));
+            scene.AddPrimitive(new Sphere(new Vector3(-3f, 0, 6f), 1, new Vector3(0f, 0f, 1f),1f));
 
             Texture floortexture = new Texture("Textures/floor.bmp");
             Texture skytexture = new Texture("Textures/sky.bmp");
             Texture pepetexture = new Texture("Textures/jb.png");
             skybox = new Texture("Textures/skybox.bmp");
-            scene.AddPrimitive(new TexturedPlane(floortexture, Vector3.Normalize(Vector3.UnitX + Vector3.UnitZ), -Vector3.UnitY, 1.5f, new Vector3(1f, 1f, 1f)));
+            scene.AddPrimitive(new TexturedPlane(floortexture, Vector3.Normalize(Vector3.UnitX + Vector3.UnitZ), -Vector3.UnitY, 1.5f, new Vector3(1f, 1f, 1f),1f));
             //scene.AddPrimitive(new TexturedPlane(skytexture,Vector3.UnitX,-Vector3.UnitZ,8f,new Vector3(0.5f,0.5f,0.5f),100f));
 
-            scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), pepetexture, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector3(1f, 0f, 0f)));
-            scene.AddPrimitive(new TexturedTriangle(new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(+1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), pepetexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector3(0f, 1f, 0f)));
+            scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), pepetexture, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f),1f));
+            scene.AddPrimitive(new TexturedTriangle(new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(+1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), pepetexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f),1f));
 
-            //Doesn't work yet as no real lighting system has been implemented
-            scene.AddLight(new Light(new Vector3(0, 5, 5), new Vector3(1f, 1f, 1f)));
-
+            //scene.AddLight(new Light(new Vector3(0, 0, 0), new Vector3(4f, 4f, 4f)));
+            scene.AddLight(new PointLight(new Vector3(0,-1.5f,0), new Vector3(10f,10f,10f)));
+            //scene.AddLight(new Light(new Vector3(5, -5, 0), new Vector3(0f, 0f, 10f)));
+            scene.AddLight(new DirectionalLight(new Vector3(0,1,0),new Vector3(0.2f,0.2f,0.2f)));
         }
 
         public void Render(Surface screen)
         {
+
             this.screen = screen;
             //Initial part of Debug
             DrawInitialDebug(screen);
@@ -70,16 +73,33 @@ namespace template
         private Vector3 CalculateColor(Ray ray)
         {
             Intersection intersection = scene.Intersect(ray);
-            //return V3toInt(intersection.primitive.color);
             if (intersection != null)
             {
-                Vector3 color = intersection.primitive.GetColor(ray, intersection);
-                Vector3 normal = intersection.normal;
-                Vector3 lightnormal = Vector3.Normalize(-Vector3.UnitZ - Vector3.UnitY);
-                color = Vector3.Dot(normal, lightnormal) * color;
-                return color;
+                float diffuse = intersection.primitive.material.diffuse;
+                Vector3 diffusepart = new Vector3();
+                if (diffuse > EPS)
+                {
+                    foreach (Light light in scene.lights)
+                    {
+                        Vector3 color = intersection.primitive.GetColor(ray,intersection);
+                        float intensityscale = light.GetIntensity(ray,intersection,scene);
+                        diffusepart += color *light.intensity*intensityscale;
+                    }
+                }
+                Vector3 specularpart = new Vector3();
+                if (1-diffuse > EPS)
+                {
+
+                }
+                return (diffuse*diffusepart) + ((1f-diffuse)*specularpart);
+
+                //Vector3 color = intersection.primitive.GetColor(ray, intersection);
+                //Vector3 normal = intersection.normal;
+                //Vector3 lightnormal = Vector3.Normalize(-Vector3.UnitZ - Vector3.UnitY);
+                //color = Vector3.Dot(normal, lightnormal) * color;
+                //return color;
             } else
-            {
+            { //The ray doesn't collide with any primitive, so return the color of the skybox
                 Vector3 dirnorm = ray.direction;
                 int texx = (int)(Math.Atan2(dirnorm.Z, dirnorm.X) / (2 * Math.PI) * (skybox.Width - 1));
                 int texy = (int)(Math.Acos(-dirnorm.Y) / Math.PI * (skybox.Height - 1));

@@ -12,7 +12,7 @@ namespace template.Primitives
         public float radius;
         public Vector3 center;
 
-        public Sphere(Vector3 center, float radius ,Vector3 color) : base(color)
+        public Sphere(Vector3 center, float radius ,Vector3 color, float diffuse) : base(color,diffuse)
         {
             this.radius = radius;
             this.center = center;

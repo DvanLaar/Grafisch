@@ -14,7 +14,7 @@ namespace template.Primitives
 
         public float distance;
 
-        public Triangle(Vector3 pos1, Vector3 pos2, Vector3 pos3 ,Vector3 color): base(color)
+        public Triangle(Vector3 pos1, Vector3 pos2, Vector3 pos3 ,Vector3 color, float diffuse): base(color, diffuse)
         {
             this.pos1 = pos1;
             this.pos2 = pos2;

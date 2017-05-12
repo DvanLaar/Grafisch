@@ -14,7 +14,7 @@ namespace template.Primitives
         public float distance;
 
 
-        public Plane(Vector3 normal, float distance, Vector3 color) : base(color)
+        public Plane(Vector3 normal, float distance, Vector3 color, float diffuse) : base(color, diffuse)
         {
             this.normal = normal;
             this.distance = distance;

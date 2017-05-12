@@ -15,7 +15,7 @@ namespace template.Primitives
         public Vector3 textureDirectionPerp;
         public float textureScale = 500f;
 
-        public TexturedPlane(Texture texture,Vector3 textureDirection, Vector3 normal, float distance, Vector3 color,float textureScale = 500f) : base(normal, distance, color)
+        public TexturedPlane(Texture texture,Vector3 textureDirection, Vector3 normal, float distance, Vector3 color, float diffuse, float textureScale = 500f) : base(normal, distance, color,diffuse)
         {
             this.texture = texture;
             this.textureDirection = textureDirection.Normalized();
@@ -32,7 +32,7 @@ namespace template.Primitives
             int textureY = (int)(textureScale*Math.Abs(Vector3.Dot(intersectionPoint - (normal * distance), textureDirectionPerp))) % texture.Height;
             Vector3 textureColor = texture.Data[textureX, textureY];
 
-            return new Vector3(color.X*textureColor.X, color.Y * textureColor.Y, color.Z * textureColor.Z);
+            return new Vector3(material.color.X*textureColor.X, material.color.Y * textureColor.Y, material.color.Z * textureColor.Z);
         }
     }
 }
