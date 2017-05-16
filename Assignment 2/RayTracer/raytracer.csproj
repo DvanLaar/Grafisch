@@ -90,7 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Objects\teapot.obj">
+    <None Include="Objects\teapot.ob">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

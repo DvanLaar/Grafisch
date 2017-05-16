@@ -52,7 +52,7 @@ namespace template
             scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, 0f, -1f), new Vector3(-1f, -2f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
 
             //Slow, but awesome!
-            //scene.AddPrimitive(new Mesh("Objects/teapot.obj",new Vector3(1f,0.8f,0.6f),new Vector3(-0.5f,1f,2f),1f,0.1f));
+            //scene.AddPrimitive(new Mesh("Objects/teapot.ob",new Vector3(1f,0.8f,0.6f),new Vector3(-0.5f,1f,2f),1f,0.1f));
 
             //scene.AddLight(new Light(new Vector3(0, 0, 0), new Vector3(4f, 4f, 4f)));
             scene.AddLight(new PointLight(new Vector3(0,-3f,-0.8f), new Vector3(10f,10f,10f)));
