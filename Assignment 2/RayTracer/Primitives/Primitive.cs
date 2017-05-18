@@ -13,7 +13,7 @@ namespace template.Primitives
 
         public Primitive(Vector3 color, float diffuse)
         {
-            this.material = new Material(color,diffuse);
+            this.material = new Material(color, diffuse);
         }
 
         public virtual Intersection Intersect(Ray ray)
@@ -37,7 +37,7 @@ namespace template.Primitives
             int r = (int)MathHelper.Clamp(material.color.X * 255f, 0, 255f);
             int g = (int)MathHelper.Clamp(material.color.Y * 255f, 0, 255f);
             int b = (int)MathHelper.Clamp(material.color.Z * 255f, 0, 255f);
-            return (r<<16) + (g<<8) + b;
+            return (r << 16) + (g << 8) + b;
         }
     }
 }

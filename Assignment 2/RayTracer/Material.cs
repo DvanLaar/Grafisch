@@ -14,7 +14,6 @@ namespace template
         public float diffuse;
         public float specular;
 
-
         public Material(Vector3 color, float diffuse)
         {
             this.color = color;

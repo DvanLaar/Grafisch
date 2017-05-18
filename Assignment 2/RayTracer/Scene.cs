@@ -35,7 +35,7 @@ namespace template
         public Intersection Intersect(Ray ray)
         {
             Intersection intersect = null;
-            foreach(Primitive primitive in primitives)
+            foreach (Primitive primitive in primitives)
             {
                 Intersection inters = primitive.Intersect(ray);
                 if (inters == null) continue;

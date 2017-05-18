@@ -12,7 +12,7 @@ namespace template.Primitives
         public float radius;
         public Vector3 center;
 
-        public Sphere(Vector3 center, float radius ,Vector3 color, float diffuse) : base(color,diffuse)
+        public Sphere(Vector3 center, float radius, Vector3 color, float diffuse) : base(color, diffuse)
         {
             this.radius = radius;
             this.center = center;
@@ -27,11 +27,11 @@ namespace template.Primitives
             if (p2 > this.radius * this.radius)
                 return null;
             t -= (float)Math.Sqrt(this.radius * this.radius - p2);
-            if (t>0)
+            if (t > 0)
             {
-                Vector3 normal = (ray.origin + (t*ray.direction))-center;
+                Vector3 normal = (ray.origin + (t * ray.direction)) - center;
                 normal.Normalize();
-                Intersection i = new Intersection(t,this,normal);
+                Intersection i = new Intersection(t, this, normal);
                 return i;
             }
             return null;

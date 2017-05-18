@@ -28,12 +28,12 @@ namespace template.Primitives
                 return null;
 
             float t = -(
-                (Vector3.Dot(ray.origin,normal)+distance)/
-                (Vector3.Dot(ray.direction,normal)));
+                (Vector3.Dot(ray.origin, normal) + distance) /
+                (Vector3.Dot(ray.direction, normal)));
             if (t <= 0)
                 return null;
 
-            return new Intersection(t,this,normal);
+            return new Intersection(t, this, normal);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace template
 
         public int depth;
 
-        public Ray(Vector3 origin, Vector3 direction,int depth = 0)
+        public Ray(Vector3 origin, Vector3 direction, int depth = 0)
         {
             this.origin = origin;
             this.direction = direction;

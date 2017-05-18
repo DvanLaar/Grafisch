@@ -35,7 +35,7 @@ namespace template.Primitives
             string[] split2;
 
             StreamReader obj = new StreamReader(path);
-            while ((line = obj.ReadLine())!= null)
+            while ((line = obj.ReadLine()) != null)
             {
                 split1 = line.Split(' ');
                 switch (split1[0])
@@ -57,9 +57,9 @@ namespace template.Primitives
                         int v3 = int.Parse(split2[0]);
                         int n3 = int.Parse(split2[2]);
                         triangles.Add(new NormalTriangle(
-                            scale*vertices[v1]+position,scale*vertices[v2]+position,scale*vertices[v3]+position,
-                            normals[n1],normals[n2],normals[n3],
-                            this.material.color,this.material.diffuse));
+                            scale * vertices[v1] + position, scale * vertices[v2] + position, scale * vertices[v3] + position,
+                            normals[n1], normals[n2], normals[n3],
+                            this.material.color, this.material.diffuse));
                         break;
                 }
             }

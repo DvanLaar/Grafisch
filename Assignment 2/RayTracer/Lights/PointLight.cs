@@ -12,7 +12,7 @@ namespace template.Lights
     {
         public Vector3 position;
 
-        public PointLight(Vector3 position, Vector3 intensity):base(intensity)
+        public PointLight(Vector3 position, Vector3 intensity) : base(intensity)
         {
             this.position = position;
         }

@@ -10,7 +10,7 @@ namespace template.Lights
 {
     public class Light
     {
-       
+
         public Vector3 intensity;
 
         public Light(Vector3 intensity)

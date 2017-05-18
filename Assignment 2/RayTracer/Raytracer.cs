@@ -32,32 +32,32 @@ namespace template
             camera = new Camera();
             scene = new Scene();
 
-            scene.AddPrimitive(new Sphere(new Vector3(0, 0, 6f), 1.5f, new Vector3(1f, 1f, 1f),0.5f));
-            scene.AddPrimitive(new Sphere(new Vector3(3f, 0, 6f), 0.5f, new Vector3(0f, 1f, 0f),0.9f));
-            scene.AddPrimitive(new Sphere(new Vector3(-3f, 0, 6f), 1, new Vector3(0f, 0f, 1f),0.1f));
+            scene.AddPrimitive(new Sphere(new Vector3(0, 0, 6f), 1.5f, new Vector3(1f, 1f, 1f), 0.5f));
+            scene.AddPrimitive(new Sphere(new Vector3(3f, 0, 6f), 0.5f, new Vector3(0f, 1f, 0f), 0.9f));
+            scene.AddPrimitive(new Sphere(new Vector3(-3f, 0, 6f), 1, new Vector3(0f, 0f, 1f), 0.1f));
 
             Texture floortexture = new Texture("Textures/floor.bmp");
             Texture skytexture = new Texture("Textures/sky.bmp");
             Texture pepetexture = new Texture("Textures/pepe.bmp");
             Texture jbtexture = new Texture("Textures/jb.png");
             skybox = new Texture("Textures/skybox.bmp");
-            scene.AddPrimitive(new TexturedPlane(floortexture, Vector3.Normalize(Vector3.UnitX + Vector3.UnitZ), -Vector3.UnitY, 1.5f, new Vector3(1f, 1f, 1f),0.7f));
+            scene.AddPrimitive(new TexturedPlane(floortexture, Vector3.Normalize(Vector3.UnitX + Vector3.UnitZ), -Vector3.UnitY, 1.5f, new Vector3(1f, 1f, 1f), 0.7f));
             //scene.AddPrimitive(new TexturedPlane(skytexture,Vector3.UnitX,-Vector3.UnitZ,8f,new Vector3(0.5f,0.5f,0.5f),1f,100f));
 
 
-            scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), jbtexture, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f),1f));
-            scene.AddPrimitive(new TexturedTriangle(new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(+1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), jbtexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f),1f));
+            scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), jbtexture, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
+            scene.AddPrimitive(new TexturedTriangle(new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(+1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), jbtexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
 
-            scene.AddPrimitive(new TexturedTriangle(new Vector3(1f, 0f, -1f) , new Vector3(-1f, 0f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
+            scene.AddPrimitive(new TexturedTriangle(new Vector3(1f, 0f, -1f), new Vector3(-1f, 0f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
             scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, 0f, -1f), new Vector3(-1f, -2f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
 
             //Slow, but awesome!
             //scene.AddPrimitive(new Mesh("Objects/teapot.ob",new Vector3(1f,0.8f,0.6f),new Vector3(-0.5f,1f,2f),1f,0.1f));
 
             //scene.AddLight(new Light(new Vector3(0, 0, 0), new Vector3(4f, 4f, 4f)));
-            scene.AddLight(new PointLight(new Vector3(0,-3f,-0.8f), new Vector3(10f,10f,10f)));
+            scene.AddLight(new PointLight(new Vector3(0, -3f, -0.8f), new Vector3(10f, 10f, 10f)));
             //scene.AddLight(new Light(new Vector3(5, -5, 0), new Vector3(0f, 0f, 10f)));
-            scene.AddLight(new DirectionalLight(new Vector3(0,1,0),new Vector3(0.2f,0.2f,0.2f)));
+            scene.AddLight(new DirectionalLight(new Vector3(0, 1, 0), new Vector3(0.2f, 0.2f, 0.2f)));
         }
 
         public void Render(Surface screen)
@@ -95,25 +95,26 @@ namespace template
                 {
                     foreach (Light light in scene.lights)
                     {
-                        float intensityscale = light.GetIntensity(ray,intersection,scene);
-                        diffusepart += color *light.intensity*intensityscale;
+                        float intensityscale = light.GetIntensity(ray, intersection, scene);
+                        diffusepart += color * light.intensity * intensityscale;
                     }
                 }
                 Vector3 specularpart = new Vector3();
-                if (1-diffuse > EPS)
+                if (1 - diffuse > EPS)
                 {
-                    Vector3 intersectionpoint = ray.origin + (intersection.value*ray.direction);
+                    Vector3 intersectionpoint = ray.origin + (intersection.value * ray.direction);
                     Vector3 normal = intersection.normal;
-                    Ray secondaryRay = new Ray(intersectionpoint,ray.direction - 2*Vector3.Dot(ray.direction,normal)*normal,ray.depth+1);
+                    Ray secondaryRay = new Ray(intersectionpoint, ray.direction - 2 * Vector3.Dot(ray.direction, normal) * normal, ray.depth + 1);
                     specularpart = color * CalculateColor(secondaryRay);
                 }
-                return (diffuse*diffusepart) + ((1f-diffuse)*specularpart);
+                return (diffuse * diffusepart) + ((1f - diffuse) * specularpart);
 
-            } else
+            }
+            else
             { //The ray doesn't collide with any primitive, so return the color of the skybox
                 Vector3 dirnorm = ray.direction;
                 double tp = 2 * Math.PI;
-                int texx = (int)(MathHelper.Clamp((Math.Atan2(dirnorm.Z , dirnorm.X)+Math.PI) / tp * (skybox.Width - 1),0,skybox.Width-1));
+                int texx = (int)(MathHelper.Clamp((Math.Atan2(dirnorm.Z, dirnorm.X) + Math.PI) / tp * (skybox.Width - 1), 0, skybox.Width - 1));
                 int texy = (int)(Math.Acos(-dirnorm.Y) / Math.PI * (skybox.Height - 1));
                 return skybox.Data[texx, texy];
             }
