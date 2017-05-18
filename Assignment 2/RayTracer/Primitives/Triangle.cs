@@ -25,32 +25,27 @@ namespace RayTracer.Primitives
 
         public override Intersection Intersect(Ray ray)
         {
-
-
-            //In case the ray is paralell to the plane
+            // In case the ray is parallel to the plane
             float epsilon = 0.0001f;
             if (Math.Abs(Vector3.Dot(normal, ray.direction)) < epsilon)
                 return null;
 
-            float t = -(
-                (Vector3.Dot(ray.origin, normal) + distance) /
-                (Vector3.Dot(ray.direction, normal)));
+            float t = -(Vector3.Dot(ray.origin, normal) + distance) / Vector3.Dot(ray.direction, normal);
             if (t <= 0)
                 return null;
 
-            //Calculate if in triangle
-
+            // Calculate if in triangle
             float area = 0.5f * (Vector3.Cross(pos2 - pos1, pos3 - pos1)).Length;
 
             Vector3 edge1 = pos2 - pos1;
             Vector3 edge2 = pos3 - pos2;
             Vector3 edge3 = pos1 - pos3;
 
-            Vector3 intersectionpoint = ray.origin + t * ray.direction;
+            Vector3 location = ray.origin + t * ray.direction;
+            Vector3 p1 = location - pos1;
+            Vector3 p2 = location - pos2;
+            Vector3 p3 = location - pos3;
 
-            Vector3 p1 = intersectionpoint - pos1;
-            Vector3 p2 = intersectionpoint - pos2;
-            Vector3 p3 = intersectionpoint - pos3;
             if ((Vector3.Dot(normal, Vector3.Cross(edge1, p1)) < 0) ||
                 (Vector3.Dot(normal, Vector3.Cross(edge2, p2)) < 0) ||
                 (Vector3.Dot(normal, Vector3.Cross(edge3, p3)) < 0))
@@ -59,7 +54,7 @@ namespace RayTracer.Primitives
             float alpha = 0.5f * (1 / area) * (Vector3.Cross(edge2, p2).Length);
             float beta = 0.5f * (1 / area) * (Vector3.Cross(edge3, p3).Length);
 
-            Intersection intersect = new Intersection(t, this, normal);
+            Intersection intersect = new Intersection(location, t, this, normal);
             intersect.barycentric = new Vector3(alpha, beta, 1f - alpha - beta);
             return intersect;
         }

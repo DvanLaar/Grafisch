@@ -13,24 +13,18 @@ namespace RayTracer
         public const int resolution = 512;
         public const float depth = 1.0f;
 
-        public Vector3 Position = new Vector3(0, 0, 0);
-        public Matrix4 Rotation;
-        public Vector3 Direction = new Vector3(0, 0, 1);
-
-        //Needs to be made dependent on camera and FOV
-        public Vector3 screencorner_topleft = new Vector3(-1f, -1f, 0f) + new Vector3(0, 0, 1f);
-        public Vector3 screencorner_topright = new Vector3(1f, -1f, 0f) + new Vector3(0, 0, 1f);
-        public Vector3 screencorner_bottomleft = new Vector3(-1f, 1f, 0f) + new Vector3(0, 0, 1f);
+        public Vector3 Position = new Vector3(0f, 1.0f, 0f);
+        public Vector3 cornerTL = new Vector3(-1f, -1f, 1f), cornerTR = new Vector3(1f, -1f, 1f), cornerBL = new Vector3(-1f, 1f, 1f);
+        // public Matrix4 Rotation;
 
         public Camera() {}
 
         private Ray GenerateRay(int x, int y)
         {
-            Vector3 direction = (screencorner_topleft +
-                                (x / 512f) * (screencorner_topright - screencorner_topleft) +
-                                (y / 512f) * (screencorner_bottomleft - screencorner_topleft)) - this.Position;
-            direction.Normalize();
-            return new Ray(this.Position, direction);
+            Vector3 direction = -Vector3.UnitZ;
+            direction += Vector3.UnitX * (x / 256f - 1f);
+            direction += Vector3.UnitY * (1f - y / 256f);
+            return new Ray(Position, direction.Normalized());
         }
 
         public Ray getDirection(int screenX, int screenY)
@@ -40,7 +34,13 @@ namespace RayTracer
 
         public void processKeyboard(KeyboardState keyboard)
         {
-
+            float speed = .1f;
+            if (keyboard[Key.A]) this.Position -= speed * Vector3.UnitX;
+            if (keyboard[Key.D]) this.Position += speed * Vector3.UnitX;
+            if (keyboard[Key.S]) this.Position -= speed * Vector3.UnitY;
+            if (keyboard[Key.W]) this.Position += speed * Vector3.UnitY;
+            if (keyboard[Key.Q]) this.Position -= speed * Vector3.UnitZ;
+            if (keyboard[Key.E]) this.Position += speed * Vector3.UnitZ;
         }
     }
 }

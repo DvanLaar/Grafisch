@@ -44,8 +44,8 @@ namespace Template
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             // called once per frame; app logic
-            KeyboardState keyboard = OpenTK.Input.Keyboard.GetState();
-            if (keyboard[OpenTK.Input.Key.Escape]) this.Exit();
+            KeyboardState keyboard = Keyboard.GetState();
+            if (keyboard[Key.Escape]) Exit();
             game.ProcessKeyboard(keyboard);
         }
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -61,7 +61,7 @@ namespace Template
             GL.BindTexture(TextureTarget.Texture2D, screenID);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
                            game.screen.width, game.screen.height, 0,
-                           OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
+                           PixelFormat.Bgra,
                            PixelType.UnsignedByte, game.screen.pixels
                          );
             // clear window contents

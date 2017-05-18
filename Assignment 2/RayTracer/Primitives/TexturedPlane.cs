@@ -9,30 +9,31 @@ namespace RayTracer.Primitives
 {
     class TexturedPlane : Plane
     {
-
         public Texture texture;
-        public Vector3 textureDirection;
-        public Vector3 textureDirectionPerp;
+        public Vector3 dirTX, dirTY;
         public float textureScale = 500f;
+        private float offsetX, offsetY;
 
-        public TexturedPlane(Texture texture, Vector3 textureDirection, Vector3 normal, float distance, Vector3 color, float diffuse, float textureScale = 500f) : base(normal, distance, color, diffuse)
+        public TexturedPlane(Texture texture, Vector3 dirTX, Vector3 dirTY, float distance, Vector3 color, float diffuse, float textureScale = 500f)
+                : base(Vector3.Cross(dirTX, dirTY).Normalized(), distance, color, diffuse)
         {
             this.texture = texture;
-            this.textureDirection = textureDirection.Normalized();
-            this.textureDirectionPerp = Vector3.Cross(normal, textureDirection).Normalized();
+            this.dirTX = Vector3.Multiply(dirTX, 1f / Vector3.Dot(dirTX, dirTX));
+            this.dirTY = Vector3.Multiply(dirTY, 1f / Vector3.Dot(dirTY, dirTY));
             this.textureScale = textureScale;
+
+            offsetX = -textureScale * distance * Vector3.Dot(normal, dirTX);
+            offsetY = -textureScale * distance * Vector3.Dot(normal, dirTY);
         }
 
         public override Vector3 GetColor(Ray ray = null, Intersection intersection = null)
         {
-            if (ray == null || intersection == null)
-                throw new Exception("IMPOSSIBRU!");
-            Vector3 intersectionPoint = ray.origin + (intersection.value * ray.direction);
-            int textureX = (int)(textureScale * Math.Abs(Vector3.Dot(intersectionPoint - (normal * distance), textureDirection))) % texture.Width;
-            int textureY = (int)(textureScale * Math.Abs(Vector3.Dot(intersectionPoint - (normal * distance), textureDirectionPerp))) % texture.Height;
-            Vector3 textureColor = texture.Data[textureX, textureY];
-
-            return new Vector3(material.color.X * textureColor.X, material.color.Y * textureColor.Y, material.color.Z * textureColor.Z);
+            int textureX = (int)(textureScale * Vector3.Dot(intersection.location, dirTX) + offsetX) % texture.Width;
+            if (textureX < 0) textureX += texture.Width;
+            int textureY = (int)(textureScale * Vector3.Dot(intersection.location, dirTY) + offsetY) % texture.Height;
+            if (textureY < 0) textureY += texture.Height;
+            
+            return Vector3.Multiply(material.color, texture.Data[textureX, textureY]);
         }
     }
 }

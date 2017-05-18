@@ -10,7 +10,7 @@ namespace RayTracer
 {
     public class Scene
     {
-        public static float EPS = 1e-4f;
+        public const float EPS = 1e-4f;
 
         public List<Primitive> primitives;
         public List<Light> lights;

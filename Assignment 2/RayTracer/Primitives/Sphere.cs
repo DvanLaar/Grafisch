@@ -24,15 +24,13 @@ namespace RayTracer.Primitives
             float t = Vector3.Dot(c, ray.direction);
             Vector3 q = c - t * ray.direction;
             float p2 = Vector3.Dot(q, q);
-            if (p2 > this.radius * this.radius)
+            if (p2 > radius * radius)
                 return null;
-            t -= (float)Math.Sqrt(this.radius * this.radius - p2);
+            t -= (float)Math.Sqrt(radius * radius - p2);
             if (t > 0)
             {
-                Vector3 normal = (ray.origin + (t * ray.direction)) - center;
-                normal.Normalize();
-                Intersection i = new Intersection(t, this, normal);
-                return i;
+                Vector3 location = ray.origin + (t * ray.direction);
+                return new Intersection(location, t, this, (location - center).Normalized());
             }
             return null;
         }

@@ -19,12 +19,10 @@ namespace RayTracer.Lights
 
         public override float GetIntensity(Ray ray, Intersection intersection, Scene scene)
         {
-            Vector3 normal = intersection.normal;
-            Vector3 intersectionpos = ray.origin + (intersection.value * ray.direction);
-            Vector3 lightvec = this.position - intersectionpos;
+            Vector3 lightvec = this.position - intersection.location;
             Vector3 lightnormal = Vector3.Normalize(lightvec);
-            if (!scene.HasIntersectMax(new Ray(intersectionpos, lightnormal), lightvec.Length))
-                return Vector3.Dot(normal, lightnormal) * (1f / lightvec.LengthSquared);
+            if (!scene.HasIntersectMax(new Ray(intersection.location, lightnormal), lightvec.Length))
+                return Vector3.Dot(intersection.normal, lightnormal) * (1f / lightvec.LengthSquared);
             return 0f;
         }
     }

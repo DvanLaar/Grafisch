@@ -14,17 +14,14 @@ namespace RayTracer.Lights
 
         public DirectionalLight(Vector3 direction, Vector3 intensity) : base(intensity)
         {
-            this.direction = direction;
+            this.direction = -direction.Normalized();
         }
 
         public override float GetIntensity(Ray ray, Intersection intersection, Scene scene)
         {
-            Vector3 normal = intersection.normal;
-            Vector3 intersectionpos = ray.origin + (intersection.value * ray.direction);
-            Vector3 lightnormal = Vector3.Normalize(-direction);
-            if (!scene.HasIntersect(new Ray(intersectionpos, lightnormal)))
-                return Vector3.Dot(normal, lightnormal);
-            return 0f;
+            if (scene.HasIntersect(new Ray(intersection.location, direction)))
+                return 0f;
+            return Math.Max(0f, Vector3.Dot(intersection.normal, direction));
         }
     }
 }

@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 
 namespace RayTracer.Primitives
 {
+    /**
+     * Contains all the points X for which X * normal + distance = 0
+     */
     class Plane : Primitive
     {
-
         public Vector3 normal;
         public float distance;
-
-
+        
         public Plane(Vector3 normal, float distance, Vector3 color, float diffuse) : base(color, diffuse)
         {
             this.normal = normal;
@@ -22,18 +23,13 @@ namespace RayTracer.Primitives
 
         public override Intersection Intersect(Ray ray)
         {
-            //In case the ray is paralell to the plane
-            float epsilon = 0.0001f;
-            if (Math.Abs(Vector3.Dot(normal, ray.direction)) < epsilon)
-                return null;
+            float epsilon = 1e-6f;
+            float dot = Vector3.Dot(normal, ray.direction);
+            //In case the ray is parallel to the plane
+            if (-epsilon < dot && dot < epsilon) return null;
 
-            float t = -(
-                (Vector3.Dot(ray.origin, normal) + distance) /
-                (Vector3.Dot(ray.direction, normal)));
-            if (t <= 0)
-                return null;
-
-            return new Intersection(t, this, normal);
+            float t = -(Vector3.Dot(ray.origin, normal) + distance) / dot;
+            return t <= 0 ? null : new Intersection(ray.origin + t * ray.direction, t, this, normal);
         }
     }
 }
