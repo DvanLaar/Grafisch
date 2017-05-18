@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-using template;
+using OpenTK.Input;
+using RayTracer;
 
 namespace Template
 {
@@ -22,6 +23,11 @@ namespace Template
         {
             screen.Clear(0);
             raytracer.Render(screen);
+        }
+
+        public void ProcessKeyboard(KeyboardState keyboard)
+        {
+            this.raytracer.processKeyboard(keyboard);
         }
     }
 

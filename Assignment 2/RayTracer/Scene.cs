@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using template.Lights;
-using template.Primitives;
+using RayTracer.Lights;
+using RayTracer.Primitives;
 
-namespace template
+namespace RayTracer
 {
     public class Scene
     {

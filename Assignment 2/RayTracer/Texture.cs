@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Template;
 
-namespace template
+namespace RayTracer
 {
     public class Texture
     {

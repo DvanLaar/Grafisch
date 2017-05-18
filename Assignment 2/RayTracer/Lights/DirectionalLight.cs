@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using template.Primitives;
+using RayTracer.Primitives;
 
-namespace template.Lights
+namespace RayTracer.Lights
 {
     class DirectionalLight : Light
     {

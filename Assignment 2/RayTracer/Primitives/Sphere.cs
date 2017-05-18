@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
 
-namespace template.Primitives
+namespace RayTracer.Primitives
 {
     public class Sphere : Primitive
     {
