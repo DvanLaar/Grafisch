@@ -15,20 +15,23 @@ namespace RayTracer
      * OpenGL uses this standard coordinate system, so we use this as well:
      * https://learnopengl.com/img/getting-started/coordinate_systems_right_handed.png
      */
-    public class Raytracer : Camera.NoActionListener
+    public class Raytracer : Camera.SpeedUpListener
     {
         public const int MAX_RECURSION = 2;
 
         private Camera camera;
-        private Scene scene;
-        private Texture skybox = null;
-        private int SpeedUp = 16;
+        private Scene scene = new Scene();
+        private Texture skybox;
+        private int SpeedUp = 8;
 
         public Raytracer()
         {
             camera = new Camera(this);
-            scene = new Scene();
             skybox = new Texture("Textures/skybox2.bmp");
+            // Make the skybox use HDR:
+            for (int i = 0; i < skybox.Width; i++)
+                for (int j = 0; j < skybox.Height; j++)
+                    skybox.Data[i, j] *= 1.2f;
 
             // white ball
             scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, Utils.WHITE, 0.5f));
@@ -39,7 +42,7 @@ namespace RayTracer
 
             // normal is: Vector3.UnitY
             Texture floortexture = new Texture("Textures/floor.bmp");
-            scene.AddPrimitive(new TexturedPlane(floortexture, Vector3.UnitX, -Vector3.UnitZ, 0f, Utils.WHITE, 0.7f));
+            scene.AddPrimitive(new TexturedPlane(floortexture, new Vector3(.8f, 0f, -.6f), new Vector3(-.6f, 0f, -.8f), 0f, Utils.WHITE, 0.7f));
 
             if (true)
             {
@@ -64,7 +67,6 @@ namespace RayTracer
 
             scene.AddLight(new Light(Utils.WHITE * 0.25f));
             scene.AddLight(new PointLight(new Vector3(1.5f, 4f, -4f), Utils.WHITE * 2.5f));
-            // scene.AddLight(new Light(new Vector3(5, -5, 0), new Vector3(0f, 0f, 10f)));
             scene.AddLight(new DirectionalLight(new Vector3(4f, -1f, 0.25f), Utils.WHITE * 2.5f));
         }
 
@@ -200,26 +202,40 @@ namespace RayTracer
             }
         }
 
-        private KeyboardState lastState;
-
         public void processKeyboard(KeyboardState keyboard)
         {
-            this.camera.processKeyboard(keyboard);
-            if (keyboard[Key.KeypadPlus] && !lastState[Key.KeypadPlus]) SpeedUp = Math.Min(SpeedUp * 2, 512);
-            if (keyboard[Key.KeypadMinus] && !lastState[Key.KeypadMinus]) SpeedUp = Math.Max(SpeedUp / 2, 1);
-            lastState = keyboard;
+            camera.processKeyboard(keyboard);
         }
 
-        int Camera.NoActionListener.OnNoAction()
+        int Camera.SpeedUpListener.GetSpeedUp()
+        {
+            return SpeedUp;
+        }
+
+        int Camera.SpeedUpListener.OnNoAction()
         {
             int ret = SpeedUp;
             SpeedUp = Math.Min(SpeedUp, 2);
             return ret;
         }
 
-        void Camera.NoActionListener.RestoreOld(int value)
+        void Camera.SpeedUpListener.RestoreOld(int value)
         {
             SpeedUp = value;
+        }
+
+        bool Camera.SpeedUpListener.Increase()
+        {
+            if (SpeedUp >= 512) return false;
+            SpeedUp = Math.Min(512, SpeedUp << 1);
+            return true;
+        }
+
+        bool Camera.SpeedUpListener.Decrease()
+        {
+            if (SpeedUp <= 1) return false;
+            SpeedUp = Math.Max(1, SpeedUp >> 1);
+            return true;
         }
     }
 }

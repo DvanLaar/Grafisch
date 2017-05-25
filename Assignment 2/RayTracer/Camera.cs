@@ -12,13 +12,16 @@ namespace RayTracer
 {
     class Camera
     {
-        public interface NoActionListener
+        public interface SpeedUpListener
         {
+            int GetSpeedUp();
             int OnNoAction();
             void RestoreOld(int value);
+            bool Increase();
+            bool Decrease();
         }
 
-        private NoActionListener listener;
+        private SpeedUpListener listener;
         private int oldValue = -1;
 
         public const int resolution = 512;
@@ -37,7 +40,7 @@ namespace RayTracer
             }
         }
 
-        public Camera(NoActionListener listener)
+        public Camera(SpeedUpListener listener)
         {
             this.listener = listener;
         }
@@ -60,10 +63,17 @@ namespace RayTracer
             try
             {
                 Thread.Sleep(500);
-                oldValue = listener.OnNoAction();
+                oldValue = listener.GetSpeedUp();
+                while (listener.GetSpeedUp() > 2 && listener.Decrease())
+                {
+                    Thread.Sleep(500);
+                }
             }
             catch (ThreadInterruptedException) { }
         }
+
+        // This contains all the keys which were pressed the last time
+        private KeyboardState lkb;
 
         public void processKeyboard(KeyboardState kb)
         {
@@ -73,20 +83,25 @@ namespace RayTracer
             float moveSpeed = .1f;
             float fovSpeed = .05f;
 
+            // Modify the speed up
+            hasMovement |= kb[Key.KeypadPlus] || kb[Key.KeypadMinus];
+            if (kb[Key.KeypadPlus] && !lkb[Key.KeypadPlus]) listener.Increase();
+            if (kb[Key.KeypadMinus] && !lkb[Key.KeypadMinus]) listener.Decrease();
+
             // Rotate up, down absolute
             Vector3 dirY = Vector3.UnitY;
-            hasMovement |= kb[Key.Left] ^ kb[Key.Right];
+            hasMovement |= kb[Key.Left] || kb[Key.Right];
             if (kb[Key.Left]) Rotation = Quaternion.FromAxisAngle(dirY, rotateSpeed) * Rotation;
             if (kb[Key.Right]) Rotation = Quaternion.FromAxisAngle(dirY, -rotateSpeed) * Rotation;
 
             // Rotate left, right relative to the current rotation
             Vector3 dirX = Rotation * Vector3.UnitX;
-            hasMovement |= kb[Key.Up] ^ kb[Key.Down];
+            hasMovement |= kb[Key.Up] || kb[Key.Down];
             if (kb[Key.Up]) Rotation = Quaternion.FromAxisAngle(dirX, rotateSpeed) * Rotation;
             if (kb[Key.Down]) Rotation = Quaternion.FromAxisAngle(dirX, -rotateSpeed) * Rotation;
 
             Vector3 delta = new Vector3();
-            hasMovement |= (kb[Key.A] ^ kb[Key.D]) || (kb[Key.W] ^ kb[Key.S]) || (kb[Key.Q] ^ kb[Key.E]);
+            hasMovement |= kb[Key.A] || kb[Key.D] || kb[Key.W] || kb[Key.S] || kb[Key.Q] || kb[Key.E];
             if (kb[Key.A]) delta -= Vector3.UnitX;
             if (kb[Key.D]) delta += Vector3.UnitX;
             if (kb[Key.W]) delta -= Vector3.UnitZ;
@@ -95,7 +110,7 @@ namespace RayTracer
             if (kb[Key.E]) delta += Vector3.UnitY;
             Position += Rotation * delta * moveSpeed;
 
-            hasMovement |= (kb[Key.PageUp] ^ kb[Key.PageDown]);
+            hasMovement |= kb[Key.PageUp] || kb[Key.PageDown];
             if (kb[Key.PageUp]) FOV += fovSpeed;
             if (kb[Key.PageDown]) FOV = Math.Max(FOV - fovSpeed, 0f);
 
@@ -110,6 +125,7 @@ namespace RayTracer
                 improver = new Thread(ImproveView);
                 improver.Start();
             }
+            lkb = kb;
         }
     }
 }
