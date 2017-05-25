@@ -26,8 +26,7 @@ namespace RayTracer.Primitives
         public override Intersection Intersect(Ray ray)
         {
             // In case the ray is parallel to the plane
-            float epsilon = 0.0001f;
-            if (Math.Abs(Vector3.Dot(normal, ray.direction)) < epsilon)
+            if (Math.Abs(Vector3.Dot(normal, ray.direction)) < Utils.SMALL_EPS)
                 return null;
 
             float t = -(Vector3.Dot(ray.origin, normal) + distance) / Vector3.Dot(ray.direction, normal);

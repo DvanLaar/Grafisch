@@ -22,17 +22,11 @@ namespace RayTracer.Primitives
         {
             Vector3 c = center - ray.origin;
             float t = Vector3.Dot(c, ray.direction);
-            Vector3 q = c - t * ray.direction;
-            float p2 = Vector3.Dot(q, q);
-            if (p2 > radius * radius)
-                return null;
-            t -= (float)Math.Sqrt(radius * radius - p2);
-            if (t > 0)
-            {
-                Vector3 location = ray.origin + (t * ray.direction);
-                return new Intersection(location, t, this, (location - center).Normalized());
-            }
-            return null;
+            float redp2 = radius * radius - (c - t * ray.direction).LengthSquared;
+            if (redp2 < 0 || t < 0 || t * t < redp2) return null;
+            t -= (float)Math.Sqrt(redp2);
+            Vector3 location = ray.origin + (t * ray.direction);
+            return new Intersection(location, t, this, (location - center).Normalized());
         }
     }
 }

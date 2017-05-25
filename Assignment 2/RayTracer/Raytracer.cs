@@ -18,11 +18,11 @@ namespace RayTracer
     public class Raytracer
     {
         public const int MAX_RECURSION = 2;
-        public const float EPS = 1e-8f;
 
         private Camera camera;
         private Scene scene;
         private Texture skybox = null;
+        private int SpeedUp = 4;
 
         public Raytracer()
         {
@@ -61,7 +61,7 @@ namespace RayTracer
             // scene.AddPrimitive(new Mesh("Objects/teapot.ob",new Vector3(1f,0.8f,0.6f),new Vector3(-0.5f,1f,-2f),1f,0.1f));
 
             // scene.AddLight(new Light(new Vector3(0, 0, 0), new Vector3(4f, 4f, 4f)));
-            // scene.AddLight(new PointLight(new Vector3(1f, 4f, -3f), Utils.WHITE * 10f));
+            scene.AddLight(new PointLight(new Vector3(1.5f, 4f, -4f), Utils.WHITE * 2.5f));
             // scene.AddLight(new Light(new Vector3(5, -5, 0), new Vector3(0f, 0f, 10f)));
             scene.AddLight(new DirectionalLight(new Vector3(4f, -1f, 0.25f), Utils.WHITE * 2.5f));
         }
@@ -69,22 +69,20 @@ namespace RayTracer
         public void Render(Surface screen)
         {
             // Console.Write("render; ");
-            
+
             // Initial part of Debug
             // DrawInitialDebug(screen);
 
-            //Cast rays
-            int speedtradeoff = 2;
-
-            for (int x = 0; x < Camera.resolution; x += speedtradeoff)
+            // Cast rays
+            for (int x = 0; x < Camera.resolution; x += SpeedUp)
             {
-                for (int y = 0; y < Camera.resolution; y += speedtradeoff)
+                for (int y = 0; y < Camera.resolution; y += SpeedUp)
                 {
                     Ray ray = camera.getDirection(x, y);
                     int color = Utils.GetRGBValue(CalculateColor(ray));
-                    for (int xx = 0; xx < speedtradeoff; xx++)
+                    for (int xx = 0; xx < SpeedUp; xx++)
                     {
-                        for (int yy = 0; yy < speedtradeoff; yy++)
+                        for (int yy = 0; yy < SpeedUp; yy++)
                         {
                             screen.Plot(x + xx, y + yy, color);
                         }
@@ -103,12 +101,12 @@ namespace RayTracer
                 Vector3 color = intersection.primitive.GetColor(intersection);
                 Vector3 diffusepart = new Vector3(), specularpart = new Vector3();
                 float diffuse = intersection.primitive.material.diffuse;
-                if (diffuse > EPS)
+                if (diffuse > Utils.SMALL_EPS)
                 {
                     foreach (Light light in scene.lights)
                         diffusepart += light.GetIntensity(ray, intersection, scene);
                 }
-                if (diffuse < 1 - EPS)
+                if (diffuse < 1 - Utils.SMALL_EPS)
                 {
                     Vector3 normal = intersection.normal;
                     Ray secondaryRay = new Ray(intersection.location, ray.direction - 2 * Vector3.Dot(ray.direction, normal) * normal);
@@ -120,9 +118,9 @@ namespace RayTracer
             {
                 // The ray doesn't collide with any primitive, so return the color of the skybox
                 Vector3 dir = ray.direction;
-                int texx = Utils.scaleFloat((float) Math.Atan2(dir.Z, dir.X) / MathHelper.TwoPi + 0.5f, skybox.Height);
+                int texx = Utils.scaleFloat((float)Math.Atan2(dir.Z, dir.X) / MathHelper.TwoPi + 0.5f, skybox.Height);
                 // int texx = MathHelper.Clamp((int)((Math.Atan2(dir.Z, dir.X) / MathHelper.TwoPi + 0.5f) * (skybox.Width - 1)), 0, skybox.Width - 1);
-                int texy = (int) (Utils.SafeAcos(dir.Y) / Math.PI * (skybox.Height - 1));
+                int texy = (int)(Utils.SafeAcos(dir.Y) / Math.PI * (skybox.Height - 1));
                 // return new Vector3(1f * texx / skybox.Height, 1f * texy / skybox.Width, 0f);
                 return skybox.Data[texx, texy];
             }
@@ -200,9 +198,14 @@ namespace RayTracer
             }
         }
 
+        private KeyboardState lastState;
+
         public void processKeyboard(KeyboardState keyboard)
         {
             this.camera.processKeyboard(keyboard);
+            if (keyboard[Key.KeypadPlus] && !lastState[Key.KeypadPlus]) SpeedUp = Math.Min(SpeedUp * 2, 512);
+            if (keyboard[Key.KeypadMinus] && !lastState[Key.KeypadMinus]) SpeedUp = Math.Max(SpeedUp / 2, 1);
+            lastState = keyboard;
         }
     }
 }

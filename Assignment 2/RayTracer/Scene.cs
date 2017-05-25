@@ -10,8 +10,6 @@ namespace RayTracer
 {
     public class Scene
     {
-        public const float EPS = 1e-4f;
-
         public List<Primitive> primitives;
         public List<Light> lights;
 
@@ -39,7 +37,7 @@ namespace RayTracer
             {
                 Intersection inters = primitive.Intersect(ray);
                 if (inters == null) continue;
-                if (intersect == null || (EPS < inters.value && inters.value < intersect.value))
+                if (intersect == null || (Utils.DIST_EPS < inters.value && inters.value < intersect.value))
                     intersect = inters;
             }
             return intersect;
@@ -51,7 +49,7 @@ namespace RayTracer
             foreach (Primitive primitive in primitives)
             {
                 Intersection intersect = primitive.Intersect(ray);
-                if (intersect != null && EPS < intersect.value && intersect.value < maxdistance - EPS)
+                if (intersect != null && Utils.DIST_EPS < intersect.value && intersect.value < maxdistance - Utils.DIST_EPS)
                     return true;
             }
             return false;
@@ -63,7 +61,7 @@ namespace RayTracer
             foreach (Primitive primitive in primitives)
             {
                 Intersection intersect = primitive.Intersect(ray);
-                if (intersect != null && EPS < intersect.value)
+                if (intersect != null && Utils.DIST_EPS < intersect.value)
                     return true;
             }
             return false;

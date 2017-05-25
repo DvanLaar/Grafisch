@@ -16,27 +16,29 @@ namespace RayTracer
         public Vector3 Position = new Vector3(0f, 1.0f, 0f);
         public Vector3 cornerTL = new Vector3(-1f, -1f, 1f), cornerTR = new Vector3(1f, -1f, 1f), cornerBL = new Vector3(-1f, 1f, 1f);
         public Quaternion Rotation = Quaternion.Identity;
+        public float FOV = 1f;
+
+        public Vector3 Direction
+        {
+            get
+            {
+                return Rotation * new Vector3(0f, 0f, -1f);
+            }
+        }
 
         public Camera() { }
 
-        private Ray GenerateRay(int x, int y)
+        public Ray getDirection(int x, int y)
         {
-            Vector3 direction = -Vector3.UnitZ;
-
-            direction += Vector3.UnitX * (x / 256f - 1f);
-            direction += Vector3.UnitY * (1f - y / 256f);
+            Vector3 direction = new Vector3(FOV * (x / 256f - 1f), FOV * (1f - y / 256f), -1f);
             return new Ray(Position, Rotation * direction.Normalized());
-        }
-
-        public Ray getDirection(int screenX, int screenY)
-        {
-            return GenerateRay(screenX, screenY);
         }
 
         public void processKeyboard(KeyboardState keyboard)
         {
             float rotateSpeed = .02f * MathHelper.Pi;
             float moveSpeed = .1f;
+            float fovSpeed = .05f;
 
             // Rotate left, right relative to the current rotation
             Vector3 dirX = Rotation * Vector3.UnitX;
@@ -55,6 +57,9 @@ namespace RayTracer
             if (keyboard[Key.Q]) delta -= Vector3.UnitY;
             if (keyboard[Key.E]) delta += Vector3.UnitY;
             Position += Rotation * delta * moveSpeed;
+
+            if (keyboard[Key.PageUp]) FOV += fovSpeed;
+            if (keyboard[Key.PageDown]) FOV = Math.Max(FOV - fovSpeed, 0f);
         }
     }
 }

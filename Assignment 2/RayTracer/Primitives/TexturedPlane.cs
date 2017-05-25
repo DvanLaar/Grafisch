@@ -33,7 +33,7 @@ namespace RayTracer.Primitives
             int textureY = (int)(textureScale * Vector3.Dot(intersection.location, dirTY) + offsetY) % texture.Height;
             if (textureY < 0) textureY += texture.Height;
             
-            return Vector3.Multiply(material.color, texture.Data[textureX, textureY]);
+            return Vector3.Multiply(base.GetColor(intersection), texture.Data[textureX, textureY]);
         }
     }
 }

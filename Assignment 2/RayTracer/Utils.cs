@@ -7,6 +7,8 @@ namespace RayTracer
     class Utils
     {
         public static readonly Vector3 WHITE = new Vector3(1f, 1f, 1f);
+        public const float DIST_EPS = 1e-5f; // used for small distances
+        public const float SMALL_EPS = 1e-10f; // used for really small rounding errors and such
 
         public static int GetRGBValue(Vector3 v)
         {

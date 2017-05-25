@@ -10,7 +10,6 @@ namespace RayTracer.Primitives
 {
     class Mesh : Primitive
     {
-        public static float EPS = 1e-4f;
         public List<NormalTriangle> triangles;
         private float radius;
         private Vector3 position;
@@ -84,7 +83,7 @@ namespace RayTracer.Primitives
             {
                 Intersection inters = primitive.Intersect(ray);
                 if (inters == null) continue;
-                if (intersect == null || (EPS < inters.value && inters.value < intersect.value))
+                if (intersect == null || (Utils.DIST_EPS < inters.value && inters.value < intersect.value))
                     intersect = inters;
             }
             return intersect;

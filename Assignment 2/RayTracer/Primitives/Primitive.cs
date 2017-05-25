@@ -19,7 +19,7 @@ namespace RayTracer.Primitives
         /// <summary>
         /// Determines color based on the ray and intersection
         /// </summary>
-        public virtual Vector3 GetColor(Intersection intersection = null)
+        public virtual Vector3 GetColor(Intersection intersection)
         {
             return material.color;
         }
