@@ -1,9 +1,5 @@
 ﻿using OpenTK;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracer.Primitives
 {
@@ -19,7 +15,7 @@ namespace RayTracer.Primitives
             this.pos1 = pos1;
             this.pos2 = pos2;
             this.pos3 = pos3;
-            this.normal = Vector3.Cross(pos2 - pos1, pos3 - pos1).Normalized();
+            normal = Vector3.Cross(pos2 - pos1, pos3 - pos1).Normalized();
             distance = -Vector3.Dot(normal, pos1);
         }
 
@@ -30,7 +26,7 @@ namespace RayTracer.Primitives
                 return null;
 
             float t = -(Vector3.Dot(ray.origin, normal) + distance) / Vector3.Dot(ray.direction, normal);
-            if (t <= 0)
+            if (t <= Utils.DIST_EPS)
                 return null;
 
             // Calculate if in triangle

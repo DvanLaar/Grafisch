@@ -1,9 +1,4 @@
 ﻿using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracer.Primitives
 {
@@ -28,7 +23,7 @@ namespace RayTracer.Primitives
 
             int tx = Utils.scaleFloat(texcord.X, texture.Width - 1);
             int ty = Utils.scaleFloat(texcord.Y, texture.Height - 1);
-            return material.color * texture.Data[tx, ty];
+            return base.GetColor(intersection) * texture.Data[tx, ty];
         }
     }
 }

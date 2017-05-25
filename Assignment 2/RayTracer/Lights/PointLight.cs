@@ -23,7 +23,9 @@ namespace RayTracer.Lights
             Vector3 lightnormal = Vector3.Normalize(lightvec);
             if (scene.HasIntersectMax(new Ray(intersection.location, lightnormal), lightvec.Length))
                 return new Vector3();
-            return intensity * Vector3.Dot(intersection.normal, lightnormal) / lightvec.LengthSquared;
+            float dot = Vector3.Dot(intersection.normal, lightnormal);
+            if (dot <= 0f) return new Vector3();
+            return intensity * dot / lightvec.LengthSquared;
         }
     }
 }

@@ -42,14 +42,13 @@ namespace RayTracer
             scene.AddPrimitive(new TexturedPlane(floortexture, Vector3.UnitX, -Vector3.UnitZ, 0f, Utils.WHITE, 0.7f));
 
             Texture jbtexture = new Texture("Textures/jb.png");
+            Vector3 jb_bl = new Vector3(1.9f, 2.6f, -5.4f), jb_dirx = new Vector3(2f, 0f, 1f), jb_diry = new Vector3(0f, 2f, 0f);
             scene.AddPrimitive(new TexturedTriangle(
-                new Vector3(-2.9f, -0.6f, 2.6f), new Vector3(-.5f, -0.6f, 3f), new Vector3(-2.5f, -2.6f, 2.6f),
-                jbtexture,
+                jb_bl, jb_bl + jb_dirx, jb_bl + jb_diry, jbtexture,
                 new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f),
                 Utils.WHITE, 1f));
             scene.AddPrimitive(new TexturedTriangle(
-                new Vector3(-.5f, -0.6f, 3f), new Vector3(-.5f, -2.6f, 3f), new Vector3(-2.5f, -2.6f, 2.6f),
-                jbtexture,
+                jb_bl + jb_dirx, jb_bl + jb_dirx + jb_diry, jb_bl + jb_diry, jbtexture,
                 new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f),
                 Utils.WHITE, 1f));
 
@@ -99,6 +98,11 @@ namespace RayTracer
             if (intersection != null)
             {
                 Vector3 color = intersection.primitive.GetColor(intersection);
+                if (intersection.primitive is TexturedTriangle)
+                {
+                    Console.WriteLine("TT: " + color);
+                }
+
                 Vector3 diffusepart = new Vector3(), specularpart = new Vector3();
                 float diffuse = intersection.primitive.material.diffuse;
                 if (diffuse > Utils.SMALL_EPS)
