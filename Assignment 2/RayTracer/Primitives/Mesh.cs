@@ -10,28 +10,25 @@ namespace RayTracer.Primitives
 {
     class Mesh : Primitive
     {
-        public List<NormalTriangle> triangles;
+        public List<Primitive> triangles;
         private float radius;
         private Vector3 position;
 
         public Mesh(string path, Vector3 color, Vector3 position, float scale, float diffuse) : base(color, diffuse)
         {
-            triangles = new List<NormalTriangle>();
+            // TODO: when a model is loaded, try to find the bounding box of the object, and after that, apply the affine transformation
+            triangles = new List<Primitive>();
             this.position = position;
-            this.radius = scale * 1.5f;
-            loadMesh(path, position, scale);
-        }
+            radius = scale * 1.74f; // Math.sqrt(3)
 
-        private void loadMesh(string path, Vector3 position, float scale)
-        {
+            // Load the mesh:
             List<Vector3> vertices = new List<Vector3>();
-            vertices.Add(Vector3.Zero);
             List<Vector3> normals = new List<Vector3>();
+            vertices.Add(Vector3.Zero);
             normals.Add(Vector3.Zero);
 
             string line;
-            string[] split1;
-            string[] split2;
+            string[] split1, split2;
 
             StreamReader obj = new StreamReader(path);
             while ((line = obj.ReadLine()) != null)
@@ -40,25 +37,26 @@ namespace RayTracer.Primitives
                 switch (split1[0])
                 {
                     case "v":
-                        vertices.Add(new Vector3(float.Parse(split1[1]), float.Parse(split1[2]), float.Parse(split1[3])));
+                        vertices.Add(new Vector3(Utils.Parse(split1[1]), Utils.Parse(split1[2]), Utils.Parse(split1[3])) * scale + position);
                         break;
                     case "vn":
-                        normals.Add(new Vector3(float.Parse(split1[1]), float.Parse(split1[2]), float.Parse(split1[3])).Normalized());
+                        normals.Add(new Vector3(Utils.Parse(split1[1]), Utils.Parse(split1[2]), Utils.Parse(split1[3])).Normalized());
                         break;
                     case "f":
+                        if (split1.Length == 5)
+                        {
+                            throw new Exception("The faces are not triangles, but quads!");
+                        }
                         split2 = split1[1].Split('/');
-                        int v1 = int.Parse(split2[0]);
-                        int n1 = int.Parse(split2[2]);
+                        int v1 = int.Parse(split2[0]), n1 = int.Parse(split2[2]);
                         split2 = split1[2].Split('/');
-                        int v2 = int.Parse(split2[0]);
-                        int n2 = int.Parse(split2[2]);
+                        int v2 = int.Parse(split2[0]), n2 = int.Parse(split2[2]);
                         split2 = split1[3].Split('/');
-                        int v3 = int.Parse(split2[0]);
-                        int n3 = int.Parse(split2[2]);
+                        int v3 = int.Parse(split2[0]), n3 = int.Parse(split2[2]);
+
                         triangles.Add(new NormalTriangle(
-                            scale * vertices[v1] + position, scale * vertices[v2] + position, scale * vertices[v3] + position,
-                            normals[n1], normals[n2], normals[n3],
-                            this.material.color, this.material.diffuse));
+                            vertices[v1], vertices[v2], vertices[v3], normals[n1], normals[n2], normals[n3],
+                            material.color, material.diffuse));
                         break;
                 }
             }
@@ -74,7 +72,7 @@ namespace RayTracer.Primitives
 
             // Check ALL triangles (lots o' calculating, lots o' waiting)
             Intersection intersect = null;
-            foreach (NormalTriangle primitive in triangles)
+            foreach (var primitive in triangles)
             {
                 Intersection inters = primitive.Intersect(ray);
                 if (inters == null) continue;
@@ -82,6 +80,12 @@ namespace RayTracer.Primitives
                     intersect = inters;
             }
             return intersect;
+        }
+
+        public override Vector3 GetColor(Intersection intersection)
+        {
+            throw new Exception("The primitive should be called instead");
+            // return intersection.primitive.GetColor(intersection);
         }
 
         public override bool DoesIntersect(Ray ray, float maxValue)
@@ -93,7 +97,7 @@ namespace RayTracer.Primitives
             if (redp2 < 0 || t < 0 || t * t < redp2) return false;
 
             // Check ALL triangles (lots o' calculating, lots o' waiting)
-            foreach (NormalTriangle primitive in triangles)
+            foreach (var primitive in triangles)
             {
                 if (primitive.DoesIntersect(ray, maxValue)) return true;
             }

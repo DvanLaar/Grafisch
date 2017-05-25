@@ -28,3 +28,5 @@ D:\Studie\2016-2017\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\OpenTK.xm
 D:\Studie\2016-2017\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Objects\gourd.obj
 D:\Studie\2016-2017\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Objects\teapot.obj
 D:\Studie\2016-2017\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Textures\skybox2.bmp
+D:\Studie\2016-2017\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Objects\decimated_teapot.obj
+D:\Studie\2016-2017\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Objects\little_test.obj

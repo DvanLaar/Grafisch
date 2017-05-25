@@ -18,6 +18,7 @@ namespace RayTracer
     public class Raytracer : Camera.SpeedUpListener
     {
         public const int MAX_RECURSION = 2;
+        private const bool jaccoPresent = false;
 
         private Camera camera;
         private Scene scene = new Scene();
@@ -34,17 +35,17 @@ namespace RayTracer
                     skybox.Data[i, j] *= 1.2f;
 
             // white ball
-            scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, Utils.WHITE, 0.5f));
+            //scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, Utils.WHITE, 0.5f));
             // green ball
-            scene.AddPrimitive(new Sphere(new Vector3(3f, 1.5f, -6f), 0.5f, new Vector3(0f, 1f, 0f), 0.9f));
+            //scene.AddPrimitive(new Sphere(new Vector3(3f, 1.5f, -6f), 0.5f, new Vector3(0f, 1f, 0f), 0.9f));
             // blue ball
-            scene.AddPrimitive(new Sphere(new Vector3(-3f, 1.5f, -6f), 1, new Vector3(0f, 0f, 1f), 0.1f));
+            //scene.AddPrimitive(new Sphere(new Vector3(-3f, 1.5f, -6f), 1, new Vector3(0f, 0f, 1f), 0.1f));
 
             // normal is: Vector3.UnitY
             Texture floortexture = new Texture("Textures/floor.bmp");
             scene.AddPrimitive(new TexturedPlane(floortexture, new Vector3(.8f, 0f, -.6f), new Vector3(-.6f, 0f, -.8f), 0f, Utils.WHITE, 0.7f));
 
-            if (true)
+            if (jaccoPresent)
             {
                 Texture jbtexture = new Texture("Textures/jb.png");
                 Vector3 jb_bl = new Vector3(1.9f, 2.6f, -5.4f), jb_dirx = new Vector3(2f, 0f, 1f), jb_diry = new Vector3(0f, 2f, 0f);
@@ -63,7 +64,7 @@ namespace RayTracer
             // scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, 0f, -1f), new Vector3(-1f, -2f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), Utils.WHITE, 1f));
 
             // Slow, but awesome!
-            // scene.AddPrimitive(new Mesh("Objects/teapot.obj", new Vector3(1f, 0.8f, 0.6f), new Vector3(-0.5f, 1.5f, -2f), .5f, 1f));
+            scene.AddPrimitive(new Mesh("Objects/decimated_teapot.obj", new Vector3(1f, 1f, 0f), new Vector3(-0.5f, 4f, -2f), .5f, 1f));
 
             scene.AddLight(new Light(Utils.WHITE * 0.25f));
             scene.AddLight(new PointLight(new Vector3(1.5f, 4f, -4f), Utils.WHITE * 2.5f));
@@ -212,14 +213,7 @@ namespace RayTracer
             return SpeedUp;
         }
 
-        int Camera.SpeedUpListener.OnNoAction()
-        {
-            int ret = SpeedUp;
-            SpeedUp = Math.Min(SpeedUp, 2);
-            return ret;
-        }
-
-        void Camera.SpeedUpListener.RestoreOld(int value)
+        void Camera.SpeedUpListener.SetSpeedUp(int value)
         {
             SpeedUp = value;
         }

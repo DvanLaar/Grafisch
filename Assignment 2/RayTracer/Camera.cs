@@ -15,8 +15,7 @@ namespace RayTracer
         public interface SpeedUpListener
         {
             int GetSpeedUp();
-            int OnNoAction();
-            void RestoreOld(int value);
+            void SetSpeedUp(int value);
             bool Increase();
             bool Decrease();
         }
@@ -64,7 +63,7 @@ namespace RayTracer
             {
                 Thread.Sleep(500);
                 oldValue = listener.GetSpeedUp();
-                while (listener.GetSpeedUp() > 2 && listener.Decrease())
+                while (listener.GetSpeedUp() > 4 && listener.Decrease())
                 {
                     Thread.Sleep(500);
                 }
@@ -118,7 +117,7 @@ namespace RayTracer
             {
                 if (oldValue >= 0)
                 {
-                    listener.RestoreOld(oldValue);
+                    listener.SetSpeedUp(oldValue);
                     oldValue = -1;
                 }
                 if (improver != null) improver.Interrupt();

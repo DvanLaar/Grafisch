@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using System.Drawing;
 using System;
+using System.Globalization;
 
 namespace RayTracer
 {
@@ -9,6 +10,11 @@ namespace RayTracer
         public static readonly Vector3 WHITE = new Vector3(1f, 1f, 1f);
         public const float DIST_EPS = 1e-5f; // used for small distances
         public const float SMALL_EPS = 1e-10f; // used for really small rounding errors and such
+
+        public static float Parse(string value)
+        {
+            return float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
+        }
 
         // Helper function to convert a HDR to an RGB-color
         public static int GetRGBValue(Vector3 v)
