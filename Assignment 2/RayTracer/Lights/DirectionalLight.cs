@@ -10,18 +10,21 @@ namespace RayTracer.Lights
 {
     class DirectionalLight : Light
     {
-        public Vector3 direction;
+        public readonly Vector3 direction;
 
         public DirectionalLight(Vector3 direction, Vector3 intensity) : base(intensity)
         {
+            // we are actually interested in the direction TO the light.
             this.direction = -direction.Normalized();
         }
 
-        public override float GetIntensity(Ray ray, Intersection intersection, Scene scene)
+        public override Vector3 GetIntensity(Ray ray, Intersection intersection, Scene scene)
         {
             if (scene.HasIntersect(new Ray(intersection.location, direction)))
-                return 0f;
-            return Math.Max(0f, Vector3.Dot(intersection.normal, direction));
+                return new Vector3();
+            float dot = Vector3.Dot(intersection.normal, direction);
+            if (dot <= 0f) return new Vector3();
+            return intensity * dot;
         }
     }
 }

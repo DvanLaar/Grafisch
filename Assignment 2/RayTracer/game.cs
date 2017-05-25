@@ -5,7 +5,6 @@ using RayTracer;
 
 namespace Template
 {
-
     class Game
     {
         public Surface screen;

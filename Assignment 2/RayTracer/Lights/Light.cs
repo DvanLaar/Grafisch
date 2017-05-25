@@ -10,8 +10,7 @@ namespace RayTracer.Lights
 {
     public class Light
     {
-
-        public Vector3 intensity;
+        public readonly Vector3 intensity;
 
         public Light(Vector3 intensity)
         {
@@ -19,9 +18,9 @@ namespace RayTracer.Lights
             this.intensity = intensity;
         }
 
-        public virtual float GetIntensity(Ray ray, Intersection intersection, Scene scene)
+        public virtual Vector3 GetIntensity(Ray ray, Intersection intersection, Scene scene)
         {
-            return 1f;
+            return Utils.WHITE;
         }
     }
 }

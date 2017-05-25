@@ -1,9 +1,4 @@
 ﻿using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracer.Primitives
 {
@@ -24,7 +19,7 @@ namespace RayTracer.Primitives
         /// <summary>
         /// Determines color based on the ray and intersection
         /// </summary>
-        public virtual Vector3 GetColor(Ray ray = null, Intersection intersection = null)
+        public virtual Vector3 GetColor(Intersection intersection = null)
         {
             return material.color;
         }
@@ -34,10 +29,7 @@ namespace RayTracer.Primitives
         /// </summary>
         public int GetColorInt()
         {
-            int r = (int)MathHelper.Clamp(material.color.X * 255f, 0, 255f);
-            int g = (int)MathHelper.Clamp(material.color.Y * 255f, 0, 255f);
-            int b = (int)MathHelper.Clamp(material.color.Z * 255f, 0, 255f);
-            return (r << 16) + (g << 8) + b;
+            return Utils.GetRGBValue(material.color);
         }
     }
 }

@@ -21,14 +21,14 @@ namespace RayTracer.Primitives
             this.tex3 = tex3;
         }
 
-        public override Vector3 GetColor(Ray ray = null, Intersection intersection = null)
+        public override Vector3 GetColor(Intersection intersection)
         {
-            if (ray == null || intersection == null)
-                throw new Exception("IMPOSSIBRU!");
             Vector3 barycord = intersection.barycentric;
             Vector2 texcord = (barycord.X * tex1) + (barycord.Y * tex2) + (barycord.Z * tex3);
-            Vector3 textureColor = texture.Data[(int)(MathHelper.Clamp(texcord.X * texture.Width, 0, texture.Width - 1)), (int)(MathHelper.Clamp(texcord.Y * texture.Height, 0f, texture.Height - 1))];
-            return new Vector3(material.color.X * textureColor.X, material.color.Y * textureColor.Y, material.color.Z * textureColor.Z);
+
+            int tx = Utils.scaleFloat(texcord.X, texture.Width - 1);
+            int ty = Utils.scaleFloat(texcord.Y, texture.Height - 1);
+            return material.color * texture.Data[tx, ty];
         }
     }
 }

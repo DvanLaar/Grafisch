@@ -22,8 +22,7 @@ namespace RayTracer
 
         private Camera camera;
         private Scene scene;
-        private Texture skybox;
-        private Surface screen;
+        private Texture skybox = null;
 
         public Raytracer()
         {
@@ -32,43 +31,49 @@ namespace RayTracer
             skybox = new Texture("Textures/skybox.bmp");
 
             // white ball
-            scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, new Vector3(1f, 1f, 1f), 0.5f));
+            scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, Utils.WHITE, 0.5f));
             // green ball
             scene.AddPrimitive(new Sphere(new Vector3(3f, 1.5f, -6f), 0.5f, new Vector3(0f, 1f, 0f), 0.9f));
             // blue ball
             scene.AddPrimitive(new Sphere(new Vector3(-3f, 1.5f, -6f), 1, new Vector3(0f, 0f, 1f), 0.1f));
 
-            Texture floortexture = new Texture("Textures/floor.bmp");
-
             // normal is: Vector3.UnitY
-            scene.AddPrimitive(new TexturedPlane(floortexture, Vector3.UnitX, -Vector3.UnitZ, 0f, new Vector3(1f, 1f, 1f), 0.7f));
-            //scene.AddPrimitive(new TexturedPlane(skytexture,Vector3.UnitX,-Vector3.UnitZ,8f,new Vector3(0.5f,0.5f,0.5f),1f,100f));
+            Texture floortexture = new Texture("Textures/floor.bmp");
+            scene.AddPrimitive(new TexturedPlane(floortexture, Vector3.UnitX, -Vector3.UnitZ, 0f, Utils.WHITE, 0.7f));
 
-            // Texture jbtexture = new Texture("Textures/jb.png");
-            // scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), jbtexture, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
-            // scene.AddPrimitive(new TexturedTriangle(new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(+1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), jbtexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
+            Texture jbtexture = new Texture("Textures/jb.png");
+            scene.AddPrimitive(new TexturedTriangle(
+                new Vector3(-2.9f, -0.6f, 2.6f), new Vector3(-.5f, -0.6f, 3f), new Vector3(-2.5f, -2.6f, 2.6f),
+                jbtexture,
+                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f),
+                Utils.WHITE, 1f));
+            scene.AddPrimitive(new TexturedTriangle(
+                new Vector3(-.5f, -0.6f, 3f), new Vector3(-.5f, -2.6f, 3f), new Vector3(-2.5f, -2.6f, 2.6f),
+                jbtexture,
+                new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f),
+                Utils.WHITE, 1f));
 
             // Texture pepetexture = new Texture("Textures/pepe.bmp");
-            // scene.AddPrimitive(new TexturedTriangle(new Vector3(1f, 0f, -1f), new Vector3(-1f, 0f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
-            // scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, 0f, -1f), new Vector3(-1f, -2f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
+            // scene.AddPrimitive(new TexturedTriangle(new Vector3(1f, 0f, -1f), new Vector3(-1f, 0f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), Utils.WHITE, 1f));
+            // scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, 0f, -1f), new Vector3(-1f, -2f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), Utils.WHITE, 1f));
 
             //Slow, but awesome!
-            //scene.AddPrimitive(new Mesh("Objects/teapot.ob",new Vector3(1f,0.8f,0.6f),new Vector3(-0.5f,1f,2f),1f,0.1f));
+            // scene.AddPrimitive(new Mesh("Objects/teapot.ob",new Vector3(1f,0.8f,0.6f),new Vector3(-0.5f,1f,-2f),1f,0.1f));
 
             // scene.AddLight(new Light(new Vector3(0, 0, 0), new Vector3(4f, 4f, 4f)));
-            scene.AddLight(new PointLight(new Vector3(1f, 4f, -3f), new Vector3(1f, 1f, 1f) * 10f));
+            // scene.AddLight(new PointLight(new Vector3(1f, 4f, -3f), Utils.WHITE * 10f));
             // scene.AddLight(new Light(new Vector3(5, -5, 0), new Vector3(0f, 0f, 10f)));
-            // scene.AddLight(new DirectionalLight(new Vector3(0, 1, 0), new Vector3(0.2f, 0.2f, 0.2f)));
+            scene.AddLight(new DirectionalLight(new Vector3(4f, -1f, 0.25f), Utils.WHITE * 2.5f));
         }
 
         public void Render(Surface screen)
         {
-            Console.Write("render; ");
-            this.screen = screen;
-            //Initial part of Debug
-            DrawInitialDebug(screen);
+            // Console.Write("render; ");
+            
+            // Initial part of Debug
+            // DrawInitialDebug(screen);
 
-            //Cast rays 
+            //Cast rays
             int speedtradeoff = 2;
 
             for (int x = 0; x < Camera.resolution; x += speedtradeoff)
@@ -76,7 +81,7 @@ namespace RayTracer
                 for (int y = 0; y < Camera.resolution; y += speedtradeoff)
                 {
                     Ray ray = camera.getDirection(x, y);
-                    int color = V3toInt(CalculateColor(ray));
+                    int color = Utils.GetRGBValue(CalculateColor(ray));
                     for (int xx = 0; xx < speedtradeoff; xx++)
                     {
                         for (int yy = 0; yy < speedtradeoff; yy++)
@@ -88,50 +93,39 @@ namespace RayTracer
             }
         }
 
-        private Vector3 CalculateColor(Ray ray, int recursionDepth = 0)
+        private Vector3 CalculateColor(Ray ray, int recursionDepth = MAX_RECURSION)
         {
-            if (recursionDepth >= MAX_RECURSION)
-                return Vector3.Zero;
+            if (recursionDepth-- <= 0) return Vector3.Zero;
 
             Intersection intersection = scene.Intersect(ray);
             if (intersection != null)
             {
-                float diffuse = intersection.primitive.material.diffuse;
-                Vector3 color = intersection.primitive.GetColor(ray, intersection);
+                Vector3 color = intersection.primitive.GetColor(intersection);
                 Vector3 diffusepart = new Vector3(), specularpart = new Vector3();
+                float diffuse = intersection.primitive.material.diffuse;
                 if (diffuse > EPS)
                 {
                     foreach (Light light in scene.lights)
-                    {
-                        float intensityscale = light.GetIntensity(ray, intersection, scene);
-                        diffusepart += light.intensity * intensityscale;
-                    }
+                        diffusepart += light.GetIntensity(ray, intersection, scene);
                 }
-                if (1 - diffuse > EPS)
+                if (diffuse < 1 - EPS)
                 {
                     Vector3 normal = intersection.normal;
                     Ray secondaryRay = new Ray(intersection.location, ray.direction - 2 * Vector3.Dot(ray.direction, normal) * normal);
-                    specularpart = CalculateColor(secondaryRay, recursionDepth + 1);
+                    specularpart = CalculateColor(secondaryRay, recursionDepth);
                 }
                 return color * (diffuse * diffusepart + (1f - diffuse) * specularpart);
             }
             else
             {
                 // The ray doesn't collide with any primitive, so return the color of the skybox
-                Vector3 dirnorm = ray.direction;
-                double tp = 2 * Math.PI;
-                int texx = MathHelper.Clamp((int) ((Math.Atan2(dirnorm.Z, dirnorm.X) + Math.PI) / tp * (skybox.Width - 1)), 0, skybox.Width - 1);
-                int texy = dirnorm.Y >= 1.0f - 1e-8f ? 0 : (int)(Math.Acos(dirnorm.Y) / Math.PI * (skybox.Height - 1));
+                Vector3 dir = ray.direction;
+                int texx = Utils.scaleFloat((float) Math.Atan2(dir.Z, dir.X) / MathHelper.TwoPi + 0.5f, skybox.Height);
+                // int texx = MathHelper.Clamp((int)((Math.Atan2(dir.Z, dir.X) / MathHelper.TwoPi + 0.5f) * (skybox.Width - 1)), 0, skybox.Width - 1);
+                int texy = (int) (Utils.SafeAcos(dir.Y) / Math.PI * (skybox.Height - 1));
+                // return new Vector3(1f * texx / skybox.Height, 1f * texy / skybox.Width, 0f);
                 return skybox.Data[texx, texy];
             }
-        }
-
-        private int V3toInt(Vector3 v)
-        {
-            int r = MathHelper.Clamp((int)(v.X * 255f), 0, 255);
-            int g = MathHelper.Clamp((int)(v.Y * 255f), 0, 255);
-            int b = MathHelper.Clamp((int)(v.Z * 255f), 0, 255);
-            return (r << 16) | (g << 8) | b;
         }
 
         private void DrawInitialDebug(Surface screen)
@@ -168,7 +162,7 @@ namespace RayTracer
             int x2 = TXDebug(intersection.location.X);
             int y2 = TYDebug(intersection.location.Z);
             screen.Line(x1, y1, x2, y2, c);
-            
+
             Vector3 to = intersection.location + .3f * intersection.normal;
             x1 = TXDebug(to.X);
             y1 = TYDebug(to.Z);

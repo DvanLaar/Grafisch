@@ -26,7 +26,7 @@ namespace RayTracer.Primitives
             offsetY = -textureScale * distance * Vector3.Dot(normal, dirTY);
         }
 
-        public override Vector3 GetColor(Ray ray = null, Intersection intersection = null)
+        public override Vector3 GetColor(Intersection intersection)
         {
             int textureX = (int)(textureScale * Vector3.Dot(intersection.location, dirTX) + offsetX) % texture.Width;
             if (textureX < 0) textureX += texture.Width;
