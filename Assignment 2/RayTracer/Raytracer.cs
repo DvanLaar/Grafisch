@@ -17,7 +17,7 @@ namespace RayTracer
      */
     public class Raytracer
     {
-        public const int MAX_RECURSION = 16;
+        public const int MAX_RECURSION = 2;
         public const float EPS = 1e-8f;
 
         private Camera camera;
@@ -41,9 +41,9 @@ namespace RayTracer
             Texture floortexture = new Texture("Textures/floor.bmp");
 
             // normal is: Vector3.UnitY
-            scene.AddPrimitive(new TexturedPlane(floortexture, Vector3.UnitX, Vector3.UnitZ, 0f, new Vector3(1f, 1f, 1f), 0.7f));
+            scene.AddPrimitive(new TexturedPlane(floortexture, Vector3.UnitX, -Vector3.UnitZ, 0f, new Vector3(1f, 1f, 1f), 0.7f));
             //scene.AddPrimitive(new TexturedPlane(skytexture,Vector3.UnitX,-Vector3.UnitZ,8f,new Vector3(0.5f,0.5f,0.5f),1f,100f));
-            
+
             // Texture jbtexture = new Texture("Textures/jb.png");
             // scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), jbtexture, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
             // scene.AddPrimitive(new TexturedTriangle(new Vector3(+1f, -0.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(+1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, 0f), new Vector3(-1f, -2.6f, 3f) + new Vector3(-1.5f, 0f, -0.4f), jbtexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector3(1f, 1f, 1f), 1f));
@@ -56,7 +56,7 @@ namespace RayTracer
             //scene.AddPrimitive(new Mesh("Objects/teapot.ob",new Vector3(1f,0.8f,0.6f),new Vector3(-0.5f,1f,2f),1f,0.1f));
 
             // scene.AddLight(new Light(new Vector3(0, 0, 0), new Vector3(4f, 4f, 4f)));
-            scene.AddLight(new PointLight(new Vector3(.5f, 1f, 2f), new Vector3(10f, 10f, 10f)));
+            scene.AddLight(new PointLight(new Vector3(1f, 4f, -3f), new Vector3(1f, 1f, 1f) * 10f));
             // scene.AddLight(new Light(new Vector3(5, -5, 0), new Vector3(0f, 0f, 10f)));
             // scene.AddLight(new DirectionalLight(new Vector3(0, 1, 0), new Vector3(0.2f, 0.2f, 0.2f)));
         }
@@ -69,7 +69,7 @@ namespace RayTracer
             DrawInitialDebug(screen);
 
             //Cast rays 
-            int speedtradeoff = 1;
+            int speedtradeoff = 2;
 
             for (int x = 0; x < Camera.resolution; x += speedtradeoff)
             {
