@@ -16,6 +16,11 @@ namespace RayTracer.Primitives
             return null;
         }
 
+        public virtual bool DoesIntersect(Ray ray, float maxValue)
+        {
+            return false;
+        }
+
         /// <summary>
         /// Determines color based on the ray and intersection
         /// </summary>

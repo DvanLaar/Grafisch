@@ -18,7 +18,7 @@ namespace RayTracer.Primitives
         {
             triangles = new List<NormalTriangle>();
             this.position = position;
-            this.radius = scale * 1.1f;
+            this.radius = scale * 1.5f;
             loadMesh(path, position, scale);
         }
 
@@ -40,10 +40,10 @@ namespace RayTracer.Primitives
                 switch (split1[0])
                 {
                     case "v":
-                        vertices.Add(new Vector3(float.Parse(split1[1]), -float.Parse(split1[2]), float.Parse(split1[3])));
+                        vertices.Add(new Vector3(float.Parse(split1[1]), float.Parse(split1[2]), float.Parse(split1[3])));
                         break;
                     case "vn":
-                        normals.Add(Vector3.Normalize(new Vector3(float.Parse(split1[1]), -float.Parse(split1[2]), float.Parse(split1[3]))));
+                        normals.Add(new Vector3(float.Parse(split1[1]), float.Parse(split1[2]), float.Parse(split1[3])).Normalized());
                         break;
                     case "f":
                         split2 = split1[1].Split('/');
@@ -66,20 +66,15 @@ namespace RayTracer.Primitives
 
         public override Intersection Intersect(Ray ray)
         {
-            //Check if ray hits a sphere around to save triangle checks
+            // Check if ray hits a sphere around to save triangle checks
             Vector3 c = position - ray.origin;
             float t = Vector3.Dot(c, ray.direction);
-            Vector3 q = c - t * ray.direction;
-            float p2 = Vector3.Dot(q, q);
-            if (p2 > this.radius * this.radius)
-                return null;
-            t -= (float)Math.Sqrt(this.radius * this.radius - p2);
-            if (t <= 0)
-                return null;
+            float redp2 = radius * radius - (c - t * ray.direction).LengthSquared;
+            if (redp2 < 0 || t < 0 || t * t < redp2) return null;
 
-            //Check ALL triangles (lots o' calculating, lots o' waiting)
+            // Check ALL triangles (lots o' calculating, lots o' waiting)
             Intersection intersect = null;
-            foreach (Primitive primitive in triangles)
+            foreach (NormalTriangle primitive in triangles)
             {
                 Intersection inters = primitive.Intersect(ray);
                 if (inters == null) continue;
@@ -87,6 +82,22 @@ namespace RayTracer.Primitives
                     intersect = inters;
             }
             return intersect;
+        }
+
+        public override bool DoesIntersect(Ray ray, float maxValue)
+        {
+            // Check if ray hits a sphere around to save triangle checks
+            Vector3 c = position - ray.origin;
+            float t = Vector3.Dot(c, ray.direction);
+            float redp2 = radius * radius - (c - t * ray.direction).LengthSquared;
+            if (redp2 < 0 || t < 0 || t * t < redp2) return false;
+
+            // Check ALL triangles (lots o' calculating, lots o' waiting)
+            foreach (NormalTriangle primitive in triangles)
+            {
+                if (primitive.DoesIntersect(ray, maxValue)) return true;
+            }
+            return false;
         }
     }
 }

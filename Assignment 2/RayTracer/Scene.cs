@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using RayTracer.Lights;
 using RayTracer.Primitives;
 
@@ -29,43 +25,27 @@ namespace RayTracer
             lights.Add(light);
         }
 
-        //Used for primary and secondary rays
+        /** Used for primary and secondary rays to find an object which this ray hits.
+         */
         public Intersection Intersect(Ray ray)
         {
-            Intersection intersect = null;
+            Intersection ret = null;
             foreach (Primitive primitive in primitives)
             {
-                Intersection inters = primitive.Intersect(ray);
-                if (inters == null) continue;
-                if (intersect == null || (Utils.DIST_EPS < inters.value && inters.value < intersect.value))
-                    intersect = inters;
+                Intersection i = primitive.Intersect(ray);
+                if (i != null && (ret == null || (Utils.DIST_EPS < i.value && i.value < ret.value)))
+                    ret = i;
             }
-            return intersect;
+            return ret;
         }
 
-        //Used for non-directional light
-        public bool HasIntersectMax(Ray ray, float maxdistance)
+        /** Used for directional and non-directional light because this is faster than Intersect since it stops when it hits something
+         */
+        public bool DoesIntersect(Ray ray, float maxdistance)
         {
             foreach (Primitive primitive in primitives)
-            {
-                Intersection intersect = primitive.Intersect(ray);
-                if (intersect != null && Utils.DIST_EPS < intersect.value && intersect.value < maxdistance - Utils.DIST_EPS)
-                    return true;
-            }
+                if (primitive.DoesIntersect(ray, maxdistance)) return true;
             return false;
         }
-
-        //Used for directional light
-        public bool HasIntersect(Ray ray)
-        {
-            foreach (Primitive primitive in primitives)
-            {
-                Intersection intersect = primitive.Intersect(ray);
-                if (intersect != null && Utils.DIST_EPS < intersect.value)
-                    return true;
-            }
-            return false;
-        }
-
     }
 }

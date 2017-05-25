@@ -23,8 +23,8 @@ namespace RayTracer.Primitives
             Intersection intersection = base.Intersect(ray);
             if (intersection == null)
                 return null;
-            Vector3 interpolatednormal = (intersection.barycentric.X * norm1) + (intersection.barycentric.Y * norm2) + (intersection.barycentric.Z * norm3);
-            intersection.normal = interpolatednormal;
+            // Construct an interpolated normal:
+            intersection.normal = (intersection.barycentric.X * norm1) + (intersection.barycentric.Y * norm2) + (intersection.barycentric.Z * norm3);
             return intersection;
         }
     }

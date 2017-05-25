@@ -15,20 +15,20 @@ namespace RayTracer
      * OpenGL uses this standard coordinate system, so we use this as well:
      * https://learnopengl.com/img/getting-started/coordinate_systems_right_handed.png
      */
-    public class Raytracer
+    public class Raytracer : Camera.NoActionListener
     {
         public const int MAX_RECURSION = 2;
 
         private Camera camera;
         private Scene scene;
         private Texture skybox = null;
-        private int SpeedUp = 4;
+        private int SpeedUp = 16;
 
         public Raytracer()
         {
-            camera = new Camera();
+            camera = new Camera(this);
             scene = new Scene();
-            skybox = new Texture("Textures/skybox.bmp");
+            skybox = new Texture("Textures/skybox2.bmp");
 
             // white ball
             scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, Utils.WHITE, 0.5f));
@@ -41,25 +41,28 @@ namespace RayTracer
             Texture floortexture = new Texture("Textures/floor.bmp");
             scene.AddPrimitive(new TexturedPlane(floortexture, Vector3.UnitX, -Vector3.UnitZ, 0f, Utils.WHITE, 0.7f));
 
-            Texture jbtexture = new Texture("Textures/jb.png");
-            Vector3 jb_bl = new Vector3(1.9f, 2.6f, -5.4f), jb_dirx = new Vector3(2f, 0f, 1f), jb_diry = new Vector3(0f, 2f, 0f);
-            scene.AddPrimitive(new TexturedTriangle(
-                jb_bl, jb_bl + jb_dirx, jb_bl + jb_diry, jbtexture,
-                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f),
-                Utils.WHITE, 1f));
-            scene.AddPrimitive(new TexturedTriangle(
-                jb_bl + jb_dirx, jb_bl + jb_dirx + jb_diry, jb_bl + jb_diry, jbtexture,
-                new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f),
-                Utils.WHITE, 1f));
+            if (true)
+            {
+                Texture jbtexture = new Texture("Textures/jb.png");
+                Vector3 jb_bl = new Vector3(1.9f, 2.6f, -5.4f), jb_dirx = new Vector3(2f, 0f, 1f), jb_diry = new Vector3(0f, 2f, 0f);
+                scene.AddPrimitive(new TexturedTriangle(
+                    jb_bl, jb_bl + jb_dirx, jb_bl + jb_diry, jbtexture,
+                    new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f),
+                    Utils.WHITE, 1f));
+                scene.AddPrimitive(new TexturedTriangle(
+                    jb_bl + jb_dirx, jb_bl + jb_dirx + jb_diry, jb_bl + jb_diry, jbtexture,
+                    new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f),
+                    Utils.WHITE, 1f));
+            }
 
             // Texture pepetexture = new Texture("Textures/pepe.bmp");
             // scene.AddPrimitive(new TexturedTriangle(new Vector3(1f, 0f, -1f), new Vector3(-1f, 0f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), Utils.WHITE, 1f));
             // scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, 0f, -1f), new Vector3(-1f, -2f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), Utils.WHITE, 1f));
 
-            //Slow, but awesome!
-            // scene.AddPrimitive(new Mesh("Objects/teapot.ob",new Vector3(1f,0.8f,0.6f),new Vector3(-0.5f,1f,-2f),1f,0.1f));
+            // Slow, but awesome!
+            // scene.AddPrimitive(new Mesh("Objects/teapot.obj", new Vector3(1f, 0.8f, 0.6f), new Vector3(-0.5f, 1.5f, -2f), .5f, 1f));
 
-            // scene.AddLight(new Light(new Vector3(0, 0, 0), new Vector3(4f, 4f, 4f)));
+            scene.AddLight(new Light(Utils.WHITE * 0.25f));
             scene.AddLight(new PointLight(new Vector3(1.5f, 4f, -4f), Utils.WHITE * 2.5f));
             // scene.AddLight(new Light(new Vector3(5, -5, 0), new Vector3(0f, 0f, 10f)));
             scene.AddLight(new DirectionalLight(new Vector3(4f, -1f, 0.25f), Utils.WHITE * 2.5f));
@@ -98,11 +101,6 @@ namespace RayTracer
             if (intersection != null)
             {
                 Vector3 color = intersection.primitive.GetColor(intersection);
-                if (intersection.primitive is TexturedTriangle)
-                {
-                    Console.WriteLine("TT: " + color);
-                }
-
                 Vector3 diffusepart = new Vector3(), specularpart = new Vector3();
                 float diffuse = intersection.primitive.material.diffuse;
                 if (diffuse > Utils.SMALL_EPS)
@@ -210,6 +208,18 @@ namespace RayTracer
             if (keyboard[Key.KeypadPlus] && !lastState[Key.KeypadPlus]) SpeedUp = Math.Min(SpeedUp * 2, 512);
             if (keyboard[Key.KeypadMinus] && !lastState[Key.KeypadMinus]) SpeedUp = Math.Max(SpeedUp / 2, 1);
             lastState = keyboard;
+        }
+
+        int Camera.NoActionListener.OnNoAction()
+        {
+            int ret = SpeedUp;
+            SpeedUp = Math.Min(SpeedUp, 2);
+            return ret;
+        }
+
+        void Camera.NoActionListener.RestoreOld(int value)
+        {
+            SpeedUp = value;
         }
     }
 }

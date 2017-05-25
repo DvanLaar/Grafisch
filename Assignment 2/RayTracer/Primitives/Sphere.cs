@@ -28,5 +28,19 @@ namespace RayTracer.Primitives
             Vector3 location = ray.origin + (t * ray.direction);
             return new Intersection(location, t, this, (location - center).Normalized());
         }
+
+        public override bool DoesIntersect(Ray ray, float maxValue)
+        {
+            Vector3 c = center - ray.origin;
+            float t = Vector3.Dot(c, ray.direction);
+            float redp2 = radius * radius - (c - t * ray.direction).LengthSquared;
+            if (redp2 < 0 || t < 0 || t * t < redp2) return false;
+
+            // we can save a calculation of a square root by simplifying:
+            // t - Math.sqrt(redp2) < maxvalue
+            // t - maxvalue < Math.sqrt(redp2)
+            // (t - maxvalue)^2 < redp2
+            return t < maxValue || (t - maxValue) * (t - maxValue) < redp2;
+        }
     }
 }

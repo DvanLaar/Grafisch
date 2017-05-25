@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RayTracer
 {
-    public class Ray
+    public struct Ray
     {
         public Vector3 origin, direction;
 
