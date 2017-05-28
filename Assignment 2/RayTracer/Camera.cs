@@ -44,7 +44,7 @@ namespace RayTracer
             this.listener = listener;
         }
 
-        public Ray getDirection(int x, int y)
+        public Ray getDirection(float x, float y)
         {
             Vector3 direction = new Vector3(FOV * (x / 256f - 1f), FOV * (1f - y / 256f), -1f);
             return new Ray(Position, Rotation * direction.Normalized());
@@ -63,10 +63,10 @@ namespace RayTracer
             {
                 Thread.Sleep(500);
                 oldValue = listener.GetSpeedUp();
-                while (listener.GetSpeedUp() > 4 && listener.Decrease())
-                {
-                    Thread.Sleep(500);
-                }
+                //while (listener.GetSpeedUp() > 4 && listener.Decrease())
+                //{
+                //    Thread.Sleep(500);
+                //}
             }
             catch (ThreadInterruptedException) { }
         }
@@ -83,9 +83,17 @@ namespace RayTracer
             float fovSpeed = .05f;
 
             // Modify the speed up
-            hasMovement |= kb[Key.KeypadPlus] || kb[Key.KeypadMinus];
+            hasMovement |= kb[Key.R] || kb[Key.F] ;
             if (kb[Key.KeypadPlus] && !lkb[Key.KeypadPlus]) listener.Increase();
             if (kb[Key.KeypadMinus] && !lkb[Key.KeypadMinus]) listener.Decrease();
+            if (kb[Key.Number1] && !lkb[Key.Number1]) listener.SetSpeedUp(1);
+            if (kb[Key.Number2] && !lkb[Key.Number2]) listener.SetSpeedUp(2);
+            if (kb[Key.Number3] && !lkb[Key.Number3]) listener.SetSpeedUp(4);
+            if (kb[Key.Number4] && !lkb[Key.Number4]) listener.SetSpeedUp(8);
+            if (kb[Key.Number5] && !lkb[Key.Number5]) listener.SetSpeedUp(16);
+            if (kb[Key.Number6] && !lkb[Key.Number6]) listener.SetSpeedUp(32);
+            if (kb[Key.Number7] && !lkb[Key.Number7]) listener.SetSpeedUp(64);
+            if (kb[Key.Number8] && !lkb[Key.Number8]) listener.SetSpeedUp(128);
 
             // Rotate up, down absolute
             Vector3 dirY = Vector3.UnitY;
@@ -117,7 +125,7 @@ namespace RayTracer
             {
                 if (oldValue >= 0)
                 {
-                    listener.SetSpeedUp(oldValue);
+                    //listener.SetSpeedUp(oldValue);
                     oldValue = -1;
                 }
                 if (improver != null) improver.Interrupt();

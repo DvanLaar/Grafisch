@@ -17,13 +17,14 @@ namespace RayTracer
      */
     public class Raytracer : Camera.SpeedUpListener
     {
-        public const int MAX_RECURSION = 2;
-        private const bool jaccoPresent = false;
+        public const int MAX_RECURSION = 8;
+        private const bool jaccoPresent = true;
 
         private Camera camera;
         private Scene scene = new Scene();
         private Texture skybox;
         private int SpeedUp = 8;
+        private int AntiAliasing = 2;
 
         public Raytracer()
         {
@@ -64,9 +65,11 @@ namespace RayTracer
             // scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, 0f, -1f), new Vector3(-1f, -2f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), Utils.WHITE, 1f));
 
             // Slow, but awesome!
-            scene.AddPrimitive(new Mesh("Objects/decimated_teapot.obj", new Vector3(1f, 1f, 0f), new Vector3(-0.5f, 4f, -2f), .5f, 1f));
+            //scene.AddPrimitive(new Mesh("Objects/decimated_teapot.obj", new Vector3(1f, 1f, 0f), new Vector3(-0.5f, 4f, -2f), .5f, 1f));
 
+            //Ambient
             scene.AddLight(new Light(Utils.WHITE * 0.25f));
+                
             scene.AddLight(new PointLight(new Vector3(1.5f, 4f, -4f), Utils.WHITE * 2.5f));
             scene.AddLight(new DirectionalLight(new Vector3(4f, -1f, 0.25f), Utils.WHITE * 2.5f));
         }
@@ -78,13 +81,33 @@ namespace RayTracer
             // Initial part of Debug
             // DrawInitialDebug(screen);
 
+            //Render Speedup and AntiAliasing Parameters
+            screen.Print("Speedup: " + this.SpeedUp, 10, 512 + 34, 0xffffff);
+            screen.Print("Anti-Aliasing: " + this.AntiAliasing, 10, 512 + 4, 0xffffff);
+
+            //difference between the subrays for antialiasing
+            float reciprocal = 1f / (float)AntiAliasing;
+            Ray ray;
+            int color;
+            Vector3 raysum;
+            //To average the sumcolor;
+            float raysreciprocal = reciprocal * reciprocal;
             // Cast rays
             for (int x = 0; x < Camera.resolution; x += SpeedUp)
             {
                 for (int y = 0; y < Camera.resolution; y += SpeedUp)
                 {
-                    Ray ray = camera.getDirection(x, y);
-                    int color = Utils.GetRGBValue(CalculateColor(ray));
+                    raysum = new Vector3();
+                    for (int aax = 0; aax < AntiAliasing; aax++)
+                    {
+                        for (int aay = 0; aay < AntiAliasing; aay++)
+                        {
+                            ray = camera.getDirection(x+(aax*reciprocal),y+(aay*reciprocal));
+                            raysum += CalculateColor(ray);
+                        }
+                    }
+
+                    color = Utils.GetRGBValue(raysreciprocal*raysum);
                     for (int xx = 0; xx < SpeedUp; xx++)
                     {
                         for (int yy = 0; yy < SpeedUp; yy++)
@@ -143,8 +166,9 @@ namespace RayTracer
             y = TYDebug(camera.cornerTL.Z);
             int x2 = TXDebug(camera.cornerTR.X);
             int y2 = TYDebug(camera.cornerTR.Z);
+
             //Let's just say it is on screen to save on Lots of &'s
-            screen.Line(x, y, x2, y2, 0xffffff);
+            //screen.Line(x, y, x2, y2, 0xffffff);
 
             //primitives
             foreach (Primitive prim in scene.primitives)
@@ -222,6 +246,7 @@ namespace RayTracer
         {
             if (SpeedUp >= 512) return false;
             SpeedUp = Math.Min(512, SpeedUp << 1);
+            Console.WriteLine(SpeedUp);
             return true;
         }
 
@@ -229,6 +254,7 @@ namespace RayTracer
         {
             if (SpeedUp <= 1) return false;
             SpeedUp = Math.Max(1, SpeedUp >> 1);
+            Console.WriteLine(SpeedUp);
             return true;
         }
     }
