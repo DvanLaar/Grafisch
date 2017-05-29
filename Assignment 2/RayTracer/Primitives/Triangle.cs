@@ -41,7 +41,9 @@ namespace RayTracer.Primitives
             float t = Vector3.Dot(edge2, qvec) * invdet;
             if (t <= Utils.DIST_EPS) return null;
 
-            Intersection intersection = new Intersection(ray.origin + t * ray.direction, t, this, normal);
+            Vector3 newnormal = Vector3.Dot(ray.direction,normal) < 0 ? normal : -normal;
+
+            Intersection intersection = new Intersection(ray.origin + t * ray.direction, t, this, newnormal);
             intersection.barycentric = new Vector3(1f - u - v, u, v);
             return intersection;
         }
