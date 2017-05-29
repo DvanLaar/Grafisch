@@ -1,5 +1,4 @@
 ﻿using OpenTK;
-using System;
 
 namespace RayTracer.Primitives
 {
@@ -9,7 +8,7 @@ namespace RayTracer.Primitives
         public readonly float distance;
         public readonly BoundingBox BB;
 
-        public Quad(Vector3 pos1, Vector3 edge1, Vector3 edge2, Vector3 color, float diffuse) : base(color, diffuse)
+        public Quad(Vector3 pos1, Vector3 edge1, Vector3 edge2, Material material) : base(material)
         {
             this.pos1 = pos1;
             this.edge1 = edge1;

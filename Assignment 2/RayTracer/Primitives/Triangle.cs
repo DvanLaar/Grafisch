@@ -9,8 +9,7 @@ namespace RayTracer.Primitives
         public readonly float distance;
         public readonly BoundingBox BB;
 
-
-        public Triangle(Vector3 pos1, Vector3 pos2, Vector3 pos3, Vector3 color, float diffuse) : base(color, diffuse)
+        public Triangle(Vector3 pos1, Vector3 pos2, Vector3 pos3, Material material) : base(material)
         {
             this.pos1 = pos1;
             edge1 = pos2 - pos1;

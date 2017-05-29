@@ -1,10 +1,6 @@
 ﻿using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using RayTracer.Primitives;
+using System;
 
 namespace RayTracer.Lights
 {
@@ -20,13 +16,43 @@ namespace RayTracer.Lights
 
         public override Vector3 GetIntensity(Ray ray, Intersection intersection, Scene scene)
         {
-            float dot = Vector3.Dot(intersection.normal, direction);
-            if (dot <= 0f) return Vector3.Zero;
+            float diff = 0f, spec = 0f;
+            Material mat = intersection.primitive.material;
+            bool visible = false;
 
-            // check the intersection as late as possible:
-            if (scene.DoesIntersect(new Ray(intersection.location, direction), float.PositiveInfinity))
-                return Vector3.Zero;
-            return intensity * dot;
+            // Calculate vector from intersection point to light point
+            Vector3 L = direction;
+            // If the best effect of the lightsource on the intersectionpoint is less than half the least visible difference
+
+            float NdotL = Vector3.Dot(intersection.normal, L);
+            if (NdotL > 0f)
+            {
+                // check the intersection as late as possible:
+                visible = !scene.DoesIntersect(new Ray(intersection.location, L), float.PositiveInfinity);
+                if (visible)
+                {
+                    diff = NdotL;
+                }
+            }
+
+            if (mat.isSpecular)
+            {
+                Vector3 viewDir = -ray.direction;
+                Vector3 halfway = (L + viewDir).Normalized();
+                float NdotH = Vector3.Dot(intersection.normal, halfway);
+                if (NdotH > 0f)
+                {
+                    if (NdotL <= 0f)
+                        visible = !scene.DoesIntersect(new Ray(intersection.location, L), float.PositiveInfinity);
+                    if (visible)
+                    {
+                        spec = (float) Math.Pow(NdotH, mat.hardness);
+                        // Console.WriteLine("specularity: " + spec);
+                    }
+                }
+            }
+            Vector3 diffuse = intersection.primitive.GetDiffuseColor(intersection);
+            return intensity * (diffuse * diff + mat.specular * spec);
         }
     }
 }

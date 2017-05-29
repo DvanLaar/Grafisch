@@ -1,9 +1,6 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace RayTracer.Primitives
@@ -13,15 +10,14 @@ namespace RayTracer.Primitives
         private List<Vector3> vertices;
         public readonly BoundingBox BB;
         public readonly List<Primitive> triangles;
-        private float radius;
         private Vector3 position;
 
-        public Mesh(string path, Vector3 color, Vector3 position, float scale, float diffuse) : base(color, diffuse)
+        public Mesh(string path, Vector3 position, float scale,
+            Material material) : base(material)
         {
             // TODO: when a model is loaded, try to find the bounding box of the object, and after that, apply the affine transformation
             triangles = new List<Primitive>();
             this.position = position;
-            radius = scale * 1.74f; // Math.sqrt(3)
 
             // Load the mesh:
             vertices = new List<Vector3>();
@@ -58,7 +54,7 @@ namespace RayTracer.Primitives
 
                         triangles.Add(new NormalTriangle(
                             vertices[v1], vertices[v2], vertices[v3], normals[n1], normals[n2], normals[n3],
-                            material.color, material.diffuse));
+                            base.material));
                         break;
                 }
             }
@@ -81,7 +77,7 @@ namespace RayTracer.Primitives
             return ret;
         }
 
-        public override Vector3 GetColor(Intersection intersection)
+        public override Vector3 GetDiffuseColor(Intersection intersection)
         {
             throw new Exception("The primitive should be called instead");
             // return intersection.primitive.GetColor(intersection);

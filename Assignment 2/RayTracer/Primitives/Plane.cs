@@ -11,7 +11,7 @@ namespace RayTracer.Primitives
         public Vector3 normal;
         public float distance;
         
-        public Plane(Vector3 normal, float distance, Vector3 color, float diffuse) : base(color, diffuse)
+        public Plane(Vector3 normal, float distance, Material material) : base(material)
         {
             this.normal = normal;
             this.distance = distance;

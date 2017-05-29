@@ -1,9 +1,4 @@
 ﻿using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracer.Primitives
 {
@@ -11,7 +6,9 @@ namespace RayTracer.Primitives
     {
         public Vector3 nPos, nDirU, nDirV;
 
-        public NormalTriangle(Vector3 pos1, Vector3 pos2, Vector3 pos3, Vector3 norm1, Vector3 norm2, Vector3 norm3, Vector3 color, float diffuse) : base(pos1, pos2, pos3, color, diffuse)
+        public NormalTriangle(Vector3 pos1, Vector3 pos2, Vector3 pos3,
+            Vector3 norm1, Vector3 norm2, Vector3 norm3,
+            Material material) : base(pos1, pos2, pos3, material)
         {
             nPos = norm1;
             nDirU = norm2 - norm1;
@@ -25,7 +22,7 @@ namespace RayTracer.Primitives
                 return null;
 
             // Construct an interpolated normal:
-            Vector2 barycentric = ((BarycentricIntersection) intersection).barycentric;
+            Vector2 barycentric = ((BarycentricIntersection)intersection).barycentric;
             intersection.normal = nPos + barycentric.X * nDirU + barycentric.Y * nDirV;
             return intersection;
         }

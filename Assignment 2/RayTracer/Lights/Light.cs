@@ -17,7 +17,7 @@ namespace RayTracer.Lights
 
         public virtual Vector3 GetIntensity(Ray ray, Intersection intersection, Scene scene)
         {
-            return intensity;
+            return intersection.primitive.GetDiffuseColor(intersection) * intensity;
         }
     }
 }

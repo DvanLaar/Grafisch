@@ -9,7 +9,7 @@ namespace RayTracer.Primitives
         public readonly Vector3 center;
         public readonly BoundingBox BB;
 
-        public Sphere(Vector3 center, float radius, Vector3 color, float diffuse) : base(color, diffuse)
+        public Sphere(Vector3 center, float radius, Material material) : base(material)
         {
             this.radius = radius;
             this.radiusSq = radius * radius;
@@ -44,6 +44,7 @@ namespace RayTracer.Primitives
             // t - Math.sqrt(redp2) < maxvalue
             // t - maxvalue < Math.sqrt(redp2)
             // (t - maxvalue)^2 < redp2
+
             if (redp2 < 0 || t < 0 || t * t < redp2) return false;
             return t < maxValue || (t - maxValue) * (t - maxValue) < redp2;
         }

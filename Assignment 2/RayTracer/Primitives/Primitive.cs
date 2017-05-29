@@ -6,9 +6,9 @@ namespace RayTracer.Primitives
     {
         public Material material;
 
-        public Primitive(Vector3 color, float diffuse)
+        public Primitive(Material material)
         {
-            this.material = new Material(color, diffuse);
+            this.material = material;
         }
 
         public abstract Intersection Intersect(Ray ray);
@@ -17,17 +17,9 @@ namespace RayTracer.Primitives
         /// <summary>
         /// Determines color based on the ray and intersection
         /// </summary>
-        public virtual Vector3 GetColor(Intersection intersection)
+        public virtual Vector3 GetDiffuseColor(Intersection intersection)
         {
-            return material.color;
-        }
-
-        /// <summary>
-        /// Returns the color in int form
-        /// </summary>
-        public int GetColorInt()
-        {
-            return Utils.GetRGBValue(material.color);
+            return material.diffuse;
         }
     }
 }
