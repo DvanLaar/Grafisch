@@ -12,6 +12,7 @@ namespace Template
         
         public void Init()
         {
+            Camera.DisplayKeyInfo();
             raytracer = new Raytracer();
         }
 
