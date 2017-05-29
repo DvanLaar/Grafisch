@@ -33,7 +33,7 @@ namespace RayTracer
         private Camera camera;
         private Scene scene = new Scene();
         private Texture skybox;
-        private int SpeedUp = 8, AntiAliasing = 1;
+        private int SpeedUp = 4, AntiAliasing = 1;
         private DrawParameters drawParams;
         private readonly int nThreads = Environment.ProcessorCount;
 
@@ -41,6 +41,7 @@ namespace RayTracer
         {
             camera = new Camera(this, new Vector3(0f, 1f, 0f));
             skybox = new Texture("Textures/skybox2.bmp");
+
             // Make the skybox use HDR:
             for (int i = 0; i < skybox.Width; i++)
                 for (int j = 0; j < skybox.Height; j++)
@@ -53,11 +54,11 @@ namespace RayTracer
             // blue ball
             scene.AddPrimitive(new Sphere(new Vector3(-3f, 1.5f, -6f), 1, new Vector3(0f, 0f, 1f), 0.1f));
 
-            // scene.AddPrimitive(new Quad(new Vector3(-5f, 0f, -10f), new Vector3(10f, 0f, 0f), new Vector3(0f, 10f, 0f), Vector3.One * 0.5f, 0.5f));
+            scene.AddPrimitive(new Quad(new Vector3(-5f, 0f, -10f), new Vector3(10f, 0f, 0f), new Vector3(0f, 10f, 0f), Vector3.One * 0.5f, 0.5f));
 
             // normal is: Vector3.UnitY
-            //Texture floortexture = new Texture("Textures/floor.bmp");
-            //scene.AddPrimitive(new TexturedPlane(floortexture, new Vector3(.8f, 0f, -.6f), new Vector3(-.6f, 0f, -.8f), 0f, Utils.WHITE, 1f));
+            Texture floortexture = new Texture("Textures/floor.bmp");
+            scene.AddPrimitive(new TexturedPlane(floortexture, new Vector3(.8f, 0f, -.6f), new Vector3(-.6f, 0f, -.8f), 0f, Utils.WHITE, 1f));
 
             if (jaccoPresent)
             {
@@ -89,8 +90,8 @@ namespace RayTracer
             //scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.color * 10f));
             //scene.AddPrimitive(arealighttriangle);
 
-            // scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));
-            // scene.AddLight(new Spotlight(new Vector3(3f, 3f, -3f), new Vector3(1f, -1f, 0f), (float)Math.PI / 3f, Utils.RED * 10f));
+            scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));
+            scene.AddLight(new Spotlight(new Vector3(3f, 3f, -3f), new Vector3(1f, -1f, 0f), (float)Math.PI / 3f, Utils.RED * 10f));
         }
 
         public void Render(Surface surface)
@@ -104,10 +105,8 @@ namespace RayTracer
             // DrawInitialDebug(screen);
 
             // When we talk about 4x anti-aliasing, we actually mean 2x2 rays instead of 1 per pixel.
-            int AAsq = AntiAliasing * AntiAliasing;
-
-            surface.Print("Anti-Aliasing: " + AAsq, 10, 512 + 6, 0xffffff);
-            surface.Print("Speedup: " + this.SpeedUp, 10, 512 + 30, 0xffffff);
+            surface.Print("Anti-Aliasing: " + (AntiAliasing * AntiAliasing), 522, 512 - 48, 0xffffff);
+            surface.Print("Speedup: " + SpeedUp, 522, 512 - 24, 0xffffff);
 
             int[] startX = new int[nThreads];
             for (int i = 0; i < nThreads; i++)
@@ -141,9 +140,8 @@ namespace RayTracer
 
         public void DrawParallel(object data)
         {
-            int startX = (int)data;
-            // Cast rays
-            for (int x = startX; x >= 0; x -= drawParams.deltaX)
+            // Cast rays in every direction determined by every pixel
+            for (int x = (int)data; x >= 0; x -= drawParams.deltaX)
             {
                 for (int y = Camera.resolution; (y -= drawParams.SpeedUp) >= 0;)
                 {
@@ -152,12 +150,15 @@ namespace RayTracer
                     {
                         for (int aay = drawParams.AntiAliasing; aay-- > 0;)
                         {
+                            // ask the camera for the direction of this interpolated pixel
                             Ray ray = camera.getDirection(x + drawParams.AAvals[aax], y + drawParams.AAvals[aay]);
                             raysum += CalculateColor(ray);
                         }
                     }
 
+                    // calculate the average color and cast it to an RGB int value
                     int color = Utils.GetRGBValue(drawParams.AAInvSq * raysum);
+                    // plot this color on a square of size SpeedUp to reduce time
                     drawParams.surface.PlotRect(x, y, drawParams.SpeedUp, drawParams.SpeedUp, color);
                 }
             }
@@ -165,6 +166,7 @@ namespace RayTracer
 
         private Vector3 CalculateColor(Ray ray, int recursionDepth = MAX_RECURSION)
         {
+            Vector3 dir = ray.direction;
             if (recursionDepth-- <= 0) return Vector3.Zero;
 
             Intersection intersection = scene.Intersect(ray);
@@ -181,7 +183,7 @@ namespace RayTracer
                 if (diffuse < 1 - Utils.SMALL_EPS)
                 {
                     Vector3 normal = intersection.normal;
-                    Ray secondaryRay = new Ray(intersection.location, ray.direction - 2 * Vector3.Dot(ray.direction, normal) * normal);
+                    Ray secondaryRay = new Ray(intersection.location, dir - 2 * Vector3.Dot(dir, normal) * normal);
                     specularpart = CalculateColor(secondaryRay, recursionDepth);
                 }
                 return color * (diffuse * diffusepart + (1f - diffuse) * specularpart);
@@ -189,11 +191,8 @@ namespace RayTracer
             else
             {
                 // The ray doesn't collide with any primitive, so return the color of the skybox
-                Vector3 dir = ray.direction;
                 int texx = Utils.scaleFloat((float)Math.Atan2(dir.Z, dir.X) / MathHelper.TwoPi + 0.5f, skybox.Height);
-                // int texx = MathHelper.Clamp((int)((Math.Atan2(dir.Z, dir.X) / MathHelper.TwoPi + 0.5f) * (skybox.Width - 1)), 0, skybox.Width - 1);
                 int texy = (int)(Utils.SafeAcos(dir.Y) / Math.PI * (skybox.Height - 1));
-                // return new Vector3(1f * texx / skybox.Height, 1f * texy / skybox.Width, 0f);
                 return skybox.Data[texx, texy];
             }
         }

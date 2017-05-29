@@ -8,15 +8,13 @@ namespace RayTracer
 {
     class Utils
     {
-        public static readonly Vector3 WHITE = new Vector3(1f, 1f, 1f);
+        public static readonly Vector3 WHITE = Vector3.One;
         public static readonly Vector3 RED = new Vector3(1f, 0f, 0f);
         public static readonly Vector3 GREEN = new Vector3(0f, 1f, 0f);
         public static readonly Vector3 BLUE = new Vector3(0f, 0f, 1f);
         public const float DIST_EPS = 1e-5f; // used for small distances
         public const float SMALL_EPS = 1e-10f; // used for really small rounding errors and such
-
         public const int AREASAMPLES = 10;
-
         public static Random random = new Random();
 
         public static float Parse(string value)
@@ -55,12 +53,12 @@ namespace RayTracer
             return MathHelper.Clamp((int)(0.5f + f * maxValue), 0, maxValue);
         }
 
-        public static double SafeAcos(float y)
+        public static float SafeAcos(float y)
         {
             // This avoids errors when y < -1 or y > 1 due to rounding errors
-            if (y <= -1.0) return MathHelper.PiOver2;
+            if (y <= -1.0) return MathHelper.Pi;
             if (y >= 1.0) return 0;
-            return Math.Acos(y);
+            return (float) Math.Acos(y);
         }
     }
 }
