@@ -23,8 +23,7 @@ namespace RayTracer
         private Camera camera;
         private Scene scene = new Scene();
         private Texture skybox;
-        private int SpeedUp = 8;
-        private int AntiAliasing = 2;
+        private int SpeedUp = 8, AntiAliasing = 2;
 
         public Raytracer()
         {
@@ -36,11 +35,11 @@ namespace RayTracer
                     skybox.Data[i, j] *= 1.2f;
 
             // white ball
-            //scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, Utils.WHITE, 0.5f));
+            scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, Utils.WHITE, 0.5f));
             // green ball
-            //scene.AddPrimitive(new Sphere(new Vector3(3f, 1.5f, -6f), 0.5f, new Vector3(0f, 1f, 0f), 0.9f));
+            scene.AddPrimitive(new Sphere(new Vector3(3f, 1.5f, -6f), 0.5f, new Vector3(0f, 1f, 0f), 0.9f));
             // blue ball
-            //scene.AddPrimitive(new Sphere(new Vector3(-3f, 1.5f, -6f), 1, new Vector3(0f, 0f, 1f), 0.1f));
+            scene.AddPrimitive(new Sphere(new Vector3(-3f, 1.5f, -6f), 1, new Vector3(0f, 0f, 1f), 0.1f));
 
             // normal is: Vector3.UnitY
             Texture floortexture = new Texture("Textures/floor.bmp");
@@ -49,7 +48,7 @@ namespace RayTracer
             if (jaccoPresent)
             {
                 Texture jbtexture = new Texture("Textures/jb.png");
-                Vector3 jb_bl = new Vector3(1.9f, 2.6f, -5.4f), jb_dirx = new Vector3(2f, 0f, 1f), jb_diry = new Vector3(0f, 2f, 0f);
+                Vector3 jb_bl = new Vector3(1.9f, 0f, -5.4f), jb_dirx = new Vector3(2f, 0f, 1f), jb_diry = new Vector3(0f, 2f, 0f);
                 scene.AddPrimitive(new TexturedTriangle(
                     jb_bl, jb_bl + jb_dirx, jb_bl + jb_diry, jbtexture,
                     new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f),
@@ -69,7 +68,7 @@ namespace RayTracer
 
             //Ambient
             scene.AddLight(new Light(Utils.WHITE * 0.25f));
-                
+
             scene.AddLight(new PointLight(new Vector3(1.5f, 4f, -4f), Utils.WHITE * 2.5f));
             scene.AddLight(new DirectionalLight(new Vector3(4f, -1f, 0.25f), Utils.WHITE * 2.5f));
         }
@@ -81,33 +80,41 @@ namespace RayTracer
             // Initial part of Debug
             // DrawInitialDebug(screen);
 
-            //Render Speedup and AntiAliasing Parameters
-            screen.Print("Speedup: " + this.SpeedUp, 10, 512 + 34, 0xffffff);
-            screen.Print("Anti-Aliasing: " + this.AntiAliasing, 10, 512 + 4, 0xffffff);
+            // When we talk about 4x anti-aliasing, we actually mean 2x2 rays instead of 1 per pixel.
+            int AAsq = AntiAliasing * AntiAliasing;
 
-            //difference between the subrays for antialiasing
-            float reciprocal = 1f / (float)AntiAliasing;
+            screen.Print("Anti-Aliasing: " + AAsq, 10, 512 + 6, 0xffffff);
+            screen.Print("Speedup: " + this.SpeedUp, 10, 512 + 30, 0xffffff);
+
+            // difference between the subrays for antialiasing
+            float AAInvSq = 1f / AAsq;
             Ray ray;
             int color;
             Vector3 raysum;
             //To average the sumcolor;
-            float raysreciprocal = reciprocal * reciprocal;
-            // Cast rays
-            for (int x = 0; x < Camera.resolution; x += SpeedUp)
+
+            float[] aaIncrements = new float[AntiAliasing];
+            for (int i = 0; i < AntiAliasing; i++)
             {
-                for (int y = 0; y < Camera.resolution; y += SpeedUp)
+                aaIncrements[i] = SpeedUp * 0.5f * (1f + 2 * i) / AntiAliasing;
+            }
+
+            // Cast rays
+            for (int x = Camera.resolution; (x -= SpeedUp) >= 0;)
+            {
+                for (int y = Camera.resolution; (y -= SpeedUp) >= 0;)
                 {
                     raysum = new Vector3();
-                    for (int aax = 0; aax < AntiAliasing; aax++)
+                    for (int aax = AntiAliasing; aax-- > 0;)
                     {
-                        for (int aay = 0; aay < AntiAliasing; aay++)
+                        for (int aay = AntiAliasing; aay-- > 0;)
                         {
-                            ray = camera.getDirection(x+(aax*reciprocal),y+(aay*reciprocal));
+                            ray = camera.getDirection(x + aaIncrements[aax], y + aaIncrements[aay]);
                             raysum += CalculateColor(ray);
                         }
                     }
 
-                    color = Utils.GetRGBValue(raysreciprocal*raysum);
+                    color = Utils.GetRGBValue(AAInvSq * raysum);
                     for (int xx = 0; xx < SpeedUp; xx++)
                     {
                         for (int yy = 0; yy < SpeedUp; yy++)
@@ -179,7 +186,6 @@ namespace RayTracer
                     DrawCircle(screen, TXDebug(s.center.X), TYDebug(s.center.Z), s.radius, s.GetColorInt());
                 }
             }
-
         }
 
         private void DrawRayDebug(Surface screen, Ray ray, Intersection intersection, int c, int nc)
@@ -242,19 +248,32 @@ namespace RayTracer
             SpeedUp = value;
         }
 
-        bool Camera.SpeedUpListener.Increase()
+        bool Camera.SpeedUpListener.IncreaseSpeedUp()
         {
             if (SpeedUp >= 512) return false;
             SpeedUp = Math.Min(512, SpeedUp << 1);
-            Console.WriteLine(SpeedUp);
+            Console.WriteLine("SpeedUp = " + SpeedUp);
             return true;
         }
 
-        bool Camera.SpeedUpListener.Decrease()
+        bool Camera.SpeedUpListener.DecreaseSpeedUp()
         {
             if (SpeedUp <= 1) return false;
             SpeedUp = Math.Max(1, SpeedUp >> 1);
-            Console.WriteLine(SpeedUp);
+            Console.WriteLine("SpeedUp = " + SpeedUp);
+            return true;
+        }
+
+        bool Camera.SpeedUpListener.IncreaseAntiAliasing()
+        {
+            AntiAliasing++;
+            return true;
+        }
+
+        bool Camera.SpeedUpListener.DecreaseAntiAliasing()
+        {
+            if (AntiAliasing == 1) return false;
+            AntiAliasing--;
             return true;
         }
     }
