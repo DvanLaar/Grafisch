@@ -80,6 +80,7 @@
     <Compile Include="Primitives\Primitive.cs" />
     <Compile Include="Primitives\Sphere.cs" />
     <Compile Include="Primitives\TexturedPlane.cs" />
+    <Compile Include="Primitives\TexturedSphere.cs" />
     <Compile Include="Primitives\TexturedTriangle.cs" />
     <Compile Include="Primitives\Triangle.cs" />
     <Compile Include="Ray.cs" />
