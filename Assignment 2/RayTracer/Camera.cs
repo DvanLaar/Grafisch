@@ -25,7 +25,7 @@ namespace RayTracer
         public const int resolution = 512;
         public const float depth = 1.0f;
 
-        public Vector3 Position = new Vector3(0f, 1.0f, 0f);
+        public Vector3 Position;
         public Vector3 cornerTL = new Vector3(-1f, -1f, 1f), cornerTR = new Vector3(1f, -1f, 1f), cornerBL = new Vector3(-1f, 1f, 1f);
         public Quaternion Rotation = Quaternion.Identity;
         public float FOV = 1f;
@@ -38,9 +38,10 @@ namespace RayTracer
             }
         }
 
-        public Camera(SpeedUpListener listener)
+        public Camera(SpeedUpListener listener, Vector3 position)
         {
             this.listener = listener;
+            this.Position = position;
         }
 
         public Ray getDirection(float x, float y)
@@ -54,7 +55,7 @@ namespace RayTracer
             FOV = (float)Math.Atan(MathHelper.DegreesToRadians(degrees));
         }
 
-        private Thread improver = null;
+        // private Thread improver = null;
 
         private void ImproveView()
         {

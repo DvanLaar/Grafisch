@@ -39,7 +39,7 @@ namespace RayTracer
 
         public Raytracer()
         {
-            camera = new Camera(this);
+            camera = new Camera(this, new Vector3(0f, 1f, 0f));
             skybox = new Texture("Textures/skybox2.bmp");
             // Make the skybox use HDR:
             for (int i = 0; i < skybox.Width; i++)
@@ -47,7 +47,7 @@ namespace RayTracer
                     skybox.Data[i, j] *= 1.2f;
 
             // white ball
-            scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, Utils.WHITE, 0.5f));
+            scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, Utils.WHITE, .5f));
             // green ball
             scene.AddPrimitive(new Sphere(new Vector3(3f, 1.5f, -6f), 0.5f, new Vector3(0f, 1f, 0f), 0.9f));
             // blue ball
