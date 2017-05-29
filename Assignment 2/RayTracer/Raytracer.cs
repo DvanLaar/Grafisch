@@ -57,6 +57,10 @@ namespace RayTracer
                     jb_bl + jb_dirx, jb_bl + jb_dirx + jb_diry, jb_bl + jb_diry, jbtexture,
                     new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f),
                     Utils.WHITE, 1f));
+
+                scene.AddPrimitive(new TexturedSphere(
+                    new Vector3(-3f,2f,3f),
+                    1,Utils.WHITE,jbtexture,1f));
             }
 
             // Texture pepetexture = new Texture("Textures/pepe.bmp");
@@ -68,10 +72,11 @@ namespace RayTracer
 
             //Ambient
             //scene.AddLight(new Light(Utils.WHITE * 0.25f));
-                
+            scene.AddLight(new DirectionalLight(new Vector3(-1f,-1f,-1f),Utils.WHITE));    
+
             Triangle arealighttriangle = new Triangle(new Vector3(-1f,1f,-2f),new Vector3(2f, 1f, -2f), new Vector3(2f, 2f, -2f), Utils.WHITE,1f);
-            scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.color*10f));
-            scene.AddPrimitive(arealighttriangle);
+            //cene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.color*10f));
+            //scene.AddPrimitive(arealighttriangle);
 
             scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));
             scene.AddLight(new Spotlight(new Vector3(3f, 3f, -3f), new Vector3(1f, -1f, 0f), (float)Math.PI / 3f, Utils.RED * 10f));
