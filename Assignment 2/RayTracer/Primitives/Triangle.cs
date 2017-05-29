@@ -5,10 +5,10 @@ namespace RayTracer.Primitives
 {
     class Triangle : Primitive
     {
-        public Vector3 pos1, edge1, edge2;
-        public Vector3 normal;
+        public readonly Vector3 pos1, edge1, edge2, normal;
+        public readonly float distance;
+        public readonly BoundingBox BB;
 
-        public float distance;
 
         public Triangle(Vector3 pos1, Vector3 pos2, Vector3 pos3, Vector3 color, float diffuse) : base(color, diffuse)
         {
@@ -17,6 +17,7 @@ namespace RayTracer.Primitives
             edge2 = pos3 - pos1;
             normal = Vector3.Cross(edge1, edge2).Normalized();
             distance = -Vector3.Dot(normal, pos1);
+            BB = new BoundingBox(new Vector3[] { pos1, pos1 + edge1, pos1 + edge2 });
         }
 
         /**
@@ -25,6 +26,8 @@ namespace RayTracer.Primitives
          */
         public override Intersection Intersect(Ray ray)
         {
+            if (!BB.boundsWith(ray)) return null;
+
             Vector3 pvec = Vector3.Cross(ray.direction, edge2);
             float det = Vector3.Dot(edge1, pvec);
             if (-Utils.DIST_EPS < det && det < Utils.DIST_EPS) return null;
@@ -41,13 +44,15 @@ namespace RayTracer.Primitives
             float t = Vector3.Dot(edge2, qvec) * invdet;
             if (t <= Utils.DIST_EPS) return null;
 
-            Vector3 newnormal = Vector3.Dot(ray.direction,normal) < 0 ? normal : -normal;
+            Vector3 newnormal = Vector3.Dot(ray.direction, normal) < 0 ? normal : -normal;
             Vector3 location = ray.origin + t * ray.direction;
             return new BarycentricIntersection(location, new Vector2(u, v), t, this, newnormal);
         }
 
         public override bool DoesIntersect(Ray ray, float maxValue)
         {
+            if (!BB.boundsWith(ray)) return false;
+
             Vector3 pvec = Vector3.Cross(ray.direction, edge2);
             float det = Vector3.Dot(edge1, pvec);
             if (-Utils.DIST_EPS < det && det < Utils.DIST_EPS) return false;

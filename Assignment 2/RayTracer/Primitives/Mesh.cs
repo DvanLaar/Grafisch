@@ -10,7 +10,9 @@ namespace RayTracer.Primitives
 {
     class Mesh : Primitive
     {
-        public List<Primitive> triangles;
+        private List<Vector3> vertices;
+        public readonly BoundingBox BB;
+        public readonly List<Primitive> triangles;
         private float radius;
         private Vector3 position;
 
@@ -22,7 +24,7 @@ namespace RayTracer.Primitives
             radius = scale * 1.74f; // Math.sqrt(3)
 
             // Load the mesh:
-            List<Vector3> vertices = new List<Vector3>();
+            vertices = new List<Vector3>();
             List<Vector3> normals = new List<Vector3>();
             vertices.Add(Vector3.Zero);
             normals.Add(Vector3.Zero);
@@ -60,26 +62,23 @@ namespace RayTracer.Primitives
                         break;
                 }
             }
+            BB = new BoundingBox(vertices);
         }
 
         public override Intersection Intersect(Ray ray)
         {
-            // Check if ray hits a sphere around to save triangle checks
-            Vector3 c = position - ray.origin;
-            float t = Vector3.Dot(c, ray.direction);
-            float redp2 = radius * radius - (c - t * ray.direction).LengthSquared;
-            if (redp2 < 0 || t < 0 || t * t < redp2) return null;
+            if (!BB.boundsWith(ray)) return null;
 
             // Check ALL triangles (lots o' calculating, lots o' waiting)
-            Intersection intersect = null;
+            Intersection ret = null;
             foreach (var primitive in triangles)
             {
-                Intersection inters = primitive.Intersect(ray);
-                if (inters == null) continue;
-                if (intersect == null || (Utils.DIST_EPS < inters.value && inters.value < intersect.value))
-                    intersect = inters;
+                Intersection alt = primitive.Intersect(ray);
+                if (alt == null) continue;
+                if (ret == null || (Utils.DIST_EPS < alt.value && alt.value < ret.value))
+                    ret = alt;
             }
-            return intersect;
+            return ret;
         }
 
         public override Vector3 GetColor(Intersection intersection)
@@ -90,11 +89,7 @@ namespace RayTracer.Primitives
 
         public override bool DoesIntersect(Ray ray, float maxValue)
         {
-            // Check if ray hits a sphere around to save triangle checks
-            Vector3 c = position - ray.origin;
-            float t = Vector3.Dot(c, ray.direction);
-            float redp2 = radius * radius - (c - t * ray.direction).LengthSquared;
-            if (redp2 < 0 || t < 0 || t * t < redp2) return false;
+            if (!BB.boundsWith(ray)) return false;
 
             // Check ALL triangles (lots o' calculating, lots o' waiting)
             foreach (var primitive in triangles)

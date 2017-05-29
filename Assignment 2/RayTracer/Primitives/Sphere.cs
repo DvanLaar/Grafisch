@@ -5,18 +5,23 @@ namespace RayTracer.Primitives
 {
     public class Sphere : Primitive
     {
-        public float radius, radiusSq;
-        public Vector3 center;
+        public readonly float radius, radiusSq;
+        public readonly Vector3 center;
+        public readonly BoundingBox BB;
 
         public Sphere(Vector3 center, float radius, Vector3 color, float diffuse) : base(color, diffuse)
         {
             this.radius = radius;
             this.radiusSq = radius * radius;
             this.center = center;
+
+            BB = new BoundingBox(center.X - radius, center.X + radius, center.Y - radius, center.Y + radius, center.Z - radius, center.Z + radius);
         }
 
         public override Intersection Intersect(Ray ray)
         {
+            if (!BB.boundsWith(ray)) return null;
+
             Vector3 c = center - ray.origin;
             float t = Vector3.Dot(c, ray.direction);
             float redp2 = radiusSq - (c - t * ray.direction).LengthSquared;
@@ -29,6 +34,8 @@ namespace RayTracer.Primitives
 
         public override bool DoesIntersect(Ray ray, float maxValue)
         {
+            if (!BB.boundsWith(ray)) return false;
+
             Vector3 c = center - ray.origin;
             float t = Vector3.Dot(c, ray.direction);
             float redp2 = radiusSq - (c - t * ray.direction).LengthSquared;

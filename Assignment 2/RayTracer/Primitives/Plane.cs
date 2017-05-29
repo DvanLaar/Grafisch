@@ -1,14 +1,10 @@
 ﻿using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracer.Primitives
 {
     /**
      * Contains all the points X for which X * normal + distance = 0
+     * does not use a bounding box
      */
     class Plane : Primitive
     {

@@ -2,7 +2,7 @@
 
 namespace RayTracer.Primitives
 {
-    public class Primitive
+    public abstract class Primitive
     {
         public Material material;
 
@@ -11,15 +11,8 @@ namespace RayTracer.Primitives
             this.material = new Material(color, diffuse);
         }
 
-        public virtual Intersection Intersect(Ray ray)
-        {
-            return null;
-        }
-
-        public virtual bool DoesIntersect(Ray ray, float maxValue)
-        {
-            return false;
-        }
+        public abstract Intersection Intersect(Ray ray);
+        public abstract bool DoesIntersect(Ray ray, float maxValue);
 
         /// <summary>
         /// Determines color based on the ray and intersection

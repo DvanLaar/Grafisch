@@ -5,8 +5,9 @@ namespace RayTracer.Primitives
 {
     class Quad : Primitive
     {
-        public Vector3 pos1, edge1, edge2, normal;
-        public float distance;
+        public readonly Vector3 pos1, edge1, edge2, normal;
+        public readonly float distance;
+        public readonly BoundingBox BB;
 
         public Quad(Vector3 pos1, Vector3 edge1, Vector3 edge2, Vector3 color, float diffuse) : base(color, diffuse)
         {
@@ -15,6 +16,7 @@ namespace RayTracer.Primitives
             this.edge2 = edge2;
             normal = Vector3.Cross(edge1, edge2).Normalized();
             distance = -Vector3.Dot(normal, pos1);
+            BB = new BoundingBox(new Vector3[] { this.pos1, this.pos1 + edge1, this.pos1 + edge2, this.pos1 + edge1 + edge2 });
         }
 
         /**
@@ -23,6 +25,8 @@ namespace RayTracer.Primitives
          */
         public override Intersection Intersect(Ray ray)
         {
+            if (!BB.boundsWith(ray)) return null;
+
             Vector3 pvec = Vector3.Cross(ray.direction, edge2);
             float det = Vector3.Dot(edge1, pvec);
             if (-Utils.DIST_EPS < det && det < Utils.DIST_EPS) return null;
@@ -46,6 +50,8 @@ namespace RayTracer.Primitives
 
         public override bool DoesIntersect(Ray ray, float maxValue)
         {
+            if (!BB.boundsWith(ray)) return false;
+
             Vector3 pvec = Vector3.Cross(ray.direction, edge2);
             float det = Vector3.Dot(edge1, pvec);
             if (-Utils.DIST_EPS < det && det < Utils.DIST_EPS) return false;

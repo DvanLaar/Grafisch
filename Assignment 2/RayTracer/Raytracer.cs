@@ -34,8 +34,8 @@ namespace RayTracer
         private Scene scene = new Scene();
         private Texture skybox;
         private int SpeedUp = 8, AntiAliasing = 1;
-
         private DrawParameters drawParams;
+        private readonly int nThreads = Environment.ProcessorCount;
 
         public Raytracer()
         {
@@ -53,9 +53,11 @@ namespace RayTracer
             // blue ball
             scene.AddPrimitive(new Sphere(new Vector3(-3f, 1.5f, -6f), 1, new Vector3(0f, 0f, 1f), 0.1f));
 
+            // scene.AddPrimitive(new Quad(new Vector3(-5f, 0f, -10f), new Vector3(10f, 0f, 0f), new Vector3(0f, 10f, 0f), Vector3.One * 0.5f, 0.5f));
+
             // normal is: Vector3.UnitY
-            Texture floortexture = new Texture("Textures/floor.bmp");
-            scene.AddPrimitive(new TexturedPlane(floortexture, new Vector3(.8f, 0f, -.6f), new Vector3(-.6f, 0f, -.8f), 0f, Utils.WHITE, 1f));
+            //Texture floortexture = new Texture("Textures/floor.bmp");
+            //scene.AddPrimitive(new TexturedPlane(floortexture, new Vector3(.8f, 0f, -.6f), new Vector3(-.6f, 0f, -.8f), 0f, Utils.WHITE, 1f));
 
             if (jaccoPresent)
             {
@@ -77,18 +79,18 @@ namespace RayTracer
             // scene.AddPrimitive(new TexturedTriangle(new Vector3(-1f, 0f, -1f), new Vector3(-1f, -2f, -1f), new Vector3(1f, -2f, -1f), pepetexture, new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f), Utils.WHITE, 1f));
 
             // Slow, but awesome!
-            //scene.AddPrimitive(new Mesh("Objects/decimated_teapot.obj", new Vector3(1f, 1f, 0f), new Vector3(-0.5f, 4f, -2f), .5f, 1f));
+            // scene.AddPrimitive(new Mesh("Objects/decimated_teapot.obj", new Vector3(1f, 1f, 0f), new Vector3(-0.5f, 4f, -2f), .5f, 1f));
 
             //Ambient
-            scene.AddLight(new Light(Utils.WHITE * 0.1f));
+            // scene.AddLight(new Light(Utils.WHITE * 0.1f));
             scene.AddLight(new DirectionalLight(new Vector3(-1f, -1f, -1f), Utils.WHITE));
 
-            Triangle arealighttriangle = new Triangle(new Vector3(-1f, .5f, -2f), new Vector3(2f, .5f, -2f), new Vector3(2f, 1.5f, -2f), Utils.WHITE, 1f);
-            scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.color * 10f));
-            scene.AddPrimitive(arealighttriangle);
+            //Triangle arealighttriangle = new Triangle(new Vector3(-1f, .5f, -2f), new Vector3(2f, .5f, -2f), new Vector3(2f, 1.5f, -2f), Utils.WHITE, 1f);
+            //scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.color * 10f));
+            //scene.AddPrimitive(arealighttriangle);
 
-            scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));
-            scene.AddLight(new Spotlight(new Vector3(3f, 3f, -3f), new Vector3(1f, -1f, 0f), (float)Math.PI / 3f, Utils.RED * 10f));
+            // scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));
+            // scene.AddLight(new Spotlight(new Vector3(3f, 3f, -3f), new Vector3(1f, -1f, 0f), (float)Math.PI / 3f, Utils.RED * 10f));
         }
 
         public void Render(Surface surface)
@@ -107,7 +109,6 @@ namespace RayTracer
             surface.Print("Anti-Aliasing: " + AAsq, 10, 512 + 6, 0xffffff);
             surface.Print("Speedup: " + this.SpeedUp, 10, 512 + 30, 0xffffff);
 
-            int nThreads = 4;
             int[] startX = new int[nThreads];
             for (int i = 0; i < nThreads; i++)
                 startX[i] = Camera.resolution - (i + 1) * SpeedUp;
