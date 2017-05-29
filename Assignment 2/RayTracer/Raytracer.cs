@@ -68,9 +68,9 @@ namespace RayTracer
 
             //Ambient
             //scene.AddLight(new Light(Utils.WHITE * 0.25f));
-                
-            Triangle arealighttriangle = new Triangle(new Vector3(-1f,1f,-2f),new Vector3(2f, 1f, -2f), new Vector3(2f, 2f, -2f), Utils.WHITE,1f);
-            scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.color*10f));
+
+            Triangle arealighttriangle = new Triangle(new Vector3(-1f, .5f, -2f), new Vector3(2f, .5f, -2f), new Vector3(2f, 1.5f, -2f), Utils.WHITE, 1f);
+            scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.color * 10f));
             scene.AddPrimitive(arealighttriangle);
 
             scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));

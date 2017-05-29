@@ -62,8 +62,6 @@ namespace RayTracer.Primitives
             if (v < 0f || u + v > 1f) return false;
 
             float t = Vector3.Dot(edge2, qvec) * invdet;
-            if (t <= Utils.DIST_EPS) return false;
-
             return Utils.DIST_EPS < t && t < maxValue;
         }
     }
