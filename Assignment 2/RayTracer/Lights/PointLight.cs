@@ -20,7 +20,7 @@ namespace RayTracer.Lights
         public override Vector3 GetIntensity(Ray ray, Intersection intersection, Scene scene)
         {
             //Calculate vector from intersection point to light point
-            Vector3 lightvec = this.position - intersection.location;
+            Vector3 lightvec = position - intersection.location;
             //If the best effect of the lightsource on the intersectionpoint is less than half the least visible difference
             if (lightvec.LengthSquared > maxIntensity * 512)
                 return Vector3.Zero;

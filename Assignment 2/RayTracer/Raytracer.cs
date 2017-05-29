@@ -61,15 +61,12 @@ namespace RayTracer
             {
                 Texture jbtexture = new Texture("Textures/jb.png");
                 Vector3 jb_bl = new Vector3(1.9f, 0f, -5.4f), jb_dirx = new Vector3(2f, 0f, 1f), jb_diry = new Vector3(0f, 2f, 0f);
-                scene.AddPrimitive(new TexturedTriangle(
-                    jb_bl, jb_bl + jb_dirx, jb_bl + jb_diry, jbtexture,
-                    new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f),
-                    Utils.WHITE, 1f));
-                scene.AddPrimitive(new TexturedTriangle(
-                    jb_bl + jb_dirx, jb_bl + jb_dirx + jb_diry, jb_bl + jb_diry, jbtexture,
-                    new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f),
-                    Utils.WHITE, 1f));
 
+                scene.AddPrimitive(new TexturedQuad(
+                    jb_bl, jb_dirx, jb_diry, jbtexture,
+                    new Vector2(0f, 1f), new Vector2(1f, 0f), new Vector2(0f, -1f),
+                    Utils.WHITE, 1f
+                ));
                 scene.AddPrimitive(new TexturedSphere(
                     new Vector3(-3f, 2f, 3f),
                     1, Utils.WHITE, jbtexture, 1f));
@@ -83,12 +80,12 @@ namespace RayTracer
             //scene.AddPrimitive(new Mesh("Objects/decimated_teapot.obj", new Vector3(1f, 1f, 0f), new Vector3(-0.5f, 4f, -2f), .5f, 1f));
 
             //Ambient
-            // scene.AddLight(new Light(Utils.WHITE * 0.25f));
+            scene.AddLight(new Light(Utils.WHITE * 0.1f));
             scene.AddLight(new DirectionalLight(new Vector3(-1f, -1f, -1f), Utils.WHITE));
 
-            /*Triangle arealighttriangle = new Triangle(new Vector3(-1f, .5f, -2f), new Vector3(2f, .5f, -2f), new Vector3(2f, 1.5f, -2f), Utils.WHITE, 1f);
+            Triangle arealighttriangle = new Triangle(new Vector3(-1f, .5f, -2f), new Vector3(2f, .5f, -2f), new Vector3(2f, 1.5f, -2f), Utils.WHITE, 1f);
             scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.color * 10f));
-            scene.AddPrimitive(arealighttriangle);*/
+            scene.AddPrimitive(arealighttriangle);
 
             scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));
             scene.AddLight(new Spotlight(new Vector3(3f, 3f, -3f), new Vector3(1f, -1f, 0f), (float)Math.PI / 3f, Utils.RED * 10f));
@@ -136,7 +133,7 @@ namespace RayTracer
             DrawParallel(startX[0]);
             for (int i = 1; i < nThreads; i++)
                 threads[i].Join();
-            
+
             timer.Stop();
             Console.WriteLine("One render took " + timer.ElapsedMilliseconds + " ms");
         }

@@ -2,6 +2,7 @@
 using System.Drawing;
 using System;
 using System.Globalization;
+using RayTracer.Primitives;
 
 namespace RayTracer
 {
@@ -46,7 +47,7 @@ namespace RayTracer
 
         /**
          * Returns an int in the range [0, ..., maxValue),
-         * This assumes that f is a floating value between [0, 1) which needs to be scaled
+         * This assumes that f is a floating value between [0, 1] which needs to be scaled
          */
         public static int scaleFloat(float f, int maxValue)
         {

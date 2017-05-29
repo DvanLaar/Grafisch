@@ -2,20 +2,20 @@
 
 namespace RayTracer.Primitives
 {
-    class TexturedTriangle : Triangle
+    class TexturedQuad : Quad
     {
-
         public Texture texture;
         public Vector2 tPos, tDirU, tDirV;
 
-        public TexturedTriangle(Vector3 pos1, Vector3 pos2, Vector3 pos3,
-            Texture texture, Vector2 tex1, Vector2 tex2, Vector2 tex3,
-            Vector3 color, float diffuse) : base(pos1, pos2, pos3, color, diffuse)
+        public TexturedQuad(Vector3 pos1, Vector3 edge1, Vector3 edge2,
+            Texture texture, Vector2 tPos, Vector2 tDirU, Vector2 tDirV,
+            Vector3 color, float diffuse)
+                : base(pos1, edge1, edge2, color, diffuse)
         {
             this.texture = texture;
-            tPos = tex1;
-            tDirU = tex2 - tex1;
-            tDirV = tex3 - tex1;
+            this.tPos = tPos;
+            this.tDirU = tDirU;
+            this.tDirV = tDirV;
         }
 
         public override Vector3 GetColor(Intersection intersection)
