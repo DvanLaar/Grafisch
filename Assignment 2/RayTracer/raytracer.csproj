@@ -70,6 +70,7 @@
     <Compile Include="Lights\DirectionalLight.cs" />
     <Compile Include="Lights\Light.cs" />
     <Compile Include="Lights\PointLight.cs" />
+    <Compile Include="Lights\Spotlight.cs" />
     <Compile Include="Material.cs" />
     <Compile Include="Primitives\Intersection.cs" />
     <Compile Include="Primitives\Mesh.cs" />

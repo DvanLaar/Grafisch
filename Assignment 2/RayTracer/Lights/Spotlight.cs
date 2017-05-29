@@ -1,20 +1,20 @@
 ﻿using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using RayTracer.Primitives;
+using System;
 
 namespace RayTracer.Lights
 {
-    class PointLight : Light
+    class Spotlight : Light
     {
+        public float cosangle;
+        public Vector3 direction;
         public readonly Vector3 position;
 
-        public PointLight(Vector3 position, Vector3 intensity) : base(intensity)
+        public Spotlight(Vector3 position, Vector3 direction, float angle, Vector3 intensity):base(intensity)
         {
             this.position = position;
+            this.direction = direction.Normalized();
+            this.cosangle = (float)Math.Cos(angle);
         }
 
         public override Vector3 GetIntensity(Ray ray, Intersection intersection, Scene scene)
@@ -25,6 +25,8 @@ namespace RayTracer.Lights
             if (lightvec.LengthSquared > maxintensity * 510)
                 return Vector3.Zero;
             Vector3 lightnormal = Vector3.Normalize(lightvec);
+            if (Vector3.Dot(-lightnormal, direction) < cosangle)
+                return Vector3.Zero;
             if (scene.DoesIntersect(new Ray(intersection.location, lightnormal), lightvec.Length))
                 return new Vector3();
             float dot = Vector3.Dot(intersection.normal, lightnormal);
