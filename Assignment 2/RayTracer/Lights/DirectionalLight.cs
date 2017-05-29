@@ -20,10 +20,12 @@ namespace RayTracer.Lights
 
         public override Vector3 GetIntensity(Ray ray, Intersection intersection, Scene scene)
         {
-            if (scene.DoesIntersect(new Ray(intersection.location, direction), float.PositiveInfinity))
-                return new Vector3();
             float dot = Vector3.Dot(intersection.normal, direction);
-            if (dot <= 0f) return new Vector3();
+            if (dot <= 0f) return Vector3.Zero;
+
+            // check the intersection as late as possible:
+            if (scene.DoesIntersect(new Ray(intersection.location, direction), float.PositiveInfinity))
+                return Vector3.Zero;
             return intensity * dot;
         }
     }

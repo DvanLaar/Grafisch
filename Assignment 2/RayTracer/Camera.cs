@@ -106,7 +106,7 @@ namespace RayTracer
             if (kb[Key.Up]) Rotation = Quaternion.FromAxisAngle(dirX, rotateSpeed) * Rotation;
             if (kb[Key.Down]) Rotation = Quaternion.FromAxisAngle(dirX, -rotateSpeed) * Rotation;
 
-            Vector3 delta = new Vector3();
+            Vector3 delta = Vector3.Zero;
             if (kb[Key.A]) delta -= Vector3.UnitX;
             if (kb[Key.D]) delta += Vector3.UnitX;
             if (kb[Key.W]) delta -= Vector3.UnitZ;

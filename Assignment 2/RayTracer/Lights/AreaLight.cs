@@ -40,7 +40,7 @@ namespace RayTracer.Lights
             //Calculate vector from intersection point to light point
             Vector3 lightvec = samplepoint - intersection.location;
             //If the best effect of the lightsource on the intersectionpoint is less than half the least visible difference
-            if (lightvec.LengthSquared > maxintensity * 510)
+            if (lightvec.LengthSquared > maxIntensity * 510)
                 return Vector3.Zero;
             Vector3 lightnormal = Vector3.Normalize(lightvec);
             if (scene.DoesIntersect(new Ray(intersection.location, lightnormal), lightvec.Length))
