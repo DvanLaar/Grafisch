@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RayTracer.Primitives
 {
-    public class Primitive
+    public abstract class Primitive
     {
         public Material material;
 
@@ -16,10 +16,7 @@ namespace RayTracer.Primitives
             this.material = new Material(color, diffuse);
         }
 
-        public virtual Intersection Intersect(Ray ray)
-        {
-            return null;
-        }
+        public abstract Intersection Intersect(Ray ray);
 
         /// <summary>
         /// Determines color based on the ray and intersection
@@ -39,5 +36,9 @@ namespace RayTracer.Primitives
             int b = (int)MathHelper.Clamp(material.color.Z * 255f, 0, 255f);
             return (r << 16) + (g << 8) + b;
         }
+
+        public abstract Vector3 getNormal(Vector3 posOnPrim);
+
+        public abstract void Debug();
     }
 }

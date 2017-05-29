@@ -31,5 +31,12 @@ namespace RayTracer.Primitives
             float t = -(Vector3.Dot(ray.origin, normal) + distance) / dot;
             return t <= 0 ? null : new Intersection(ray.origin + t * ray.direction, t, this, normal);
         }
+
+        public override Vector3 getNormal(Vector3 posOnPrim)
+        {
+            return normal;
+        }
+
+        public override void Debug() { }
     }
 }

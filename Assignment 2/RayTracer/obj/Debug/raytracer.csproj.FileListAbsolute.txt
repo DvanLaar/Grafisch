@@ -11,3 +11,16 @@ C:\_UNI\Grafisch\Assignment 2\RayTracer\obj\Debug\Raytracer.exe
 C:\_UNI\Grafisch\Assignment 2\RayTracer\obj\Debug\Raytracer.pdb
 C:\_UNI\Grafisch\Assignment 2\RayTracer\bin\Debug\Textures\jb.png
 C:\_UNI\Grafisch\Assignment 2\RayTracer\bin\Debug\Objects\teapot.obj
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Raytracer.exe.config
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\obj\Debug\Raytracer.exe
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\obj\Debug\Raytracer.pdb
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\obj\Debug\raytracer.csprojResolveAssemblyReference.cache
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Textures\floor.bmp
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Textures\jb.png
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Textures\pepe.bmp
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Textures\pepesky.bmp
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Textures\sky.bmp
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Textures\skybox.bmp
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Objects\teapot.ob
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Raytracer.exe
+C:\Users\daani_000\Documents\Jaar 3\Graphics\Grafisch\Assignment 2\RayTracer\bin\Debug\Raytracer.pdb

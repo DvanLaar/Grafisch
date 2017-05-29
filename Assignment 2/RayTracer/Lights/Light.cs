@@ -10,12 +10,12 @@ namespace RayTracer.Lights
 {
     public class Light
     {
-
         public Vector3 intensity;
+        public Vector3 location;
 
-        public Light(Vector3 intensity)
+        public Light(Vector3 intensity, Vector3 location)
         {
-
+            this.location = location;
             this.intensity = intensity;
         }
 

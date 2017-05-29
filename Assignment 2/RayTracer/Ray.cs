@@ -16,5 +16,11 @@ namespace RayTracer
             this.origin = origin;
             this.direction = direction;
         }
+
+        public Vector3 mirror(Vector3 normal)
+        {
+            Vector3 hulpVect = Vector3.Dot(direction, normal) * normal;
+            return direction - 2 * hulpVect;
+        }
     }
 }

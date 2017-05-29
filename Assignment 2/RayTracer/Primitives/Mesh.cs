@@ -89,5 +89,12 @@ namespace RayTracer.Primitives
             }
             return intersect;
         }
+
+        public override Vector3 getNormal(Vector3 posOnPrim)
+        {
+            return new Vector3();
+        }
+
+        public override void Debug() { }
     }
 }

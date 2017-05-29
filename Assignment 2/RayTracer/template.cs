@@ -44,7 +44,7 @@ namespace Template
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             // called once per frame; app logic
-            KeyboardState keyboard = Keyboard.GetState();
+            KeyboardState keyboard = OpenTK.Input.Keyboard.GetState();
             if (keyboard[Key.Escape]) Exit();
             game.ProcessKeyboard(keyboard);
         }

@@ -8,6 +8,7 @@ using RayTracer.Lights;
 using RayTracer.Primitives;
 using Template;
 using OpenTK.Input;
+using OpenTK.Graphics.OpenGL;
 
 namespace RayTracer
 {
@@ -19,6 +20,7 @@ namespace RayTracer
     {
         public const int MAX_RECURSION = 16;
         public const float EPS = 1e-8f;
+        public const int WIDTH = 512 << 0;
 
         private Camera camera;
         private Scene scene;
@@ -56,7 +58,7 @@ namespace RayTracer
             //scene.AddPrimitive(new Mesh("Objects/teapot.ob",new Vector3(1f,0.8f,0.6f),new Vector3(-0.5f,1f,2f),1f,0.1f));
 
             // scene.AddLight(new Light(new Vector3(0, 0, 0), new Vector3(4f, 4f, 4f)));
-            scene.AddLight(new PointLight(new Vector3(.5f, 1f, 2f), new Vector3(10f, 10f, 10f)));
+            scene.AddLight(new PointLight(new Vector3(.5f, 1f, 2f), new Vector3(10f, 10f, 10f), new Vector3(0f, 10f, 0f)));
             // scene.AddLight(new Light(new Vector3(5, -5, 0), new Vector3(0f, 0f, 10f)));
             // scene.AddLight(new DirectionalLight(new Vector3(0, 1, 0), new Vector3(0.2f, 0.2f, 0.2f)));
         }
@@ -136,29 +138,113 @@ namespace RayTracer
 
         private void DrawInitialDebug(Surface screen)
         {
-            //Camera
-            int x = TXDebug(camera.Position.X);
-            int y = TYDebug(camera.Position.Z);
-            if ((x >= 512) && (x < 1024) && (y >= 0) && (y < 512))
-                screen.Plot(x, y, 0xffffff);
-            //Screenplane
-            x = TXDebug(camera.cornerTL.X);
-            y = TYDebug(camera.cornerTL.Z);
-            int x2 = TXDebug(camera.cornerTR.X);
-            int y2 = TYDebug(camera.cornerTR.Z);
-            //Let's just say it is on screen to save on Lots of &'s
-            screen.Line(x, y, x2, y2, 0xffffff);
+            GL.Disable(EnableCap.Texture2D);
+
+            GL.MatrixMode(MatrixMode.Projection);
+            Matrix4 m = Matrix4.CreateScale(1 / 10f);
+            GL.LoadMatrix(ref m);
+
+            GL.Color3(0.8f, 0.2f, 0.2f);
+            GL.Begin(PrimitiveType.Points);
+            GL.Vertex2(camera.Position.Xz);
+            GL.End();
+
+            //Draw camera end
+            Vector2 sv1 = (camera.cornerTL.Xz - camera.Position.Xz) * 30.0f;
+            Vector2 sv2 = (camera.cornerTR.Xz - camera.Position.Xz) * 30.0f;
+
+            GL.Color3(0.8f, 0.5f, 0.5f);
+            GL.Begin(PrimitiveType.Lines);
+            GL.Vertex2(camera.Position.Xz);
+            GL.Vertex2((camera.Position.Xz + sv1));
+
+            GL.Vertex2(camera.Position.Xz);
+            GL.Vertex2((camera.Position.Xz + sv2));
+
+            GL.Color3(0.2f, 1.0f, 0.7f);
+
+            for (int x = 0; x <= WIDTH; x += 64)
+            {
+                Ray currentray = camera.GenerateRay(x, WIDTH >> 1);
+                debugRay(camera.Position, currentray, MAX_RECURSION);
+            }
+
+            GL.Color3(0.4f, 1.0f, 0.4f);
+            GL.Vertex2(camera.cornerTL.Xz);
+            GL.Vertex2(camera.cornerTR.Xz);
+            GL.End();
+
 
             //primitives
             foreach (Primitive prim in scene.primitives)
             {
-                if (prim is Sphere)
-                {
-                    Sphere s = (Sphere)prim;
-                    DrawCircle(screen, TXDebug(s.center.X), TYDebug(s.center.Z), s.radius, s.GetColorInt());
-                }
+                prim.Debug();
             }
 
+        }
+
+        private void debugRay(Vector3 pos, Ray ray, int depth)
+        {
+            Intersection intersection = scene.Intersect(ray);
+            if (intersection == null)
+                return;
+            Vector3 destination = (pos + ray.direction * intersection.location);
+            GL.Color3(0.4f, 1.0f, 0.4f);
+
+            GL.Vertex2(pos.Xz);
+            GL.Vertex2(destination.Xz);
+            if (intersection.primitive != null && depth > 0)
+            {
+                debugShadowRay(destination);
+                if (intersection.primitive.material.specular > 0)
+                {
+                    Vector3 m = ray.mirror(intersection.primitive.getNormal(destination));
+                    Ray newRay = new Ray(destination + m * 0.05f, m);
+                    debugRay(destination, newRay, depth - 1);
+                }
+                Material material = intersection.primitive.material;
+                if (material.diffuse > 0 && depth > 0)
+                {
+                    Ray newRay = refract(intersection.primitive, ray, destination);
+                    if (newRay != null)
+                        debugRay(destination, newRay, depth - 1);
+                    else
+                    {
+                        Vector3 m = ray.mirror(intersection.primitive.getNormal(destination));
+                        newRay = new Ray(destination + m * 0.05f, m);
+                        debugRay(destination, newRay, depth - 1);
+                    }
+                }
+            }
+        }
+
+        private void debugShadowRay(Vector3 position)
+        {
+            GL.Color3(1.0f, 1.0f, 0.4f);
+            foreach (Light light in scene.lights)
+            {
+                Vector3 direction = position - light.location.Normalized();
+                Ray ray = new Ray(light.location, direction);
+                bool isBlocked = false;
+                float curDistance;
+
+                foreach (Primitive prim in scene.primitives)
+                {
+                    curDistance = (prim.Intersect(ray).location - position).Length;
+                    if (curDistance * curDistance < direction.LengthSquared * 0.999f && curDistance > 0)
+                    {
+                        GL.Vertex2(light.location.Xz);
+                        GL.Vertex2(light.location.Xz + curDistance * direction.Xz);
+                        isBlocked = true;
+                        break;
+                    }
+                }
+                if(!isBlocked)
+                {
+                    GL.Vertex2(light.location.Xz);
+                    GL.Vertex2(position.Xz);
+                }
+            }
         }
 
         private void DrawRayDebug(Surface screen, Ray ray, Intersection intersection, int c, int nc)
@@ -175,21 +261,37 @@ namespace RayTracer
             screen.Line(x1, y1, x2, y2, nc);
         }
 
+        public Ray refract(Primitive prim, Ray ray, Vector3 destination)
+        {
+            Vector3 normal = prim.getNormal(destination);
+            float cos = Vector3.Dot(-ray.direction, normal);
+            if (cos < 0)
+            {
+                normal = -normal;
+                cos = -cos;
+            }
+
+            Vector3 dir = ray.direction + normal * cos;
+            dir.Normalize();
+            Ray newRay = new Ray(destination + 0.012f * dir, dir);
+            return newRay;
+        }
+
         public float minX = -5, maxX = 5, minY = -1, maxY = 9;
 
-        private int TXDebug(float x)
+        public int TXDebug(float x)
         {
             float worldWidth = maxX - minX;
             return 512 + (int)((x - minX) * (512 / worldWidth));
         }
 
-        private int TYDebug(float y)
+        public int TYDebug(float y)
         {
             float worldHeight = maxY - minY;
             return (int)((-y + maxY) * (512 / worldHeight));
         }
 
-        private void DrawCircle(Surface screen, int x, int y, float r, int c)
+        public void DrawCircle(Surface screen, int x, int y, float r, int c)
         {
             float xRange = maxX - minX;
             float yRange = maxY - minY;

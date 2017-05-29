@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace RayTracer.Primitives
 {
@@ -33,6 +34,25 @@ namespace RayTracer.Primitives
                 return new Intersection(location, t, this, (location - center).Normalized());
             }
             return null;
+        }
+
+        public override Vector3 getNormal(Vector3 posOnPrim)
+        {
+            return (posOnPrim - this.center).Normalized();
+        }
+
+        public override void Debug()
+        {
+            GL.Begin(PrimitiveType.LineLoop);
+            GL.Color3(material.color);
+            for (int i = 0; i <= 300; i++)
+            {
+                float angle = (float)(2 * Math.PI * i) / 300f;
+                float x = (float)Math.Cos(angle) * radius;
+                float y = (float)Math.Sin(angle) * radius;
+                GL.Vertex2(x + center.X, y + center.Z);
+            }
+            GL.End();
         }
     }
 }

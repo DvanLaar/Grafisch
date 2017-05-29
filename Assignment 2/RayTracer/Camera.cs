@@ -19,7 +19,7 @@ namespace RayTracer
 
         public Camera() {}
 
-        private Ray GenerateRay(int x, int y)
+        public Ray GenerateRay(int x, int y)
         {
             Vector3 direction = -Vector3.UnitZ;
             direction += Vector3.UnitX * (x / 256f - 1f);

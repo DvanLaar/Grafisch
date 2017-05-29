@@ -12,7 +12,7 @@ namespace RayTracer.Lights
     {
         public Vector3 direction;
 
-        public DirectionalLight(Vector3 direction, Vector3 intensity) : base(intensity)
+        public DirectionalLight(Vector3 direction, Vector3 intensity, Vector3 location) : base(intensity, location)
         {
             this.direction = -direction.Normalized();
         }

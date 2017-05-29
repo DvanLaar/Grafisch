@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTK.Graphics.OpenGL;
 
 namespace RayTracer.Primitives
 {
@@ -59,5 +60,23 @@ namespace RayTracer.Primitives
             return intersect;
         }
 
+        public override Vector3 getNormal(Vector3 posOnPrim)
+        {
+            return normal;
+        }
+
+        public override void Debug()
+        {
+            GL.Begin(PrimitiveType.LineStrip);
+
+            GL.Color3(material.color);
+
+            GL.Vertex2(pos1.Xz);
+            GL.Vertex2(pos2.Xz);
+            GL.Vertex2(pos3.Xz);
+            GL.Vertex2(pos1.Xz);
+
+            GL.End();
+        }
     }
 }
