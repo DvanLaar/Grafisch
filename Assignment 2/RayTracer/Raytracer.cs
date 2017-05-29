@@ -8,6 +8,8 @@ using RayTracer.Lights;
 using RayTracer.Primitives;
 using Template;
 using OpenTK.Input;
+using System.Threading;
+using System.Diagnostics;
 
 namespace RayTracer
 {
@@ -17,6 +19,14 @@ namespace RayTracer
      */
     public class Raytracer : Camera.SpeedUpListener
     {
+        private struct DrawParameters
+        {
+            public int SpeedUp, AntiAliasing, deltaX;
+            public Surface surface;
+            public float[] AAvals;
+            public float AAInvSq;
+        };
+
         public const int MAX_RECURSION = 8;
         private const bool jaccoPresent = true;
 
@@ -24,6 +34,8 @@ namespace RayTracer
         private Scene scene = new Scene();
         private Texture skybox;
         private int SpeedUp = 8, AntiAliasing = 1;
+
+        private DrawParameters drawParams;
 
         public Raytracer()
         {
@@ -59,8 +71,8 @@ namespace RayTracer
                     Utils.WHITE, 1f));
 
                 scene.AddPrimitive(new TexturedSphere(
-                    new Vector3(-3f,2f,3f),
-                    1,Utils.WHITE,jbtexture,1f));
+                    new Vector3(-3f, 2f, 3f),
+                    1, Utils.WHITE, jbtexture, 1f));
             }
 
             // Texture pepetexture = new Texture("Textures/pepe.bmp");
@@ -72,18 +84,21 @@ namespace RayTracer
 
             //Ambient
             // scene.AddLight(new Light(Utils.WHITE * 0.25f));
-            scene.AddLight(new DirectionalLight(new Vector3(-1f,-1f,-1f),Utils.WHITE));    
+            scene.AddLight(new DirectionalLight(new Vector3(-1f, -1f, -1f), Utils.WHITE));
 
-            /* Triangle arealighttriangle = new Triangle(new Vector3(-1f, .5f, -2f), new Vector3(2f, .5f, -2f), new Vector3(2f, 1.5f, -2f), Utils.WHITE, 1f);
+            /*Triangle arealighttriangle = new Triangle(new Vector3(-1f, .5f, -2f), new Vector3(2f, .5f, -2f), new Vector3(2f, 1.5f, -2f), Utils.WHITE, 1f);
             scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.color * 10f));
-            scene.AddPrimitive(arealighttriangle); */
+            scene.AddPrimitive(arealighttriangle);*/
 
             scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));
             scene.AddLight(new Spotlight(new Vector3(3f, 3f, -3f), new Vector3(1f, -1f, 0f), (float)Math.PI / 3f, Utils.RED * 10f));
         }
 
-        public void Render(Surface screen)
+        public void Render(Surface surface)
         {
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+
             // Console.Write("render; ");
 
             // Initial part of Debug
@@ -92,45 +107,60 @@ namespace RayTracer
             // When we talk about 4x anti-aliasing, we actually mean 2x2 rays instead of 1 per pixel.
             int AAsq = AntiAliasing * AntiAliasing;
 
-            screen.Print("Anti-Aliasing: " + AAsq, 10, 512 + 6, 0xffffff);
-            screen.Print("Speedup: " + this.SpeedUp, 10, 512 + 30, 0xffffff);
+            surface.Print("Anti-Aliasing: " + AAsq, 10, 512 + 6, 0xffffff);
+            surface.Print("Speedup: " + this.SpeedUp, 10, 512 + 30, 0xffffff);
 
-            // difference between the subrays for antialiasing
-            float AAInvSq = 1f / AAsq;
-            Ray ray;
-            int color;
-            Vector3 raysum;
-            //To average the sumcolor;
+            int nThreads = 4;
+            int[] startX = new int[nThreads];
+            for (int i = 0; i < nThreads; i++)
+                startX[i] = Camera.resolution - (i + 1) * SpeedUp;
 
-            float[] aaIncrements = new float[AntiAliasing];
+            // Update draw params:
+            drawParams.SpeedUp = SpeedUp;
+            drawParams.AntiAliasing = AntiAliasing;
+            drawParams.deltaX = nThreads * SpeedUp;
+            drawParams.AAInvSq = 1f / (AntiAliasing * AntiAliasing);
+            drawParams.AAvals = new float[AntiAliasing];
             for (int i = 0; i < AntiAliasing; i++)
             {
-                aaIncrements[i] = SpeedUp * 0.5f * (1f + 2 * i) / AntiAliasing;
+                drawParams.AAvals[i] = SpeedUp * 0.5f * (1f + 2 * i) / AntiAliasing;
             }
+            drawParams.surface = surface;
 
-            // Cast rays
-            for (int x = Camera.resolution; (x -= SpeedUp) >= 0;)
+            Thread[] threads = new Thread[nThreads];
+            for (int i = 1; i < nThreads; i++)
             {
-                for (int y = Camera.resolution; (y -= SpeedUp) >= 0;)
+                threads[i] = new Thread(DrawParallel);
+                threads[i].Start(startX[i]);
+            }
+            DrawParallel(startX[0]);
+            for (int i = 1; i < nThreads; i++)
+                threads[i].Join();
+            
+            timer.Stop();
+            Console.WriteLine("One render took " + timer.ElapsedMilliseconds + " ms");
+        }
+
+        public void DrawParallel(object data)
+        {
+            int startX = (int)data;
+            // Cast rays
+            for (int x = startX; x >= 0; x -= drawParams.deltaX)
+            {
+                for (int y = Camera.resolution; (y -= drawParams.SpeedUp) >= 0;)
                 {
-                    raysum = Vector3.Zero;
-                    for (int aax = AntiAliasing; aax-- > 0;)
+                    Vector3 raysum = Vector3.Zero;
+                    for (int aax = drawParams.AntiAliasing; aax-- > 0;)
                     {
-                        for (int aay = AntiAliasing; aay-- > 0;)
+                        for (int aay = drawParams.AntiAliasing; aay-- > 0;)
                         {
-                            ray = camera.getDirection(x + aaIncrements[aax], y + aaIncrements[aay]);
+                            Ray ray = camera.getDirection(x + drawParams.AAvals[aax], y + drawParams.AAvals[aay]);
                             raysum += CalculateColor(ray);
                         }
                     }
 
-                    color = Utils.GetRGBValue(AAInvSq * raysum);
-                    for (int xx = 0; xx < SpeedUp; xx++)
-                    {
-                        for (int yy = 0; yy < SpeedUp; yy++)
-                        {
-                            screen.Plot(x + xx, y + yy, color);
-                        }
-                    }
+                    int color = Utils.GetRGBValue(drawParams.AAInvSq * raysum);
+                    drawParams.surface.PlotRect(x, y, drawParams.SpeedUp, drawParams.SpeedUp, color);
                 }
             }
         }

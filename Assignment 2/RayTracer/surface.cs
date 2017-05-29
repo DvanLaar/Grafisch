@@ -194,6 +194,21 @@ namespace Template
                 }
             }
         }
+
+        // Plots a rectangle without checking the boundaries, because it assumes that these are correct.
+        // Any errors are caused by an index out of bounds.
+        public void PlotRect(int x, int y, int w, int h, int c)
+        {
+            int bc = x + y * width;
+            for (int i = 0; i < w; i++)
+            {
+                for (int j = h * width; (j -= width) >= 0; )
+                {
+                    pixels[bc + i + j] = c;
+                }
+            }
+        }
+
         // plot a single pixel
         public void Plot(int x, int y, int c)
         {
@@ -202,6 +217,8 @@ namespace Template
                 pixels[x + y * width] = c;
             }
         }
+        
+        
         // print a string
         public void Print(string t, int x, int y, int c)
         {
