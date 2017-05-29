@@ -67,12 +67,13 @@ namespace RayTracer
             //scene.AddPrimitive(new Mesh("Objects/decimated_teapot.obj", new Vector3(1f, 1f, 0f), new Vector3(-0.5f, 4f, -2f), .5f, 1f));
 
             //Ambient
-            //scene.AddLight(new Light(Utils.WHITE * 0.25f));
-                
-            scene.AddLight(new PointLight(new Vector3(1.5f, 4f, -4f), Utils.WHITE * 2.5f));
+            scene.AddLight(new Light(Utils.WHITE * 0.25f));
+
+            // scene.AddLight(new PointLight(new Vector3(1.5f, 4f, -4f), Utils.WHITE * 2.5f));
             //scene.AddLight(new DirectionalLight(new Vector3(4f, -1f, 0.25f), Utils.WHITE * 2.5f));
 
-            scene.AddLight(new Spotlight(new Vector3(3f,3f,-3f),new Vector3(1f,-1f,0f),(float)Math.PI/3f,Utils.RED*2.5f));
+            scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));
+            scene.AddLight(new Spotlight(new Vector3(3f, 3f, -3f), new Vector3(1f, -1f, 0f), (float)Math.PI / 3f, Utils.RED * 10f));
         }
 
         public void Render(Surface screen)
@@ -106,7 +107,7 @@ namespace RayTracer
             {
                 for (int y = Camera.resolution; (y -= SpeedUp) >= 0;)
                 {
-                    raysum = new Vector3();
+                    raysum = Vector3.Zero;
                     for (int aax = AntiAliasing; aax-- > 0;)
                     {
                         for (int aay = AntiAliasing; aay-- > 0;)
@@ -136,7 +137,7 @@ namespace RayTracer
             if (intersection != null)
             {
                 Vector3 color = intersection.primitive.GetColor(intersection);
-                Vector3 diffusepart = new Vector3(), specularpart = new Vector3();
+                Vector3 diffusepart = Vector3.Zero, specularpart = Vector3.Zero;
                 float diffuse = intersection.primitive.material.diffuse;
                 if (diffuse > Utils.SMALL_EPS)
                 {
