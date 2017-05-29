@@ -45,5 +45,26 @@ namespace RayTracer.Primitives
             intersection.barycentric = new Vector3(1f - u - v, u, v);
             return intersection;
         }
+
+        public override bool DoesIntersect(Ray ray, float maxValue)
+        {
+            Vector3 pvec = Vector3.Cross(ray.direction, edge2);
+            float det = Vector3.Dot(edge1, pvec);
+            if (-Utils.DIST_EPS < det && det < Utils.DIST_EPS) return false;
+            float invdet = 1f / det;
+
+            Vector3 tvec = ray.origin - pos1;
+            float u = Vector3.Dot(tvec, pvec) * invdet;
+            if (u < 0f || u > 1f) return false;
+
+            Vector3 qvec = Vector3.Cross(tvec, edge1);
+            float v = Vector3.Dot(ray.direction, qvec) * invdet;
+            if (v < 0f || u + v > 1f) return false;
+
+            float t = Vector3.Dot(edge2, qvec) * invdet;
+            if (t <= Utils.DIST_EPS) return false;
+
+            return Utils.DIST_EPS < t && t < maxValue;
+        }
     }
 }

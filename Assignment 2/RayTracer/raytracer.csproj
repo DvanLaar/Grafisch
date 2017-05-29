@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="Camera.cs" />
     <Compile Include="game.cs" />
+    <Compile Include="Lights\AreaLight.cs" />
     <Compile Include="Lights\DirectionalLight.cs" />
     <Compile Include="Lights\Light.cs" />
     <Compile Include="Lights\PointLight.cs" />

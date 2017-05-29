@@ -14,10 +14,20 @@ namespace RayTracer
         public const float DIST_EPS = 1e-5f; // used for small distances
         public const float SMALL_EPS = 1e-10f; // used for really small rounding errors and such
 
+        public const int AREASAMPLES = 10;
+
+        public static Random random = new Random();
+
         public static float Parse(string value)
         {
             return float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
         }
+
+        public static float RandomFloat()
+        {
+            return (float)random.NextDouble();
+        }
+
 
         // Helper function to convert a HDR to an RGB-color
         public static int GetRGBValue(Vector3 v)

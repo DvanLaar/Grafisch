@@ -23,7 +23,7 @@ namespace RayTracer
         private Camera camera;
         private Scene scene = new Scene();
         private Texture skybox;
-        private int SpeedUp = 8, AntiAliasing = 2;
+        private int SpeedUp = 8, AntiAliasing = 1;
 
         public Raytracer()
         {
@@ -43,7 +43,7 @@ namespace RayTracer
 
             // normal is: Vector3.UnitY
             Texture floortexture = new Texture("Textures/floor.bmp");
-            scene.AddPrimitive(new TexturedPlane(floortexture, new Vector3(.8f, 0f, -.6f), new Vector3(-.6f, 0f, -.8f), 0f, Utils.WHITE, 0.9f));
+            scene.AddPrimitive(new TexturedPlane(floortexture, new Vector3(.8f, 0f, -.6f), new Vector3(-.6f, 0f, -.8f), 0f, Utils.WHITE, 1f));
 
             if (jaccoPresent)
             {
@@ -69,10 +69,14 @@ namespace RayTracer
             //Ambient
             //scene.AddLight(new Light(Utils.WHITE * 0.25f));
                 
-            scene.AddLight(new PointLight(new Vector3(1.5f, 4f, -4f), Utils.WHITE * 2.5f));
+            //scene.AddLight(new PointLight(new Vector3(1.5f, 4f, -4f), Utils.WHITE * 2.5f));
             //scene.AddLight(new DirectionalLight(new Vector3(4f, -1f, 0.25f), Utils.WHITE * 2.5f));
 
             scene.AddLight(new Spotlight(new Vector3(3f,3f,-3f),new Vector3(1f,-1f,0f),(float)Math.PI/3f,Utils.RED*2.5f));
+
+            Triangle arealighttriangle = new Triangle(new Vector3(-1f,1f,-2f),new Vector3(2f, 1f, -2f), new Vector3(2f, 2f, -2f), Utils.WHITE,1f);
+            scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.color*10f));
+            scene.AddPrimitive(arealighttriangle);
         }
 
         public void Render(Surface screen)
