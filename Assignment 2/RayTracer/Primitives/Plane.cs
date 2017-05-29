@@ -27,8 +27,10 @@ namespace RayTracer.Primitives
             // In case the ray is parallel to the plane
             if (-Utils.DIST_EPS < dot && dot < Utils.DIST_EPS) return null;
 
-            float t = -(Vector3.Dot(ray.origin, normal) + distance) / dot;
-            return t <= 0 ? null : new Intersection(ray.origin + t * ray.direction, t, this, normal);
+            float dotOrigin = Vector3.Dot(ray.origin, normal);
+            float t = -(dotOrigin + distance) / dot;
+            Vector3 intersectionNormal = dotOrigin < 0f ? -normal : normal;
+            return t <= 0 ? null : new Intersection(ray.origin + t * ray.direction, t, this, intersectionNormal);
         }
 
         public override bool DoesIntersect(Ray ray, float maxValue)
