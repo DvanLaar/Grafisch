@@ -17,7 +17,7 @@ namespace RayTracer
      * OpenGL uses this standard coordinate system, so we use this as well:
      * https://learnopengl.com/img/getting-started/coordinate_systems_right_handed.png
      */
-    public class Raytracer : Camera.SpeedUpListener
+    public class Raytracer
     {
         private struct DrawParameters
         {
@@ -321,22 +321,22 @@ namespace RayTracer
             }
         }
 
-        public void processKeyboard(KeyboardState keyboard)
+        public void processInput(KeyboardState keyboard, MouseDevice mouse)
         {
-            camera.processKeyboard(keyboard);
+            camera.processInput(keyboard, mouse);
         }
 
-        int Camera.SpeedUpListener.GetSpeedUp()
+        public int GetSpeedUp()
         {
             return SpeedUp;
         }
 
-        void Camera.SpeedUpListener.SetSpeedUp(int value)
+        public void SetSpeedUp(int value)
         {
             SpeedUp = value;
         }
 
-        bool Camera.SpeedUpListener.IncreaseSpeedUp()
+        public bool IncreaseSpeedUp()
         {
             if (SpeedUp >= 512) return false;
             SpeedUp = Math.Min(512, SpeedUp << 1);
@@ -344,7 +344,7 @@ namespace RayTracer
             return true;
         }
 
-        bool Camera.SpeedUpListener.DecreaseSpeedUp()
+        public bool DecreaseSpeedUp()
         {
             if (SpeedUp <= 1) return false;
             SpeedUp = Math.Max(1, SpeedUp >> 1);
@@ -352,13 +352,13 @@ namespace RayTracer
             return true;
         }
 
-        bool Camera.SpeedUpListener.IncreaseAntiAliasing()
+        public bool IncreaseAntiAliasing()
         {
             AntiAliasing++;
             return true;
         }
 
-        bool Camera.SpeedUpListener.DecreaseAntiAliasing()
+        public bool DecreaseAntiAliasing()
         {
             if (AntiAliasing == 1) return false;
             AntiAliasing--;

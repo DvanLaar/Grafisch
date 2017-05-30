@@ -49,8 +49,10 @@ namespace Template
         {
             // called once per frame; app logic
             KeyboardState keyboard = Keyboard.GetState();
+            MouseDevice mouse = Mouse;
+
             if (keyboard[Key.Escape]) Exit();
-            game.ProcessKeyboard(keyboard);
+            game.ProcessInput(keyboard, mouse);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)

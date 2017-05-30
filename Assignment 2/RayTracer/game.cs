@@ -23,9 +23,9 @@ namespace Template
             raytracer.Render(screen);
         }
 
-        public void ProcessKeyboard(KeyboardState keyboard)
+        public void ProcessInput(KeyboardState keyboard, MouseDevice mouse)
         {
-            this.raytracer.processKeyboard(keyboard);
+            this.raytracer.processInput(keyboard, mouse);
         }
     }
 

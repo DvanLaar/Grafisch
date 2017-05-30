@@ -9,17 +9,7 @@ namespace RayTracer
 {
     class Camera
     {
-        public interface SpeedUpListener
-        {
-            int GetSpeedUp();
-            void SetSpeedUp(int value);
-            bool IncreaseSpeedUp();
-            bool DecreaseSpeedUp();
-            bool IncreaseAntiAliasing();
-            bool DecreaseAntiAliasing();
-        }
-
-        private SpeedUpListener listener;
+        private Raytracer rt;
         private int oldValue = -1;
 
         public const int resolution = 512;
@@ -38,9 +28,9 @@ namespace RayTracer
             }
         }
 
-        public Camera(SpeedUpListener listener, Vector3 position)
+        public Camera(Raytracer rt, Vector3 position)
         {
-            this.listener = listener;
+            this.rt = rt;
             this.Position = position;
         }
 
@@ -62,8 +52,8 @@ namespace RayTracer
             try
             {
                 Thread.Sleep(500);
-                oldValue = listener.GetSpeedUp();
-                while (listener.GetSpeedUp() > 4 && listener.DecreaseSpeedUp())
+                oldValue = rt.GetSpeedUp();
+                while (rt.GetSpeedUp() > 4 && rt.DecreaseSpeedUp())
                 {
                     Thread.Sleep(500);
                 }
@@ -72,28 +62,31 @@ namespace RayTracer
         }
 
         // This contains all the keys which were pressed the last time
-        private KeyboardState lkb; //, noKeyPressed = new KeyboardState();
+        private KeyboardState lkb;
+        private MouseState lm;
 
-        public void processKeyboard(KeyboardState kb)
+        public void processInput(KeyboardState kb, MouseDevice md)
         {
+            MouseState m = md.GetState();
 
             float rotateSpeed = .02f * MathHelper.Pi;
+            float mouseRotateSpeed = 0.0005f * MathHelper.Pi;
             float moveSpeed = .1f;
             float fovSpeed = .05f;
 
             // Modify the anti-aliasing
-            if (kb[Key.R] && !lkb[Key.R]) listener.IncreaseAntiAliasing();
-            if (kb[Key.F] && !lkb[Key.F]) listener.DecreaseAntiAliasing();
+            if (kb[Key.R] && !lkb[Key.R]) rt.IncreaseAntiAliasing();
+            if (kb[Key.F] && !lkb[Key.F]) rt.DecreaseAntiAliasing();
 
             // Modify the speed up
-            if ((kb[Key.KeypadPlus] || kb[Key.Plus]) && !(lkb[Key.KeypadPlus] || lkb[Key.Plus])) listener.IncreaseSpeedUp();
-            if ((kb[Key.KeypadMinus] || kb[Key.Minus]) && !(lkb[Key.KeypadMinus] || lkb[Key.Minus])) listener.DecreaseSpeedUp();
+            if ((kb[Key.KeypadPlus] || kb[Key.Plus]) && !(lkb[Key.KeypadPlus] || lkb[Key.Plus])) rt.IncreaseSpeedUp();
+            if ((kb[Key.KeypadMinus] || kb[Key.Minus]) && !(lkb[Key.KeypadMinus] || lkb[Key.Minus])) rt.DecreaseSpeedUp();
 
             int speedUp = 1;
             for (Key k = Key.Number1; k <= Key.Number9; k++, speedUp *= 2)
             {
                 if (!kb[k] || lkb[k]) continue;
-                listener.SetSpeedUp(speedUp);
+                rt.SetSpeedUp(speedUp);
                 break;
             }
 
@@ -118,21 +111,38 @@ namespace RayTracer
 
             if (kb[Key.PageUp]) FOV += fovSpeed;
             if (kb[Key.PageDown]) FOV = Math.Max(FOV - fovSpeed, 0f);
-
-            /*
-            if (kb != noKeyPressed)
+            
+            if (m.IsButtonDown(MouseButton.Right)  && !lm.IsButtonDown(MouseButton.Right) && 0 <= md.X && md.X < 512) {
+                Ray r = getDirection(md.X, md.Y);
+                SetDirection(r.direction);
+            } else if (m.IsButtonDown(MouseButton.Left))
             {
-                if (oldValue >= 0)
-                {
-                    // listener.SetSpeedUp(oldValue);
-                    oldValue = -1;
-                }
-                if (improver != null) improver.Interrupt();
-                improver = new Thread(ImproveView);
-                improver.Start();
+                // Rotate proportional to the movement of the mouse
+                int dx = m.X - lm.X, dy = m.Y - lm.Y;
+                // Rotate up, down absolute
+                dirY = Vector3.UnitY;
+                Rotation = Quaternion.FromAxisAngle(dirY, mouseRotateSpeed * dx) * Rotation;
+
+                // Rotate left, right relative to the current rotation
+                dirX = Rotation * Vector3.UnitX;
+                Rotation = Quaternion.FromAxisAngle(dirX, mouseRotateSpeed * dy) * Rotation;
             }
-            */
+
             lkb = kb;
+            lm = m;
+        }
+
+        /**
+         * Updates Rotation such that direction == -Rotation * Vector3.UnitZ
+         */
+        public void SetDirection(Vector3 direction)
+        {
+            // First rotate over the y-axis to look in the good horizontal direction
+            Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, (float) Math.Atan2(-direction.X, -direction.Z));
+            // Adjust the rotation so that is only a direction in the YZ plane
+            direction = Rotation.Inverted() * direction;
+            // Now add a rotation over the x-axis in order to look at the desired rotation
+            Rotation *= Quaternion.FromAxisAngle(Vector3.UnitX, (float)Math.Atan2(direction.Y, -direction.Z));
         }
 
         public static void DisplayKeyInfo()
