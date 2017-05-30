@@ -106,15 +106,9 @@ namespace RayTracer
             Stopwatch timer = new Stopwatch();
             timer.Start();
 
-            // Console.Write("render; ");
-
             // Initial part of Debug
             screensurface = surface;
             DrawInitialDebug(surface);
-
-            // When we talk about 4x anti-aliasing, we actually mean 2x2 rays instead of 1 per pixel.
-            surface.Print("Anti-Aliasing: " + (AntiAliasing * AntiAliasing), 522, 512 - 48, 0xffffff);
-            surface.Print("Speedup: " + SpeedUp, 522, 512 - 24, 0xffffff);
 
             int[] startX = new int[nThreads];
             for (int i = 0; i < nThreads; i++)
@@ -147,9 +141,13 @@ namespace RayTracer
             {
                 for (int y = 0; y < 512; y++)
                 {
-                    surface.Plot(x+512,y,debugdata[x+512*y]);
+                    surface.Plot(x + 512, y, debugdata[x + 512 * y]);
                 }
             }
+
+            // When we talk about 4x anti-aliasing, we actually mean 2x2 rays instead of 1 per pixel.
+            surface.Print("Anti-Aliasing: " + (AntiAliasing * AntiAliasing), 522, 512 - 48, 0xffffff);
+            surface.Print("Speedup: " + SpeedUp, 522, 512 - 24, 0xffffff);
 
             timer.Stop();
             //Console.WriteLine("One render took " + timer.ElapsedMilliseconds + " ms");
@@ -229,7 +227,7 @@ namespace RayTracer
                 // multiply with the color of this material (in most cases this should be white for a realistic mirror)
                 return intersection.primitive.GetDiffuseColor(intersection) * reflected;
             }
-            
+
             Vector3 color = Vector3.Zero;
             foreach (Light light in scene.lights)
             {
@@ -244,11 +242,11 @@ namespace RayTracer
             debugsurface = new Surface(512, 512);
 
             //Camera
-            debugsurface.Plot(TXDebug(0),TYDebug(0),0xffffff);
+            debugsurface.Plot(TXDebug(0), TYDebug(0), 0xffffff);
 
-            DebugYUnit = camera.getDirection(256,256).direction.Normalized();
+            DebugYUnit = camera.getDirection(256, 256).direction.Normalized();
             Vector3 upesq = camera.getDirection(256, 200).direction.Normalized();
-            DebugXUnit = (Vector3.Cross(DebugYUnit,upesq)).Normalized();
+            DebugXUnit = (Vector3.Cross(DebugYUnit, upesq)).Normalized();
 
             //primitives
             foreach (Primitive prim in scene.primitives)
@@ -259,7 +257,7 @@ namespace RayTracer
                     Vector3 nc = s.center - camera.Position;
                     float nx = Vector3.Dot(DebugXUnit, nc);
                     float ny = Vector3.Dot(DebugYUnit, nc);
-                    Vector3 dif = nc - (nx*DebugXUnit + ny* DebugYUnit);
+                    Vector3 dif = nc - (nx * DebugXUnit + ny * DebugYUnit);
                     float distancesquared = dif.LengthSquared;
                     if (distancesquared > s.radius * s.radius)
                         continue;
@@ -269,16 +267,17 @@ namespace RayTracer
             }
         }
 
-        public static void DrawRayDebug( Ray ray, Intersection intersection, int c)
+        public static void DrawRayDebug(Ray ray, Intersection intersection, int c)
         {
             int x1, y1, x2, y2;
-            if(intersection != null)
+            if (intersection != null)
             {
                 x1 = TXDebug(Vector3.Dot(ray.debugxunit, ray.origin - ray.camerapos));
                 y1 = TYDebug(Vector3.Dot(ray.debugyunit, ray.origin - ray.camerapos));
                 x2 = TXDebug(Vector3.Dot(ray.debugxunit, intersection.location - ray.camerapos));
                 y2 = TYDebug(Vector3.Dot(ray.debugyunit, intersection.location - ray.camerapos));
-            } else
+            }
+            else
             {
                 x1 = TXDebug(Vector3.Dot(ray.debugxunit, ray.origin - ray.camerapos));
                 y1 = TYDebug(Vector3.Dot(ray.debugyunit, ray.origin - ray.camerapos));
@@ -340,7 +339,6 @@ namespace RayTracer
         {
             if (SpeedUp >= 512) return false;
             SpeedUp = Math.Min(512, SpeedUp << 1);
-            Console.WriteLine("SpeedUp = " + SpeedUp);
             return true;
         }
 
@@ -348,7 +346,6 @@ namespace RayTracer
         {
             if (SpeedUp <= 1) return false;
             SpeedUp = Math.Max(1, SpeedUp >> 1);
-            Console.WriteLine("SpeedUp = " + SpeedUp);
             return true;
         }
 
