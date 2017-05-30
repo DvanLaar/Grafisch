@@ -16,6 +16,8 @@ namespace RayTracer
         public const int AREASAMPLES = 10;
         public static Random random = new Random();
 
+        static object randlock = new object();
+
         public static float Parse(string value)
         {
             return float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
@@ -23,7 +25,10 @@ namespace RayTracer
 
         public static float RandomFloat()
         {
-            return (float)random.NextDouble();
+            lock (randlock)
+            {
+                return (float)random.NextDouble();
+            }
         }
 
 

@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using RayTracer.Primitives;
+using System;
 
 namespace RayTracer.Lights
 {
@@ -18,15 +19,21 @@ namespace RayTracer.Lights
             // inside this triangle
             Vector3 sum = Vector3.Zero;
             for (int i = Utils.AREASAMPLES; i-- > 0;)
-                sum += Sample(GenerateSamplePoint(), intersection, scene);
+            {
+                Vector3 samplepoint = GenerateSamplePoint();
+                sum += Sample(samplepoint, intersection, scene);
+            }
+
             return sum / Utils.AREASAMPLES;
         }
 
         private Vector3 GenerateSamplePoint()
         {
+
             //Generate random point on the triangle to sample from
             float u = Utils.RandomFloat(), v = Utils.RandomFloat();
             // uniform distribution for (u, v) in [0, 1)x[0, 1)
+
             if (u + v >= 1.0f)
             {
                 u = 1.0f - u;
@@ -34,6 +41,7 @@ namespace RayTracer.Lights
             }
             // now we have that same distribution but for u + v < 1 which is needed for a triangle
             return triangle.pos1 + u * triangle.edge1 + v * triangle.edge2;
+            
         }
 
         /**

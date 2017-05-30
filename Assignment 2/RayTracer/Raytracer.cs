@@ -81,7 +81,7 @@ namespace RayTracer
             }
 
             //.obj file
-            scene.AddPrimitive(new Mesh("Objects/little_test.obj", new Vector3(-4.5f, 1f, -4f), 1f, new Material(new Vector3(1f, 1f, 0f))));
+            //scene.AddPrimitive(new Mesh("Objects/decimated_teapot.obj", new Vector3(0f, 0.5f, -2f), 1f, new Material(new Vector3(1f, 1f, 0f))));
 
             //Different lightsources
 
@@ -93,7 +93,7 @@ namespace RayTracer
             scene.AddLight(new DirectionalLight(new Vector3(-1f, -5f, -2.5f), Vector3.One * .01f));
 
 
-            Triangle arealighttriangle = new Triangle(new Vector3(-2.1f, 3f, 3f), new Vector3(-2f, 3f, 3f), new Vector3(-2f, 3f, 5f),new Material(Vector3.One));
+            Triangle arealighttriangle = new Triangle(new Vector3(-2.1f, 3f, 3f), new Vector3(-2f, 3f, 3f), new Vector3(-2f, 3f, 3.5f),new Material(Vector3.One));
             scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.diffuseColor * 5f));
             //scene.AddPrimitive(arealighttriangle);
 
@@ -237,7 +237,8 @@ namespace RayTracer
                 foreach (Light light in scene.lights)
                 {
                     // The color is the sum of all the contributions
-                    ret += (1f - mat.specularity) * light.GetIntensity(ray, intersection, scene);
+                    Vector3 intensity = light.GetIntensity(ray, intersection, scene);
+                    ret += (1f - mat.specularity) * intensity;
                 }
             }
             return ret;
