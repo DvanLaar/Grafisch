@@ -127,7 +127,7 @@ namespace RayTracer
                 // Call the setter:
                 this.Direction = r.direction;
             }
-            else if (m.IsButtonDown(MouseButton.Left))
+            else if (m.IsButtonDown(MouseButton.Left) && lm.IsButtonDown(MouseButton.Left))
             {
                 // Rotate proportional to the movement of the mouse
                 int dx = m.X - lm.X, dy = m.Y - lm.Y;
