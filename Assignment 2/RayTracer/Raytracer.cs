@@ -19,6 +19,10 @@ namespace RayTracer
      */
     public class Raytracer
     {
+        /// <summary>
+        /// These values must stay constant during a draw.
+        /// Therefore we copy these values to this object.
+        /// </summary>
         private struct DrawParameters
         {
             public int SpeedUp, AntiAliasing, deltaX;
@@ -27,18 +31,36 @@ namespace RayTracer
             public float AAInvSq;
         };
 
+        // The cap on the recursion due to reflections.
         public const int MAX_RECURSION = 8;
+        // Do we want jacco textures?
         private const bool jaccoPresent = true;
 
         private Camera camera;
         private Scene scene = new Scene();
+        // Holds the texture of the skybox
         private Texture skybox;
-        //Speed
-        private int SpeedUp = 8, AntiAliasing = 1;
+
+        /// <summary>
+        /// Big values of SpeedUp make the program faster,
+        /// since then it won't calculate the color of all pixels, but creates blocks of size
+        /// SpeedUp * SpeedUp which will have the same color.
+        /// </summary>
+        private int SpeedUp = 8;
+        /// <summary>
+        /// Anti-aliasing will create an easing-out effect for hard edges since it samples in between points of one pixel.
+        /// </summary>
+        private int AntiAliasing = 1;
+        /// <summary>
+        /// The parameters which need to keep constant during a render.
+        /// </summary>
         private DrawParameters drawParams;
+        /// <summary>
+        /// The optimal number of threads which we will use in our multithreaded Render function.
+        /// </summary>
         private readonly int nThreads = Environment.ProcessorCount;
 
-        //Debug parameters
+        // Debug parameters
         public Surface screensurface;
         public Vector3 DebugXUnit, DebugYUnit;
         public Surface debugsurface;
@@ -52,6 +74,10 @@ namespace RayTracer
             for (int i = 0; i < skybox.Width; i++)
                 for (int j = 0; j < skybox.Height; j++)
                     skybox.Data[i, j] *= 1.2f;
+
+            // Now we will compose the scene with a couple of objects and a couple of light sources:
+
+            // OBJECTS:
 
             // white ball
             scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, new Material(Vector3.One, .5f, 100f)));
@@ -80,10 +106,10 @@ namespace RayTracer
                 ));
             }
 
-            //.obj file
+            // .obj file
             scene.AddPrimitive(new Mesh("Objects/little_test.obj", new Vector3(-4.5f, 1f, -4f), 1f, new Material(new Vector3(1f, 1f, 0f))));
 
-            //Different lightsources
+            // LIGHT SOURCES:
 
             // Ambient
             scene.AddLight(new Light(Vector3.One * 0.1f));
@@ -92,10 +118,9 @@ namespace RayTracer
             scene.AddLight(new PointLight(new Vector3(3.3f, 4.7f, -4f), Vector3.One * 1f));
             scene.AddLight(new DirectionalLight(new Vector3(-1f, -5f, -2.5f), Vector3.One * .01f));
 
-
-            Triangle arealighttriangle = new Triangle(new Vector3(-2.1f, 3f, 3f), new Vector3(-2f, 3f, 3f), new Vector3(-2f, 3f, 5f),new Material(Vector3.One));
+            Triangle arealighttriangle = new Triangle(new Vector3(-2.1f, 3f, 3f), new Vector3(-2f, 3f, 3f), new Vector3(-2f, 3f, 5f), new Material(Vector3.One));
             scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.diffuseColor * 5f));
-            //scene.AddPrimitive(arealighttriangle);
+            // scene.AddPrimitive(arealighttriangle);
 
             scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));
             scene.AddLight(new Spotlight(new Vector3(3f, 3f, -3f), new Vector3(1f, -1f, 0f), (float)Math.PI / 3f, Utils.RED * 10f));
@@ -110,6 +135,9 @@ namespace RayTracer
             screensurface = surface;
             DrawInitialDebug(surface);
 
+            // We divide the screen between threads by x-values.
+            // In this fashion: [1, 2, 3, 1, 2, 3, 1, 2, 3, ..., 1, 2 ]
+            // However we begin at the end (Camera.resolution - SpeedUp).
             int[] startX = new int[nThreads];
             for (int i = 0; i < nThreads; i++)
                 startX[i] = Camera.resolution - (i + 1) * SpeedUp;
@@ -122,6 +150,7 @@ namespace RayTracer
             drawParams.AAvals = new float[AntiAliasing];
             for (int i = 0; i < AntiAliasing; i++)
             {
+                // Precalculate these variables and put them in an array.
                 drawParams.AAvals[i] = SpeedUp * 0.5f * (1f + 2 * i) / AntiAliasing;
             }
             drawParams.surface = surface;
@@ -133,11 +162,11 @@ namespace RayTracer
                 threads[i].Start(startX[i]);
             }
             DrawParallel(startX[0]);
+            // Wait for all OTHER threads until they are done.
             for (int i = 1; i < nThreads; i++)
                 threads[i].Join();
 
-
-            //The debug data is first drawn on a seperate surface, then drawn on the main surface so no debug data is drawn over the main raytracer image
+            // The debug data is first drawn on a seperate surface, then drawn on the main surface so no debug data is drawn over the main raytracer image
             int[] debugdata = debugsurface.pixels;
             for (int x = 0; x < 512; x++)
             {
@@ -162,6 +191,7 @@ namespace RayTracer
             {
                 for (int y = Camera.resolution; (y -= drawParams.SpeedUp) >= 0;)
                 {
+                    // Use anti-aliasing to get an average color over this block of SpeedUp x SpeedUp:
                     Vector3 raysum = Vector3.Zero;
                     for (int aax = drawParams.AntiAliasing; aax-- > 0;)
                     {
@@ -169,14 +199,19 @@ namespace RayTracer
                         {
                             // ask the camera for the direction of this interpolated pixel
                             Ray ray = camera.getDirection(x + drawParams.AAvals[aax], y + drawParams.AAvals[aay]);
+
+                            // We are interested in a small subset of all pixels:
                             if (aax == 0 && aay == 0 && y <= 256 && 256 < y + SpeedUp && x % 10 == 0)
                             {
+                                // Pass all the needed variables to draw the debug info
                                 ray.debug = true;
                                 ray.debugSurface = debugsurface;
                                 ray.camerapos = camera.Position;
                                 ray.debugxunit = DebugXUnit;
                                 ray.debugyunit = DebugYUnit;
                             }
+
+                            // Add the color to the sum.
                             raysum += CalculateColor(ray);
                         }
                     }
@@ -189,22 +224,29 @@ namespace RayTracer
             }
         }
 
+        /// <summary>
+        /// The core of the ray tracer.
+        /// </summary>
+        /// <param name="ray">The direction in which we look</param>
+        /// <param name="recursionDepth">How far we can still go in recursion</param>
+        /// <returns>The color associated with the ray</returns>
         private Vector3 CalculateColor(Ray ray, int recursionDepth = MAX_RECURSION)
         {
-            Vector3 dir = ray.direction;
-            if (recursionDepth-- <= 0) return Vector3.Zero;
+            if (recursionDepth-- <= 0) return Vector3.Zero; // recursion depth is reached
 
+            // Check for an intersection:
             Intersection intersection = scene.Intersect(ray);
 
-            //Debug
             if (ray.debug)
             {
+                // Debug
                 if (recursionDepth == MAX_RECURSION - 1)
-                    DrawRayDebug(ray, intersection, 0xff0000);
+                    DrawRayDebug(ray, intersection, 0xff0000); // primary ray
                 else
-                    DrawRayDebug(ray, intersection, 0x00ff00);
+                    DrawRayDebug(ray, intersection, 0x00ff00); // secondary, or higher ray
             }
 
+            Vector3 dir = ray.direction;
             if (intersection == null)
             {
                 // The ray doesn't collide with any primitive, so return the color of the skybox
@@ -213,25 +255,31 @@ namespace RayTracer
                 return skybox.Data[texx, texy];
             }
 
+            // Determine the diffuse and specular parts:
             Material mat = intersection.primitive.material;
             Vector3 ret = Vector3.Zero;
-            // This is the real color of the object:
+
             if (mat.isSpecular)
             {
                 // Calculate the reflection vector, and go one level deeper in the recursion
                 Vector3 N = intersection.normal;
                 // secondary ray, obtained by reflecting the current ray
                 Ray ray2 = new Ray(intersection.location, dir - 2 * Vector3.Dot(dir, N) * N);
-                // color at the intersection when looking in the reflection direction:
+
+                // Pass on the same debug values:
                 ray2.debug = ray.debug;
                 ray2.debugSurface = ray.debugSurface;
                 ray2.camerapos = ray.camerapos;
                 ray2.debugxunit = ray.debugxunit;
                 ray2.debugyunit = ray.debugyunit;
+
+                // color at the intersection when looking in the reflection direction:
                 Vector3 reflected = CalculateColor(ray2, recursionDepth);
                 // multiply with the color of this material (in most cases this should be white for a realistic mirror)
                 ret += mat.specularity * intersection.primitive.GetDiffuseColor(intersection) * reflected;
             }
+
+            // Diffuse part:
             if (mat.isDiffuse)
             {
                 foreach (Light light in scene.lights)
@@ -253,7 +301,7 @@ namespace RayTracer
             Vector3 upesq = camera.getDirection(256, 200).direction.Normalized();
             DebugXUnit = (Vector3.Cross(DebugYUnit, upesq)).Normalized();
 
-            // primitive sphere
+            // draw primitive spheres
             foreach (Primitive prim in scene.primitives)
             {
                 if (prim is Sphere)
@@ -265,30 +313,34 @@ namespace RayTracer
                     Vector3 dif = nc - (nx * DebugXUnit + ny * DebugYUnit);
                     float distancesquared = dif.LengthSquared;
                     if (distancesquared > s.radius * s.radius)
-                        continue;
+                        continue; // outside the screen.
 
                     DrawCircle(debugsurface, TXDebug(nx), TYDebug(ny), (float)Math.Sqrt(s.radius * s.radius - distancesquared), Utils.GetRGBValue(s.material.diffuseColor));
                 }
             }
 
-            // Camera
+            // Draw the camera as a point:
             debugsurface.Plot(TXDebug(0), TYDebug(0), 0xffffff);
         }
 
+        /// <summary>
+        /// Draws a ray on the debug screen.
+        /// </summary>
+        /// <param name="ray">The ray which contains all the debug options as well</param>
+        /// <param name="intersection">The (optional) intersection which is the end to which we will draw a line</param>
+        /// <param name="c">The color of the line</param>
         public static void DrawRayDebug(Ray ray, Intersection intersection, int c)
         {
-            int x1, y1, x2, y2;
+            int x1 = TXDebug(Vector3.Dot(ray.debugxunit, ray.origin - ray.camerapos)), x2;
+            int y1 = TYDebug(Vector3.Dot(ray.debugyunit, ray.origin - ray.camerapos)), y2;
             if (intersection != null)
             {
-                x1 = TXDebug(Vector3.Dot(ray.debugxunit, ray.origin - ray.camerapos));
-                y1 = TYDebug(Vector3.Dot(ray.debugyunit, ray.origin - ray.camerapos));
                 x2 = TXDebug(Vector3.Dot(ray.debugxunit, intersection.location - ray.camerapos));
                 y2 = TYDebug(Vector3.Dot(ray.debugyunit, intersection.location - ray.camerapos));
             }
             else
             {
-                x1 = TXDebug(Vector3.Dot(ray.debugxunit, ray.origin - ray.camerapos));
-                y1 = TYDebug(Vector3.Dot(ray.debugyunit, ray.origin - ray.camerapos));
+                // Choose a big t value:
                 x2 = TXDebug(Vector3.Dot(ray.debugxunit, (ray.origin + 100f * ray.direction) - ray.camerapos));
                 y2 = TYDebug(Vector3.Dot(ray.debugyunit, (ray.origin + 100f * ray.direction) - ray.camerapos));
             }
@@ -296,7 +348,7 @@ namespace RayTracer
             ray.debugSurface.Line(x1, y1, x2, y2, c);
         }
 
-
+        // dimensions of the debug screen
         public static float minX = -5, maxX = 5, minY = -1, maxY = 9;
 
         private static int TXDebug(float x)
@@ -311,6 +363,7 @@ namespace RayTracer
             return (int)((-y + maxY) * (512 / worldHeight));
         }
 
+        /// Draw a circle on the debug screen.
         private void DrawCircle(Surface screen, int x, int y, float r, int c)
         {
             float xRange = maxX - minX;
@@ -318,6 +371,7 @@ namespace RayTracer
             float stepsize = (float)Math.PI * 2f / 100f;
             int prevx = x + (int)(r * 512 / xRange);
             int prevy = y;
+            // Approximate a circle by 100 points.
             for (int i = 1; i <= 100; i++)
             {
                 int newx = x + (int)(r * 512 / xRange * Math.Cos(stepsize * i));
@@ -330,6 +384,7 @@ namespace RayTracer
 
         public void processInput(KeyboardState keyboard, MouseDevice mouse)
         {
+            // Pass on to the camera
             camera.processInput(keyboard, mouse);
         }
 

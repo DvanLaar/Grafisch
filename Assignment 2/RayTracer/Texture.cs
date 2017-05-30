@@ -3,6 +3,12 @@ using System.Drawing;
 
 namespace RayTracer
 {
+    /// <summary>
+    /// A class which contains all the information needed about a texture.
+    /// Supports only bitmaps.
+    /// It contains all the pixels as HDR pixels.
+    /// However, the colors are all in the 0f - 1f range when loaded from a file.
+    /// </summary>
     public class Texture
     {
         public int Width, Height;

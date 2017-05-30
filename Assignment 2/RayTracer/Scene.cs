@@ -6,7 +6,13 @@ namespace RayTracer
 {
     public class Scene
     {
+        /// <summary>
+        /// A list of all objects which are present in the scene
+        /// </summary>
         public List<Primitive> primitives;
+        /// <summary>
+        /// A list of all objects which cast light on objects
+        /// </summary>
         public List<Light> lights;
 
         public Scene()
@@ -30,6 +36,7 @@ namespace RayTracer
         public Intersection Intersect(Ray ray)
         {
             Intersection ret = null;
+            // Return the intersection with the lowest t value, higher than the epsilon value.
             foreach (Primitive primitive in primitives)
             {
                 Intersection i = primitive.Intersect(ray);
@@ -43,6 +50,7 @@ namespace RayTracer
          */
         public bool DoesIntersect(Ray ray, float maxdistance)
         {
+            // Returns the first intersection to make things faster
             foreach (Primitive primitive in primitives)
                 if (primitive.DoesIntersect(ray, maxdistance)) return true;
             return false;

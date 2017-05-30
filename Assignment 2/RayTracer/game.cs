@@ -23,6 +23,11 @@ namespace Template
             raytracer.Render(screen);
         }
 
+        /// <summary>
+        /// Processes all the input in one render
+        /// </summary>
+        /// <param name="keyboard">contains keyboard strokes</param>
+        /// <param name="mouse">contains mouse gestures</param>
         public void ProcessInput(KeyboardState keyboard, MouseDevice mouse)
         {
             this.raytracer.processInput(keyboard, mouse);

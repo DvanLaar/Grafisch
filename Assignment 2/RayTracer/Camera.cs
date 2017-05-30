@@ -7,18 +7,29 @@ using System.Threading.Tasks;
 
 namespace RayTracer
 {
+    // A class for the camera which shows the objects in the scene
     class Camera
     {
+        // the raytracer with which we need to communicate
         private Raytracer rt;
-        private int oldValue = -1;
 
+        // The resolution of the 3D screen. We assume a 1/1 ratio of height/width
         public const int resolution = 512;
-        public const float depth = 1.0f;
 
+        // The location of the camera
         public Vector3 Position;
+
+        /// The rotation applied to the camera to get this view.
+        /// The default view of the camera is this:
+        /// The camera looks in the -Vector3.UnitZ direction,
+        /// the direction to the right is Vector3.UnitX
+        /// the direction to the top is Vector3.UnitY
         public Quaternion Rotation = Quaternion.Identity;
+        // The field of view: FOV is (in our program) the ratio between Z and X for the outer most pixels of the screen.
         public float FOV = 1f;
 
+        /// This is in which the camera looks.
+        /// If the rotation is the identity, this will be -Vector3.UnitZ
         public Vector3 Direction
         {
             get
@@ -27,6 +38,9 @@ namespace RayTracer
             }
             set
             {
+                // Sets the view direction to this 'value' but if we talk in pitch, yaw, roll,
+                // the roll is kept at zero, which makes the needed rotation unique.
+
                 // Updates Rotation such that direction == -Rotation * Vector3.UnitZ
                 // First rotate over the y-axis to look in the good horizontal direction
                 Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.Atan2(-value.X, -value.Z));
@@ -43,41 +57,40 @@ namespace RayTracer
             this.Position = position;
         }
 
+        /// <summary>
+        /// Returns a ray in which the camera looks for a certain pixel (x, y) of the screen.
+        /// We use floats for anti-aliasing
+        /// </summary>
+        /// <param name="x">x position on the screen</param>
+        /// <param name="y">y position on the screen</param>
+        /// <returns>the direction in which the camera looks</returns>
         public Ray getDirection(float x, float y)
         {
             Vector3 direction = new Vector3(FOV * (x - 255.5f) / 256f, FOV * (255.5f - y) / 256f, -1f);
+            // Subtract 255.5f in order to have the middle of the view between pixel 255 and 256,
+            // since pixels range from 0 to 511 (inclusive).
             return new Ray(Position, Rotation * direction.Normalized());
         }
 
+        /// <summary>
+        /// This was as requested. You can give the angle between z and x direction to specify the FOV
+        /// </summary>
+        /// <param name="degrees"></param>
         public void setFOVAngles(float degrees)
         {
             FOV = (float)Math.Atan(MathHelper.DegreesToRadians(degrees));
         }
 
-        // private Thread improver = null;
-
-        private void ImproveView()
-        {
-            try
-            {
-                Thread.Sleep(500);
-                oldValue = rt.GetSpeedUp();
-                while (rt.GetSpeedUp() > 4 && rt.DecreaseSpeedUp())
-                {
-                    Thread.Sleep(500);
-                }
-            }
-            catch (ThreadInterruptedException) { }
-        }
-
-        // This contains all the keys which were pressed the last time
+        // This contains all the keys which were pressed the last time that we rendered the screen.
         private KeyboardState lkb;
+        // This contains the mouse position etc.
         private MouseState lm;
 
         public void processInput(KeyboardState kb, MouseDevice md)
         {
             MouseState m = md.GetState();
 
+            // Regulates the speed of which key/mouse presses have influence on rotation, position or FOV of the camera.
             float rotateSpeed = .02f * MathHelper.Pi;
             float mouseRotateSpeed = 0.0005f * MathHelper.Pi;
             float moveSpeed = .1f;
@@ -91,6 +104,7 @@ namespace RayTracer
             if ((kb[Key.KeypadPlus] || kb[Key.Plus]) && !(lkb[Key.KeypadPlus] || lkb[Key.Plus])) rt.IncreaseSpeedUp();
             if ((kb[Key.KeypadMinus] || kb[Key.Minus]) && !(lkb[Key.KeypadMinus] || lkb[Key.Minus])) rt.DecreaseSpeedUp();
 
+            // Set the speed up to a specific value: number n -> SpeedUp = 2^{n-1}
             int speedUp = 1;
             for (Key k = Key.Number1; k <= Key.Number9; k++, speedUp *= 2)
             {
@@ -109,6 +123,7 @@ namespace RayTracer
             if (kb[Key.Up]) Rotation = Quaternion.FromAxisAngle(dirX, rotateSpeed) * Rotation;
             if (kb[Key.Down]) Rotation = Quaternion.FromAxisAngle(dirX, -rotateSpeed) * Rotation;
 
+            // Move the location of the camera
             Vector3 delta = Vector3.Zero;
             if (kb[Key.A]) delta -= Vector3.UnitX;
             if (kb[Key.D]) delta += Vector3.UnitX;
@@ -116,11 +131,14 @@ namespace RayTracer
             if (kb[Key.S]) delta += Vector3.UnitZ;
             if (kb[Key.Q]) delta -= Vector3.UnitY;
             if (kb[Key.E]) delta += Vector3.UnitY;
+            // Adjust to the basis of the camera
             Position += Rotation * delta * moveSpeed;
 
+            // Adjust FOV
             if (kb[Key.PageUp]) FOV += fovSpeed;
             if (kb[Key.PageDown]) FOV = Math.Max(FOV - fovSpeed, 0f);
 
+            // Let the camera point in a direction determined by the position of the click:
             if (m.IsButtonDown(MouseButton.Right) && !lm.IsButtonDown(MouseButton.Right) && 0 <= md.X && md.X < 512)
             {
                 Ray r = getDirection(md.X, md.Y);
@@ -140,10 +158,14 @@ namespace RayTracer
                 Rotation = Quaternion.FromAxisAngle(dirX, mouseRotateSpeed * dy) * Rotation;
             }
 
+            // Set the state to the last state so we can compare with this state the next time:
             lkb = kb;
             lm = m;
         }
 
+        /// <summary>
+        /// Dislays the info of all commands in the console.
+        /// </summary>
         public static void DisplayKeyInfo()
         {
             string s = "Behold, the great ray tracer!\n" +

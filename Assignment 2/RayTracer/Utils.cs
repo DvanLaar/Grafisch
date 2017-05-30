@@ -7,25 +7,29 @@ namespace RayTracer
 {
     class Utils
     {
+        // Simple colors:
         public static readonly Vector3 RED = new Vector3(1f, 0f, 0f);
         public static readonly Vector3 GREEN = new Vector3(0f, 1f, 0f);
         public static readonly Vector3 BLUE = new Vector3(0f, 0f, 1f);
 
         public const float DIST_EPS = 1e-5f; // used for small distances
         public const float SMALL_EPS = 1e-10f; // used for really small rounding errors and such
-        public const int AREASAMPLES = 10;
+        public const int AREASAMPLES = 10; // Number of points which we sample for an area light
+
+        // Random used for sampling
         public static Random random = new Random();
 
+        // Parse a float without running into comma vs dot problems.
         public static float Parse(string value)
         {
             return float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
         }
 
+        // Returns a float.
         public static float RandomFloat()
         {
             return (float)random.NextDouble();
         }
-
 
         // Helper function to convert a HDR to an RGB-color
         public static int GetRGBValue(Vector3 v)

@@ -13,8 +13,11 @@ namespace RayTracer
         public Vector3 origin, direction;
         //Debug parameters to use for drawing shadow rays
         public bool debug;
-        public Surface debugSurface;
-        public Vector3 camerapos;
+        public Surface debugSurface; // The surface on which we draw pixels for the debug view
+        public Vector3 camerapos; // The position of the camera.
+        /// <summary>
+        /// This are the directions in 3D space if we move in the debug screen in X and Y direction.
+        /// </summary>
         public Vector3 debugxunit, debugyunit;
 
         public Ray(Vector3 origin, Vector3 direction)
