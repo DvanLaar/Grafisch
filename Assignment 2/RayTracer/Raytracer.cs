@@ -53,13 +53,13 @@ namespace RayTracer
                     skybox.Data[i, j] *= 1.2f;
 
             // white ball
-            scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, new Material(Vector3.One, true)));
+            scene.AddPrimitive(new Sphere(new Vector3(0, 1.5f, -6f), 1.5f, new Material(Vector3.One, .5f, 100f)));
             // green ball
-            scene.AddPrimitive(new Sphere(new Vector3(3f, 1.5f, -6f), 0.5f, new Material(new Vector3(0f, 1f, 0f), true)));
+            scene.AddPrimitive(new Sphere(new Vector3(3f, 1.5f, -6f), 0.5f, new Material(new Vector3(0f, 1f, 0f), .75f, 10f)));
             // blue ball
-            scene.AddPrimitive(new Sphere(new Vector3(-3f, 1.5f, -6f), 1, new Material(new Vector3(0f, 0f, 1f), 25f)));
+            scene.AddPrimitive(new Sphere(new Vector3(-3f, 1.5f, -6f), 1, new Material(new Vector3(0f, 0f, 1f), .5f, 25f)));
 
-            scene.AddPrimitive(new Quad(new Vector3(-5f, 0f, -10f), new Vector3(10f, 0f, 0f), new Vector3(0f, 10f, 0f), new Material(Vector3.One * 0.5f, true)));
+            scene.AddPrimitive(new Quad(new Vector3(-5f, 0f, -10f), new Vector3(10f, 0f, 0f), new Vector3(0f, 10f, 0f), new Material(Vector3.One * 0.5f, 1f)));
 
             // normal is: Vector3.UnitY
             Texture floortexture = new Texture("Textures/floor.bmp");
@@ -76,7 +76,7 @@ namespace RayTracer
                 ));
                 scene.AddPrimitive(new TexturedSphere(
                     new Vector3(-3f, 2f, 3f),
-                    1, jbtexture, new Material(Vector3.One, 25f)
+                    1, jbtexture, new Material(Vector3.One, .5f, 25f)
                 ));
             }
 
@@ -84,12 +84,12 @@ namespace RayTracer
             // scene.AddPrimitive(new TexturedQuad(new Vector3(-1f, 0f, -1f), new Vector3(2f, 0, 0), new Vector3(0, 2f, 0), pepetexture, new Material(Vector3.One)));
 
             // Slow, but awesome!
-            // scene.AddPrimitive(new Mesh("Objects/decimated_teapot.obj", new Vector3(-0.5f, 4f, -2f), 1f, new Material(new Vector3(1f, 1f, 0f))));
+            scene.AddPrimitive(new Mesh("Objects/little_test.obj", new Vector3(-0.5f, 4f, -2f), 1f, new Material(new Vector3(1f, 1f, 0f))));
 
             // Ambient
             // scene.AddLight(new Light(Utils.WHITE * 0.1f));
 
-            scene.AddLight(new PointLight(new Vector3(-3f, 0.5f, -3f), Vector3.One * 10f));
+            scene.AddLight(new PointLight(new Vector3(-3f, 2.5f, -3f), Vector3.One * 10f));
             scene.AddLight(new PointLight(new Vector3(3.3f, 4.7f, -4f), Vector3.One * 1f));
             scene.AddLight(new DirectionalLight(new Vector3(-1f, -5f, -2.5f), Vector3.One * .5f));
 
@@ -103,8 +103,8 @@ namespace RayTracer
 
         public void Render(Surface surface)
         {
-            Stopwatch timer = new Stopwatch();
-            timer.Start();
+            //Stopwatch timer = new Stopwatch();
+            //timer.Start();
 
             // Initial part of Debug
             screensurface = surface;
@@ -149,7 +149,7 @@ namespace RayTracer
             surface.Print("Anti-Aliasing: " + (AntiAliasing * AntiAliasing), 522, 512 - 48, 0xffffff);
             surface.Print("Speedup: " + SpeedUp, 522, 512 - 24, 0xffffff);
 
-            timer.Stop();
+            //timer.Stop();
             //Console.WriteLine("One render took " + timer.ElapsedMilliseconds + " ms");
         }
 
@@ -210,8 +210,10 @@ namespace RayTracer
                 return skybox.Data[texx, texy];
             }
 
+            Material mat = intersection.primitive.material;
+            Vector3 ret = Vector3.Zero;
             // This is the real color of the object:
-            if (intersection.primitive.material.isMirror)
+            if (mat.isSpecular)
             {
                 // Calculate the reflection vector, and go one level deeper in the recursion
                 Vector3 N = intersection.normal;
@@ -225,30 +227,28 @@ namespace RayTracer
                 ray2.debugyunit = ray.debugyunit;
                 Vector3 reflected = CalculateColor(ray2, recursionDepth);
                 // multiply with the color of this material (in most cases this should be white for a realistic mirror)
-                return intersection.primitive.GetDiffuseColor(intersection) * reflected;
+                ret += mat.specularity * intersection.primitive.GetDiffuseColor(intersection) * reflected;
             }
-
-            Vector3 color = Vector3.Zero;
-            foreach (Light light in scene.lights)
+            if (mat.isDiffuse)
             {
-                // The color is the sum of all the contributions
-                color += light.GetIntensity(ray, intersection, scene);
+                foreach (Light light in scene.lights)
+                {
+                    // The color is the sum of all the contributions
+                    ret += (1f - mat.specularity) * light.GetIntensity(ray, intersection, scene);
+                }
             }
-            return color;
+            return ret;
         }
 
         private void DrawInitialDebug(Surface screen)
         {
             debugsurface = new Surface(512, 512);
 
-            //Camera
-            debugsurface.Plot(TXDebug(0), TYDebug(0), 0xffffff);
-
             DebugYUnit = camera.getDirection(256, 256).direction.Normalized();
             Vector3 upesq = camera.getDirection(256, 200).direction.Normalized();
             DebugXUnit = (Vector3.Cross(DebugYUnit, upesq)).Normalized();
 
-            //primitives
+            // primitives
             foreach (Primitive prim in scene.primitives)
             {
                 if (prim is Sphere)
@@ -262,9 +262,12 @@ namespace RayTracer
                     if (distancesquared > s.radius * s.radius)
                         continue;
 
-                    DrawCircle(debugsurface, TXDebug(nx), TYDebug(ny), (float)Math.Sqrt(s.radius * s.radius - distancesquared), Utils.GetRGBValue(s.material.diffuse));
+                    DrawCircle(debugsurface, TXDebug(nx), TYDebug(ny), (float)Math.Sqrt(s.radius * s.radius - distancesquared), Utils.GetRGBValue(s.material.diffuseColor));
                 }
             }
+
+            // Camera
+            debugsurface.Plot(TXDebug(0), TYDebug(0), 0xffffff);
         }
 
         public static void DrawRayDebug(Ray ray, Intersection intersection, int c)

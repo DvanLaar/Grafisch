@@ -66,7 +66,7 @@ namespace RayTracer.Lights
                 }
             }
             Vector3 diffuse = intersection.primitive.GetDiffuseColor(intersection);
-            return intensity * (diffuse * diff + mat.specular * spec);
+            return intensity * (diffuse * diff + Vector3.One * spec);
         }
     }
 }

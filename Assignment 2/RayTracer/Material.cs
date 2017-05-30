@@ -1,41 +1,33 @@
 ﻿using OpenTK;
+using System;
 
 namespace RayTracer
 {
     public class Material
     {
-        public readonly Vector3 diffuse, specular;
-        public readonly float hardness;
-        public readonly bool isDiffuse, isSpecular, isMirror;
+        public readonly Vector3 diffuseColor;
+        public readonly float specularity, hardness;
+        public readonly bool isDiffuse, isSpecular;
 
-        public Material(Vector3 diffuseColor, bool isMirror = false)
+        public Material(Vector3 diffuseColor)
         {
-            this.diffuse = diffuseColor;
-            this.specular = Vector3.Zero;
-            this.hardness = 0f;
-
-            isDiffuse = diffuse.Length > Utils.DIST_EPS;
+            this.diffuseColor = diffuseColor;
+            specularity = hardness = 0f;
+            isDiffuse = true;
             isSpecular = false;
-            this.isMirror = isMirror;
         }
 
-        public Material(Vector3 diffuseColor, float hardness) :
-            this(diffuseColor, Vector3.One * 0.25f, hardness)
-        { }
+        public Material(Vector3 diffuseColor, float specularity) : this(diffuseColor, specularity, 0f) { }
 
-        public Material(Vector3 diffuse, Vector3 specular, float hardness) :
-            this(diffuse, specular, hardness, false)
-        { }
-
-        public Material(Vector3 diffuse, Vector3 specular, float hardness, bool isMirror)
+        public Material(Vector3 diffuseColor, float specularity, float hardness)
         {
-            this.diffuse = diffuse;
-            this.specular = specular;
-            this.hardness = hardness;
+            if (specularity < 0f || specularity > 1f) throw new ArgumentException("Specularity is not in range [0, 1]");
 
-            isDiffuse = this.diffuse.Length > Utils.DIST_EPS;
-            isSpecular = this.specular.Length > Utils.DIST_EPS;
-            this.isMirror = isMirror;
+            this.diffuseColor = diffuseColor;
+            this.specularity = specularity;
+            this.hardness = hardness;
+            isDiffuse = 1f - specularity > Utils.DIST_EPS;
+            isSpecular = specularity > Utils.DIST_EPS;
         }
     }
 }

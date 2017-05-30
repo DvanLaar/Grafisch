@@ -67,7 +67,7 @@ namespace RayTracer.Primitives
             }
 
             // intersection is non-empty
-            return 0 <= tmin && tmin <= tmax;
+            return tmin <= tmax;
         }
     }
 }

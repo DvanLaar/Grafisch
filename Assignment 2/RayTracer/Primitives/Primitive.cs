@@ -19,7 +19,7 @@ namespace RayTracer.Primitives
         /// </summary>
         public virtual Vector3 GetDiffuseColor(Intersection intersection)
         {
-            return material.diffuse;
+            return material.diffuseColor;
         }
     }
 }
