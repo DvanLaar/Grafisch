@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using RayTracer.Primitives;
+using System;
 
 namespace RayTracer.Lights
 {
@@ -17,23 +18,24 @@ namespace RayTracer.Lights
             // Calculates the average of pointlights by sampling random point sources
             // inside this triangle
             Vector3 sum = Vector3.Zero;
+            Random rand = new Random(Utils.RandomInt());
             for (int i = Utils.AREASAMPLES; i-- > 0;)
-                sum += Sample(GenerateSamplePoint(), intersection, scene);
-            return sum / Utils.AREASAMPLES;
-        }
-
-        private Vector3 GenerateSamplePoint()
-        {
-            //Generate random point on the triangle to sample from
-            float u = Utils.RandomFloat(), v = Utils.RandomFloat();
-            // uniform distribution for (u, v) in [0, 1)x[0, 1)
-            if (u + v >= 1.0f)
             {
-                u = 1.0f - u;
-                v = 1.0f - v;
+                // Generate random point on the triangle to sample from
+                float u = (float) rand.NextDouble(), v = (float)rand.NextDouble();
+                // uniform distribution for (u, v) in [0, 1)x[0, 1)
+
+                if (u + v >= 1.0f)
+                {
+                    u = 1.0f - u;
+                    v = 1.0f - v;
+                }
+                // now we have that same distribution but for u + v < 1 which is needed for a triangle
+                Vector3 samplepoint = triangle.pos1 + u * triangle.edge1 + v * triangle.edge2;
+                // Sample this point as if it was a point light!
+                sum += Sample(samplepoint, intersection, scene);
             }
-            // now we have that same distribution but for u + v < 1 which is needed for a triangle
-            return triangle.pos1 + u * triangle.edge1 + v * triangle.edge2;
+            return sum / Utils.AREASAMPLES;
         }
 
         /**

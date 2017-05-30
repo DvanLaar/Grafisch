@@ -18,6 +18,7 @@ namespace RayTracer
 
         // Random used for sampling
         public static Random random = new Random();
+        private static object randlock = new object();
 
         // Parse a float without running into comma vs dot problems.
         public static float Parse(string value)
@@ -25,10 +26,13 @@ namespace RayTracer
             return float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
         }
 
-        // Returns a float.
-        public static float RandomFloat()
+        // Returns threadsafe a random int
+        public static int RandomInt()
         {
-            return (float)random.NextDouble();
+            lock (randlock)
+            {
+                return random.Next();
+            }
         }
 
         // Helper function to convert a HDR to an RGB-color

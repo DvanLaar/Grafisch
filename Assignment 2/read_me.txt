@@ -4,6 +4,10 @@ Daan van Laar   - 5518741
 Ludo Pulles     - 5727146
 Jasper Everink  - 5649137
 
+Note:
+    Omdat Meshen duur zijn te raytracen, is de teapot mesh initieel gecomment.
+    Deze regel bevindt zich op regel 84 en dient uitgecomment te worden om hem te zien.
+
 Besturing:
     W, A, S, D, Q, E            -   Beweegt de camera
     Pijltjes toetesen           -   Draait de camera
@@ -61,8 +65,12 @@ Bonus Assigments (anders):
 	Axis-aligned bounding box
 		Dit is gedaan om sneller intersecties af te kunnen strepen als een Ray er niet doorheengaat.
 	Specularity
-		Er zijn voor sommige objecten wat reflecties toegevoegd van wit licht wat dan wordt weerspiegelt ook op niet-spiegel oppervlakten. Hierbij gaat het meeste licht in de reflectie richting. Daarbuiten neemt het exponentieel af met exponent 'hardness'
-
+		Er zijn voor sommige objecten wat reflecties toegevoegd van wit licht wat dan wordt weerspiegelt ook op niet-spiegel oppervlakten. Hierbij gaat het
+        meeste licht in de reflectie richting. Daarbuiten neemt het exponentieel af met exponent 'hardness'
+    SpeedUp/Clustering van Pixels
+        Om het makkelijker te maken door de scene te bewegen worden blokken van pixels geclusterd, waar per cluster maar een enkele ray gestuurd wordt. Deze
+        waarde kan worden aangepast met de toetsen 1 tot en met 8, + en - om mooiere of snellere plaatjes te krijgen.
+        
 References:
     -   De slides van het vak
     -   Moeller-Trumbore intersection algorithm as explained in:
