@@ -37,7 +37,10 @@ namespace RayTracer
         private DrawParameters drawParams;
         private readonly int nThreads = Environment.ProcessorCount;
 
+        public Surface screensurface;
         public Vector3 DebugXUnit, DebugYUnit;
+
+        public Surface debugsurface;
 
         public Raytracer()
         {
@@ -106,6 +109,7 @@ namespace RayTracer
             // Console.Write("render; ");
 
             // Initial part of Debug
+            screensurface = surface;
             DrawInitialDebug(surface);
 
             // When we talk about 4x anti-aliasing, we actually mean 2x2 rays instead of 1 per pixel.
@@ -138,6 +142,15 @@ namespace RayTracer
             for (int i = 1; i < nThreads; i++)
                 threads[i].Join();
 
+            int[] debugdata = debugsurface.pixels;
+            for (int x = 0; x < 512; x++)
+            {
+                for (int y = 0; y < 512; y++)
+                {
+                    surface.Plot(x+512,y,debugdata[x+512*y]);
+                }
+            }
+
             timer.Stop();
             //Console.WriteLine("One render took " + timer.ElapsedMilliseconds + " ms");
         }
@@ -156,6 +169,14 @@ namespace RayTracer
                         {
                             // ask the camera for the direction of this interpolated pixel
                             Ray ray = camera.getDirection(x + drawParams.AAvals[aax], y + drawParams.AAvals[aay]);
+                            if (aax == 0 && aay == 0 && y <= 256 && 256 < y + SpeedUp && x % 10 == 0)
+                            {
+                                ray.debug = true;
+                                ray.debugSurface = debugsurface;
+                                ray.camerapos = camera.Position;
+                                ray.debugxunit = DebugXUnit;
+                                ray.debugyunit = DebugYUnit;
+                            }
                             raysum += CalculateColor(ray);
                         }
                     }
@@ -174,6 +195,15 @@ namespace RayTracer
             if (recursionDepth-- <= 0) return Vector3.Zero;
 
             Intersection intersection = scene.Intersect(ray);
+
+            if (ray.debug)
+            {
+                if (recursionDepth == MAX_RECURSION - 1)
+                    DrawRayDebug(ray, intersection, 0xff0000);
+                else
+                    DrawRayDebug(ray, intersection, 0x00ff00);
+            }
+
             if (intersection == null)
             {
                 // The ray doesn't collide with any primitive, so return the color of the skybox
@@ -190,6 +220,11 @@ namespace RayTracer
                 // secondary ray, obtained by reflecting the current ray
                 Ray ray2 = new Ray(intersection.location, dir - 2 * Vector3.Dot(dir, N) * N);
                 // color at the intersection when looking in the reflection direction:
+                ray2.debug = ray.debug;
+                ray2.debugSurface = ray.debugSurface;
+                ray2.camerapos = ray.camerapos;
+                ray2.debugxunit = ray.debugxunit;
+                ray2.debugyunit = ray.debugyunit;
                 Vector3 reflected = CalculateColor(ray2, recursionDepth);
                 // multiply with the color of this material (in most cases this should be white for a realistic mirror)
                 return intersection.primitive.GetDiffuseColor(intersection) * reflected;
@@ -206,22 +241,14 @@ namespace RayTracer
 
         private void DrawInitialDebug(Surface screen)
         {
-            //Camera
-            screen.Plot(TXDebug(0),TYDebug(0),0xffffff);
+            debugsurface = new Surface(512, 512);
 
+            //Camera
+            debugsurface.Plot(TXDebug(0),TYDebug(0),0xffffff);
 
             DebugYUnit = camera.getDirection(256,256).direction.Normalized();
             Vector3 upesq = camera.getDirection(256, 200).direction.Normalized();
             DebugXUnit = (Vector3.Cross(DebugYUnit,upesq)).Normalized();
-
-            //Screenplane
-            //x = TXDebug(camera.cornerTL.X);
-            //y = TYDebug(camera.cornerTL.Z);
-            //int x2 = TXDebug(camera.cornerTR.X);
-            //int y2 = TYDebug(camera.cornerTR.Z);
-
-            //Let's just say it is on screen to save on Lots of &'s
-            //screen.Line(x, y, x2, y2, 0xffffff);
 
             //primitives
             foreach (Primitive prim in scene.primitives)
@@ -237,34 +264,41 @@ namespace RayTracer
                     if (distancesquared > s.radius * s.radius)
                         continue;
 
-                    DrawCircle(screen, TXDebug(nx), TYDebug(ny), (float)Math.Sqrt(s.radius * s.radius - distancesquared), Utils.GetRGBValue(s.material.diffuse));
+                    DrawCircle(debugsurface, TXDebug(nx), TYDebug(ny), (float)Math.Sqrt(s.radius * s.radius - distancesquared), Utils.GetRGBValue(s.material.diffuse));
                 }
             }
         }
 
-        private void DrawRayDebug(Surface screen, Ray ray, Intersection intersection, int c, int nc)
+        public static void DrawRayDebug( Ray ray, Intersection intersection, int c)
         {
-            int x1 = TXDebug(ray.origin.X);
-            int y1 = TYDebug(ray.origin.Z);
-            int x2 = TXDebug(intersection.location.X);
-            int y2 = TYDebug(intersection.location.Z);
-            screen.Line(x1, y1, x2, y2, c);
+            int x1, y1, x2, y2;
+            if(intersection != null)
+            {
+                x1 = TXDebug(Vector3.Dot(ray.debugxunit, ray.origin - ray.camerapos));
+                y1 = TYDebug(Vector3.Dot(ray.debugyunit, ray.origin - ray.camerapos));
+                x2 = TXDebug(Vector3.Dot(ray.debugxunit, intersection.location - ray.camerapos));
+                y2 = TYDebug(Vector3.Dot(ray.debugyunit, intersection.location - ray.camerapos));
+            } else
+            {
+                x1 = TXDebug(Vector3.Dot(ray.debugxunit, ray.origin - ray.camerapos));
+                y1 = TYDebug(Vector3.Dot(ray.debugyunit, ray.origin - ray.camerapos));
+                x2 = TXDebug(Vector3.Dot(ray.debugxunit, (ray.origin + 100f * ray.direction) - ray.camerapos));
+                y2 = TYDebug(Vector3.Dot(ray.debugyunit, (ray.origin + 100f * ray.direction) - ray.camerapos));
+            }
 
-            Vector3 to = intersection.location + .3f * intersection.normal;
-            x1 = TXDebug(to.X);
-            y1 = TYDebug(to.Z);
-            screen.Line(x1, y1, x2, y2, nc);
+            ray.debugSurface.Line(x1, y1, x2, y2, c);
         }
 
-        public float minX = -5, maxX = 5, minY = -1, maxY = 9;
 
-        private int TXDebug(float x)
+        public static float minX = -5, maxX = 5, minY = -1, maxY = 9;
+
+        private static int TXDebug(float x)
         {
             float worldWidth = maxX - minX;
-            return 512 + (int)((x - minX) * (512 / worldWidth));
+            return (int)((x - minX) * (512 / worldWidth));
         }
 
-        private int TYDebug(float y)
+        private static int TYDebug(float y)
         {
             float worldHeight = maxY - minY;
             return (int)((-y + maxY) * (512 / worldHeight));

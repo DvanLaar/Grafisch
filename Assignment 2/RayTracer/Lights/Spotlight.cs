@@ -31,6 +31,17 @@ namespace RayTracer.Lights
             float dot = Vector3.Dot(intersection.normal, lightnormal);
             if (dot <= 0f) return Vector3.Zero;
 
+            if (ray.debug)
+            {
+                Ray debugray = new Ray(intersection.location, lightnormal);
+                debugray.debugSurface = ray.debugSurface;
+                debugray.camerapos = ray.camerapos;
+                debugray.debugxunit = ray.debugxunit;
+                debugray.debugyunit = ray.debugyunit;
+                Intersection fakeintersection = new Intersection(this.position, 0, null, Vector3.UnitX);
+                Raytracer.DrawRayDebug(debugray, fakeintersection, 0x0000ff);
+            }
+
             // check the intersection as late as possible:
             if (scene.DoesIntersect(new Ray(intersection.location, lightnormal), lightvec.Length))
                 return Vector3.Zero;

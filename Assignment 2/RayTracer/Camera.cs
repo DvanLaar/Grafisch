@@ -144,7 +144,14 @@ namespace RayTracer
                 "Arrow keys:          rotate the camera\n" +
                 "R, F:                adjust antialiasing\n" +
                 "1 - 8, -, +:         adjust speed up\n" +
-                "PageUp, PageDown:    adjust FOV\n";
+                "PageUp, PageDown:    adjust FOV\n" +
+                "\n"+
+                "Debug:\n"+
+                "Red lines: Primary Rays\n" +
+                "Green lines: Secondary Rays\n" + 
+                "Blue lines: Shadow Rays\n"+
+                "Only the sphere primitives are shown\n"
+                ;
             Console.WriteLine(s);
         }
     }
