@@ -12,7 +12,7 @@ namespace RayTracer.Primitives
         {
             nPos = norm1;
             nDirU = norm2 - norm1;
-            nDirV = norm3 - norm3;
+            nDirV = norm3 - norm1;
         }
 
         public override Intersection Intersect(Ray ray)
