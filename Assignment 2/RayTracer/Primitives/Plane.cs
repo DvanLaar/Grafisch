@@ -25,6 +25,7 @@ namespace RayTracer.Primitives
 
             float dotOrigin = Vector3.Dot(ray.origin, normal);
             float t = -(dotOrigin + distance) / dot;
+            // Return the opposite normal if we intersect from the other side
             Vector3 intersectionNormal = dotOrigin < 0f ? -normal : normal;
             return t <= 0 ? null : new Intersection(ray.origin + t * ray.direction, t, this, intersectionNormal);
         }

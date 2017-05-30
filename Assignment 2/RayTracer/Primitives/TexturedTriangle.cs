@@ -2,6 +2,7 @@
 
 namespace RayTracer.Primitives
 {
+    // A textured triangle
     class TexturedTriangle : Triangle
     {
 
@@ -23,6 +24,7 @@ namespace RayTracer.Primitives
             Vector2 barycord = ((BarycentricIntersection)intersection).barycentric;
             Vector2 texcord = tPos + barycord.X * tDirU + barycord.Y * tDirV;
 
+            // Use the barycentric coordinates of the intersection to find the texture coordinates.
             int tx = Utils.scaleFloat(texcord.X, texture.Width - 1);
             int ty = Utils.scaleFloat(texcord.Y, texture.Height - 1);
             return base.GetDiffuseColor(intersection) * texture.Data[tx, ty];

@@ -4,6 +4,7 @@ namespace RayTracer.Primitives
 {
     class NormalTriangle : Triangle
     {
+        // Contains the normal of pos1, and the relative normals needed to add to get the normal of pos2 and pos3
         public Vector3 nPos, nDirU, nDirV;
 
         public NormalTriangle(Vector3 pos1, Vector3 pos2, Vector3 pos3,

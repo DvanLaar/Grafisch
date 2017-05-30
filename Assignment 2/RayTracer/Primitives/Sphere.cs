@@ -3,6 +3,7 @@ using OpenTK;
 
 namespace RayTracer.Primitives
 {
+    // Class for a sphere of radius 'radius' and center 'center' (pretty straight-forward)
     public class Sphere : Primitive
     {
         public readonly float radius, radiusSq;
@@ -20,13 +21,16 @@ namespace RayTracer.Primitives
 
         public override Intersection Intersect(Ray ray)
         {
+            // Modified from the lecture slides:
             if (!BB.boundsWith(ray)) return null;
 
             Vector3 c = center - ray.origin;
             float t = Vector3.Dot(c, ray.direction);
             float redp2 = radiusSq - (c - t * ray.direction).LengthSquared;
 
+            // No intersection in this case or for negative t
             if (redp2 < 0 || t < 0 || t * t < redp2) return null;
+            // Take the first intersection point:
             t -= (float)Math.Sqrt(redp2);
             Vector3 location = ray.origin + (t * ray.direction);
             return new Intersection(location, t, this, (location - center).Normalized());

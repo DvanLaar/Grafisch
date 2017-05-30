@@ -5,11 +5,16 @@ using System.IO;
 
 namespace RayTracer.Primitives
 {
+    // A 3D object which can be loaded from a .obj file
     class Mesh : Primitive
     {
+        // All the vertices of the object
         private List<Vector3> vertices;
+        // The bounding box to check if an intersection is inside this object.
         public readonly BoundingBox BB;
+        // The list of all triangles (quads are not supported)
         public readonly List<Primitive> triangles;
+        // The 'center' of the object, to which all positions from the .OBJ file are relative.
         private Vector3 position;
 
         public Mesh(string path, Vector3 position, float scale,
@@ -35,12 +40,15 @@ namespace RayTracer.Primitives
                 switch (split1[0])
                 {
                     case "v":
+                        // read a vertex
                         vertices.Add(new Vector3(Utils.Parse(split1[1]), Utils.Parse(split1[2]), Utils.Parse(split1[3])) * scale + position);
                         break;
                     case "vn":
+                        // read a vertex normal
                         normals.Add(new Vector3(Utils.Parse(split1[1]), Utils.Parse(split1[2]), Utils.Parse(split1[3])).Normalized());
                         break;
                     case "f":
+                        // a face should consist out of 3 vertices
                         if (split1.Length == 5)
                         {
                             throw new Exception("The faces are not triangles, but quads!");
@@ -67,6 +75,7 @@ namespace RayTracer.Primitives
 
             // Check ALL triangles (lots o' calculating, lots o' waiting)
             Intersection ret = null;
+            // Return the intersection with the smallest t value
             foreach (var primitive in triangles)
             {
                 Intersection alt = primitive.Intersect(ray);

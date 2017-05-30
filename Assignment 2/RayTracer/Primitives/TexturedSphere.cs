@@ -3,6 +3,7 @@ using System;
 
 namespace RayTracer.Primitives
 {
+    // A textured sphere, where we project the square of the texture on a sphere.
     class TexturedSphere : Sphere
     {
         public Texture texture;

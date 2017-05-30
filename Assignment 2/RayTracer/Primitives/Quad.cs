@@ -2,9 +2,13 @@
 
 namespace RayTracer.Primitives
 {
+    // Class for quads instead of two triangle because quads are used a lot.
     class Quad : Primitive
     {
+        // The position of the firts vertex, and the direction to go to two other vertices.
+        // The normal is perpendicular to edge1 and edge2.
         public readonly Vector3 pos1, edge1, edge2, normal;
+        // Distance as if this would be a plane.
         public readonly float distance;
         public readonly BoundingBox BB;
 
@@ -37,6 +41,7 @@ namespace RayTracer.Primitives
 
             Vector3 qvec = Vector3.Cross(tvec, edge1);
             float v = Vector3.Dot(ray.direction, qvec) * invdet;
+            // This line is different from a triangle, because instead of u + v < 1f we have 0f <= u, v <= 1f
             if (v < 0f || v > 1f) return null;
 
             float t = Vector3.Dot(edge2, qvec) * invdet;

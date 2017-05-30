@@ -9,6 +9,7 @@ namespace RayTracer.Primitives
 {
     public struct BoundingBox
     {
+        // Dimensions of the box
         public float minX, maxX, minY, maxY, minZ, maxZ;
 
         public BoundingBox(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
@@ -26,6 +27,7 @@ namespace RayTracer.Primitives
             float.PositiveInfinity, float.NegativeInfinity,
             float.PositiveInfinity, float.NegativeInfinity)
         {
+            // Take the smallest and biggest values from the list.
             foreach (Vector3 v in vertices)
             {
                 if (v.X < minX) minX = v.X;
@@ -37,12 +39,16 @@ namespace RayTracer.Primitives
             }
         }
 
+        // Determines of this ray intersects with the box
         public bool boundsWith(Ray ray)
         {
-            float tmin = float.NegativeInfinity;
+            // Comes from the lecture slides:
+            // float tmin = float.NegativeInfinity;
+            float tmin = 0;
             float tmax = float.PositiveInfinity;
             if (ray.direction.X < -Utils.SMALL_EPS || ray.direction.X > Utils.SMALL_EPS)
             {
+                // Prevent division by zero
                 float tx1 = (minX - ray.origin.X) / ray.direction.X;
                 float tx2 = (maxX - ray.origin.X) / ray.direction.X;
 
@@ -51,6 +57,7 @@ namespace RayTracer.Primitives
             }
             if (-Utils.SMALL_EPS > ray.direction.Y || ray.direction.Y > Utils.SMALL_EPS)
             {
+                // Prevent division by zero
                 float ty1 = (minY - ray.origin.Y) / ray.direction.Y;
                 float ty2 = (maxY - ray.origin.Y) / ray.direction.Y;
 
@@ -59,6 +66,7 @@ namespace RayTracer.Primitives
             }
             if (-Utils.SMALL_EPS > ray.direction.Z || ray.direction.Z > Utils.SMALL_EPS)
             {
+                // Prevent division by zero
                 float tz1 = (minZ - ray.origin.Z) / ray.direction.Z;
                 float tz2 = (maxZ - ray.origin.Z) / ray.direction.Z;
 
@@ -66,7 +74,9 @@ namespace RayTracer.Primitives
                 tmax = Math.Min(tmax, Math.Max(tz1, tz2));
             }
 
-            // intersection is non-empty
+            // return if the intersection is non-empty
+            // and the moment that we leave the box must be positive because we chose tmin = 0 in the beginning,
+            // so at the end tmin >= 0
             return tmin <= tmax;
         }
     }
