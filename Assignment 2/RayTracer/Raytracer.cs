@@ -68,10 +68,9 @@ namespace RayTracer
             if (jaccoPresent)
             {
                 Texture jbtexture = new Texture("Textures/jb.png");
-                Vector3 jb_bl = new Vector3(2.5f, 3f, -5.4f), jb_dirx = new Vector3(2f, 0f, 1f), jb_diry = new Vector3(0f, 2f, 0f);
 
                 scene.AddPrimitive(new TexturedQuad(
-                    jb_bl, jb_dirx, jb_diry, jbtexture,
+                    new Vector3(2.5f, 3f, -5.4f), new Vector3(2f, 0f, 1f), new Vector3(0f, 2f, 0f), jbtexture,
                     new Material(Vector3.One)
                 ));
                 scene.AddPrimitive(new TexturedSphere(
@@ -84,7 +83,7 @@ namespace RayTracer
             // scene.AddPrimitive(new TexturedQuad(new Vector3(-1f, 0f, -1f), new Vector3(2f, 0, 0), new Vector3(0, 2f, 0), pepetexture, new Material(Vector3.One)));
 
             // Slow, but awesome!
-            scene.AddPrimitive(new Mesh("Objects/little_test.obj", new Vector3(-0.5f, 4f, -2f), 1f, new Material(new Vector3(1f, 1f, 0f))));
+            scene.AddPrimitive(new Mesh("Objects/little_test.obj", new Vector3(-4.5f, 1f, -4f), 1f, new Material(new Vector3(1f, 1f, 0f))));
 
             // Ambient
             // scene.AddLight(new Light(Utils.WHITE * 0.1f));

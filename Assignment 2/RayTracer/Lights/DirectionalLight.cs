@@ -27,21 +27,21 @@ namespace RayTracer.Lights
             float NdotL = Vector3.Dot(intersection.normal, L);
             if (NdotL > 0f)
             {
-                if (ray.debug)
-                {
-                    Ray debugray = new Ray(intersection.location, L);
-                    debugray.debugSurface = ray.debugSurface;
-                    debugray.camerapos = ray.camerapos;
-                    debugray.debugxunit = ray.debugxunit;
-                    debugray.debugyunit = ray.debugyunit;
-                    Raytracer.DrawRayDebug(debugray, null,0x0000ff);
-                }
-
                 // check the intersection as late as possible:
                 visible = !scene.DoesIntersect(new Ray(intersection.location, L), float.PositiveInfinity);
                 if (visible)
                 {
                     diff = NdotL;
+
+                    if (ray.debug)
+                    {
+                        Ray debugray = new Ray(intersection.location, L);
+                        debugray.debugSurface = ray.debugSurface;
+                        debugray.camerapos = ray.camerapos;
+                        debugray.debugxunit = ray.debugxunit;
+                        debugray.debugyunit = ray.debugyunit;
+                        Raytracer.DrawRayDebug(debugray, null, 0x0000ff);
+                    }
                 }
             }
 
@@ -56,8 +56,7 @@ namespace RayTracer.Lights
                         visible = !scene.DoesIntersect(new Ray(intersection.location, L), float.PositiveInfinity);
                     if (visible)
                     {
-                        spec = (float) Math.Pow(NdotH, mat.hardness);
-                        // Console.WriteLine("specularity: " + spec);
+                        spec = (float)Math.Pow(NdotH, mat.hardness);
                     }
                 }
             }

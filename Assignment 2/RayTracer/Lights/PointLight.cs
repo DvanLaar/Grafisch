@@ -29,23 +29,22 @@ namespace RayTracer.Lights
                 float NdotL = Vector3.Dot(intersection.normal, L);
                 if (NdotL > 0f)
                 {
-
-                    if (ray.debug)
-                    {
-                        Ray debugray = new Ray(intersection.location, L);
-                        debugray.debugSurface = ray.debugSurface;
-                        debugray.camerapos = ray.camerapos;
-                        debugray.debugxunit = ray.debugxunit;
-                        debugray.debugyunit = ray.debugyunit;
-                        Intersection fakeintersection = new Intersection(this.position,0,null,Vector3.UnitX);
-                        Raytracer.DrawRayDebug(debugray, fakeintersection, 0x0000ff);
-                    }
-
                     // check the intersection as late as possible:
                     visible = !scene.DoesIntersect(new Ray(intersection.location, L), dist);
                     if (visible)
                     {
                         diff = NdotL / distSq;
+
+                        if (ray.debug)
+                        {
+                            Ray debugray = new Ray(intersection.location, L);
+                            debugray.debugSurface = ray.debugSurface;
+                            debugray.camerapos = ray.camerapos;
+                            debugray.debugxunit = ray.debugxunit;
+                            debugray.debugyunit = ray.debugyunit;
+                            Intersection fakeintersection = new Intersection(this.position, 0, null, Vector3.UnitX);
+                            Raytracer.DrawRayDebug(debugray, fakeintersection, 0x0000ff);
+                        }
                     }
                 }
 
