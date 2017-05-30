@@ -42,6 +42,7 @@ namespace RayTracer.Lights
                             debugray.camerapos = ray.camerapos;
                             debugray.debugxunit = ray.debugxunit;
                             debugray.debugyunit = ray.debugyunit;
+                            //Fake intersection makes sure the line is drawn from the intersection point up to the light position
                             Intersection fakeintersection = new Intersection(this.position, 0, null, Vector3.UnitX);
                             Raytracer.DrawRayDebug(debugray, fakeintersection, 0x0000ff);
                         }

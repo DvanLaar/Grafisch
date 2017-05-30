@@ -12,6 +12,7 @@ namespace RayTracer.Lights
         public Light(Vector3 intensity)
         {
             this.intensity = intensity;
+            //Used to calculate a maximum distance the light has any major effect on
             maxIntensity = Math.Max(intensity.X, Math.Max(intensity.Y, intensity.Z));
         }
 

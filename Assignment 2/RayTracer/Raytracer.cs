@@ -33,13 +33,14 @@ namespace RayTracer
         private Camera camera;
         private Scene scene = new Scene();
         private Texture skybox;
-        private int SpeedUp = 4, AntiAliasing = 1;
+        //Speed
+        private int SpeedUp = 8, AntiAliasing = 1;
         private DrawParameters drawParams;
         private readonly int nThreads = Environment.ProcessorCount;
 
+        //Debug parameters
         public Surface screensurface;
         public Vector3 DebugXUnit, DebugYUnit;
-
         public Surface debugsurface;
 
         public Raytracer()
@@ -79,25 +80,25 @@ namespace RayTracer
                 ));
             }
 
-            // Texture pepetexture = new Texture("Textures/pepe.bmp");
-            // scene.AddPrimitive(new TexturedQuad(new Vector3(-1f, 0f, -1f), new Vector3(2f, 0, 0), new Vector3(0, 2f, 0), pepetexture, new Material(Vector3.One)));
-
-            // Slow, but awesome!
+            //.obj file
             scene.AddPrimitive(new Mesh("Objects/little_test.obj", new Vector3(-4.5f, 1f, -4f), 1f, new Material(new Vector3(1f, 1f, 0f))));
 
+            //Different lightsources
+
             // Ambient
-            // scene.AddLight(new Light(Utils.WHITE * 0.1f));
+            scene.AddLight(new Light(Vector3.One * 0.1f));
 
-            scene.AddLight(new PointLight(new Vector3(-3f, 2.5f, -3f), Vector3.One * 10f));
+            scene.AddLight(new PointLight(new Vector3(-3f, 2.5f, -3f), Vector3.One * 4f));
             scene.AddLight(new PointLight(new Vector3(3.3f, 4.7f, -4f), Vector3.One * 1f));
-            scene.AddLight(new DirectionalLight(new Vector3(-1f, -5f, -2.5f), Vector3.One * .5f));
+            scene.AddLight(new DirectionalLight(new Vector3(-1f, -5f, -2.5f), Vector3.One * .01f));
 
-            //Triangle arealighttriangle = new Triangle(new Vector3(-1f, .5f, -2f), new Vector3(2f, .5f, -2f), new Vector3(2f, 1.5f, -2f), Utils.WHITE, 1f);
-            //scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.color * 10f));
+
+            Triangle arealighttriangle = new Triangle(new Vector3(-2.1f, 3f, 3f), new Vector3(-2f, 3f, 3f), new Vector3(-2f, 3f, 5f),new Material(Vector3.One));
+            scene.AddLight(new AreaLight(arealighttriangle, arealighttriangle.material.diffuseColor * 5f));
             //scene.AddPrimitive(arealighttriangle);
 
-            // scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));
-            // scene.AddLight(new Spotlight(new Vector3(3f, 3f, -3f), new Vector3(1f, -1f, 0f), (float)Math.PI / 3f, Utils.RED * 10f));
+            scene.AddLight(new Spotlight(new Vector3(-2f, 2f, 0f), new Vector3(0f, -1f, 0f), (float)Math.PI / 3f, Utils.BLUE * 10f));
+            scene.AddLight(new Spotlight(new Vector3(3f, 3f, -3f), new Vector3(1f, -1f, 0f), (float)Math.PI / 3f, Utils.RED * 10f));
         }
 
         public void Render(Surface surface)
@@ -135,6 +136,8 @@ namespace RayTracer
             for (int i = 1; i < nThreads; i++)
                 threads[i].Join();
 
+
+            //The debug data is first drawn on a seperate surface, then drawn on the main surface so no debug data is drawn over the main raytracer image
             int[] debugdata = debugsurface.pixels;
             for (int x = 0; x < 512; x++)
             {
@@ -193,6 +196,7 @@ namespace RayTracer
 
             Intersection intersection = scene.Intersect(ray);
 
+            //Debug
             if (ray.debug)
             {
                 if (recursionDepth == MAX_RECURSION - 1)
@@ -241,13 +245,15 @@ namespace RayTracer
 
         private void DrawInitialDebug(Surface screen)
         {
+            //Create the surface to draw all the debugging on
             debugsurface = new Surface(512, 512);
 
+            //Create a 2D basis based on the camera orientation to project the rays and spheres on
             DebugYUnit = camera.getDirection(256, 256).direction.Normalized();
             Vector3 upesq = camera.getDirection(256, 200).direction.Normalized();
             DebugXUnit = (Vector3.Cross(DebugYUnit, upesq)).Normalized();
 
-            // primitives
+            // primitive sphere
             foreach (Primitive prim in scene.primitives)
             {
                 if (prim is Sphere)

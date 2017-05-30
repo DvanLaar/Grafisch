@@ -11,6 +11,7 @@ namespace RayTracer
     public struct Ray
     {
         public Vector3 origin, direction;
+        //Debug parameters to use for drawing shadow rays
         public bool debug;
         public Surface debugSurface;
         public Vector3 camerapos;

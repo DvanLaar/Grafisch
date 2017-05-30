@@ -24,6 +24,7 @@ namespace RayTracer.Lights
 
         private Vector3 GenerateSamplePoint()
         {
+            //Generate random point on the triangle to sample from
             float u = Utils.RandomFloat(), v = Utils.RandomFloat();
             if (u + v >= 1.0f)
             {
@@ -47,6 +48,8 @@ namespace RayTracer.Lights
 
             float dot = Vector3.Dot(intersection.normal, lightnormal);
             if (dot <= 0f) return Vector3.Zero;
+
+            // No sampling rays are drawn on the debug view to minimize the ammount of lines 
 
             // check the intersection as late as possible:
             if (scene.DoesIntersect(new Ray(intersection.location, lightnormal), lightvec.Length))

@@ -22,6 +22,7 @@ namespace RayTracer.Primitives
 
         public override Vector3 GetDiffuseColor(Intersection intersection)
         {
+            //Calculate texture coordinate
             int textureX = (int)(texture.Width * Vector3.Dot(intersection.location, dirTX) + offsetX) % texture.Width;
             if (textureX < 0) textureX += texture.Width;
             int textureY = (int)(texture.Height * Vector3.Dot(intersection.location, dirTY) + offsetY) % texture.Height;
