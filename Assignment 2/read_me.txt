@@ -58,8 +58,14 @@ Bonus Assigments (anders):
         (Alleen simpele .OBJ files met vertices, vertexnormals en triangle faces)
     Quads
         Bijna gelijk aan twee triangles met gelijke normaal, maar makkelijker een afbeelding op te texturen.
-        
+	Axis-aligned bounding box
+		Dit is gedaan om sneller intersecties af te kunnen strepen als een Ray er niet doorheengaat.
+	Specularity
+		Er zijn voor sommige objecten wat reflecties toegevoegd van wit licht wat dan wordt weerspiegelt ook op niet-spiegel oppervlakten. Hierbij gaat het meeste licht in de reflectie richting. Daarbuiten neemt het exponentieel af met exponent 'hardness'
+
 References:
     -   De slides van het vak
-    -   Möller-Trumbore intersection algorithm as explained in:
+    -   Moeller-Trumbore intersection algorithm as explained in:
         http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
+
+
