@@ -6,7 +6,9 @@ namespace RayTracer.Lights
 {
     public class Light
     {
+        // Color of the light
         public readonly Vector3 intensity;
+        // Maximum value of all components
         public readonly float maxIntensity;
 
         public Light(Vector3 intensity)
@@ -18,6 +20,7 @@ namespace RayTracer.Lights
 
         public virtual Vector3 GetIntensity(Ray ray, Intersection intersection, Scene scene)
         {
+            // Take the product of the diffuse color of the surface it intersected with and the color of the light.
             return intersection.primitive.GetDiffuseColor(intersection) * intensity;
         }
     }

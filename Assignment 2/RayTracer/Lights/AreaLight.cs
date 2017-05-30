@@ -26,11 +26,13 @@ namespace RayTracer.Lights
         {
             //Generate random point on the triangle to sample from
             float u = Utils.RandomFloat(), v = Utils.RandomFloat();
+            // uniform distribution for (u, v) in [0, 1)x[0, 1)
             if (u + v >= 1.0f)
             {
                 u = 1.0f - u;
                 v = 1.0f - v;
             }
+            // now we have that same distribution but for u + v < 1 which is needed for a triangle
             return triangle.pos1 + u * triangle.edge1 + v * triangle.edge2;
         }
 
