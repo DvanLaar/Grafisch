@@ -37,6 +37,8 @@ namespace RayTracer
         private DrawParameters drawParams;
         private readonly int nThreads = Environment.ProcessorCount;
 
+        public Vector3 DebugXUnit, DebugYUnit;
+
         public Raytracer()
         {
             camera = new Camera(this, new Vector3(0f, 1f, 0f));
@@ -104,7 +106,7 @@ namespace RayTracer
             // Console.Write("render; ");
 
             // Initial part of Debug
-            // DrawInitialDebug(screen);
+            DrawInitialDebug(surface);
 
             // When we talk about 4x anti-aliasing, we actually mean 2x2 rays instead of 1 per pixel.
             surface.Print("Anti-Aliasing: " + (AntiAliasing * AntiAliasing), 522, 512 - 48, 0xffffff);
@@ -137,7 +139,7 @@ namespace RayTracer
                 threads[i].Join();
 
             timer.Stop();
-            Console.WriteLine("One render took " + timer.ElapsedMilliseconds + " ms");
+            //Console.WriteLine("One render took " + timer.ElapsedMilliseconds + " ms");
         }
 
         public void DrawParallel(object data)
@@ -205,15 +207,18 @@ namespace RayTracer
         private void DrawInitialDebug(Surface screen)
         {
             //Camera
-            int x = TXDebug(camera.Position.X);
-            int y = TYDebug(camera.Position.Z);
-            if ((x >= 512) && (x < 1024) && (y >= 0) && (y < 512))
-                screen.Plot(x, y, 0xffffff);
+            screen.Plot(TXDebug(0),TYDebug(0),0xffffff);
+
+
+            DebugYUnit = camera.getDirection(256,256).direction.Normalized();
+            Vector3 upesq = camera.getDirection(256, 200).direction.Normalized();
+            DebugXUnit = (Vector3.Cross(DebugYUnit,upesq)).Normalized();
+
             //Screenplane
-            x = TXDebug(camera.cornerTL.X);
-            y = TYDebug(camera.cornerTL.Z);
-            int x2 = TXDebug(camera.cornerTR.X);
-            int y2 = TYDebug(camera.cornerTR.Z);
+            //x = TXDebug(camera.cornerTL.X);
+            //y = TYDebug(camera.cornerTL.Z);
+            //int x2 = TXDebug(camera.cornerTR.X);
+            //int y2 = TYDebug(camera.cornerTR.Z);
 
             //Let's just say it is on screen to save on Lots of &'s
             //screen.Line(x, y, x2, y2, 0xffffff);
@@ -224,7 +229,15 @@ namespace RayTracer
                 if (prim is Sphere)
                 {
                     Sphere s = (Sphere)prim;
-                    DrawCircle(screen, TXDebug(s.center.X), TYDebug(s.center.Z), s.radius, Utils.GetRGBValue(s.material.diffuse));
+                    Vector3 nc = s.center - camera.Position;
+                    float nx = Vector3.Dot(DebugXUnit, nc);
+                    float ny = Vector3.Dot(DebugYUnit, nc);
+                    Vector3 dif = nc - (nx*DebugXUnit + ny* DebugYUnit);
+                    float distancesquared = dif.LengthSquared;
+                    if (distancesquared > s.radius * s.radius)
+                        continue;
+
+                    DrawCircle(screen, TXDebug(nx), TYDebug(ny), (float)Math.Sqrt(s.radius * s.radius - distancesquared), Utils.GetRGBValue(s.material.diffuse));
                 }
             }
         }
