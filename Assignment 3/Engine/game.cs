@@ -3,6 +3,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using template_P3;
+using System;
 
 // minimal OpenTK rendering framework for UU/INFOGR
 // Jacco Bikker, 2016
@@ -26,6 +27,9 @@ namespace Template_P3
         bool useRenderTarget = true;
 
         SceneGraph scene;
+        Model teapotmodel;
+
+        public static Vector3 camerapos;
 
         // initialize
         public void Init()
@@ -50,7 +54,7 @@ namespace Template_P3
             scene = new SceneGraph();
 
             SceneNode mainNode = new SceneNode();
-            Model teapotmodel = new Model(mesh, wood, shader, Matrix4.Identity);
+            teapotmodel = new Model(mesh, wood, shader, Matrix4.Identity);
             Model floormodel = new Model(floor, wood, shader, Matrix4.Identity);
             mainNode.AddChildModel(teapotmodel);
             mainNode.AddChildModel(floormodel);
@@ -76,6 +80,8 @@ namespace Template_P3
             Matrix4 transform = Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
             transform *= Matrix4.CreateTranslation(0, -4, -15);
             transform *= Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, .1f, 1000);
+            camerapos = transform.Column3.Xyz;
+
 
             // update rotation
             a += 0.001f * frameDuration;
