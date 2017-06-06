@@ -66,6 +66,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FurModel.cs" />
+    <Compile Include="furshader.cs" />
     <Compile Include="game.cs" />
     <Compile Include="mesh.cs" />
     <Compile Include="meshLoader.cs" />
@@ -81,10 +83,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="assets\floor.obj" />
+    <None Include="assets\teapot.obj" />
     <None Include="packages.config" />
     <None Include="shaders\fs.glsl" />
+    <None Include="shaders\fs_fur.glsl" />
     <None Include="shaders\fs_post.glsl" />
     <None Include="shaders\vs.glsl" />
+    <None Include="shaders\vs_fur.glsl" />
     <None Include="shaders\vs_post.glsl" />
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +104,11 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="assets\font.png" />
+    <Content Include="assets\thetrump.png" />
+    <Content Include="assets\wood.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

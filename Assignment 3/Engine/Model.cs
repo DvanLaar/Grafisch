@@ -23,7 +23,7 @@ namespace template_P3
             this.modeltransform = modeltransform;
         }
 
-        public void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
+        public virtual void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
         {
             mesh.Render(shader, ModelToWorld * modeltransform, WorldToScreen * modeltransform, texture);
         }

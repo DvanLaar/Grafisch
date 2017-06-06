@@ -4,6 +4,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using template_P3;
 using System;
+using System.Drawing;
 
 // minimal OpenTK rendering framework for UU/INFOGR
 // Jacco Bikker, 2016
@@ -20,11 +21,14 @@ namespace Template_P3
         float a = 0;                            // teapot rotation angle
         Stopwatch timer;                        // timer for measuring frame duration
         Shader shader;                          // shader to use for rendering
+        FurShader furshader;
+
         Shader postproc;                        // shader to use for post processing
         Texture wood;                           // texture to use for rendering
+        Texture fur;
         RenderTarget target;                    // intermediate render target
         ScreenQuad quad;                        // screen filling quad for post processing
-        bool useRenderTarget = true;
+        bool useRenderTarget = false;
 
         SceneGraph scene;
         Model teapotmodel;
@@ -41,11 +45,13 @@ namespace Template_P3
             timer.Start();
             // create shaders
             shader = new Shader("../../shaders/vs.glsl", "../../shaders/fs.glsl");
+            furshader = new FurShader("../../shaders/vs_fur.glsl","../../shaders/fs_fur.glsl");
             postproc = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_post.glsl");
             // load teapot
             mesh = new Mesh("../../assets/teapot.obj");
             floor = new Mesh("../../assets/floor.obj");
             // load a texture
+            fur = new Texture("../../assets/fur.png");
             wood = new Texture("../../assets/wood.jpg");
             // create the render target
             target = new RenderTarget(screen.width, screen.height);
@@ -55,9 +61,13 @@ namespace Template_P3
 
             SceneNode mainNode = new SceneNode();
             teapotmodel = new Model(mesh, wood, shader, Matrix4.Identity);
-            Model floormodel = new Model(floor, wood, shader, Matrix4.Identity);
-            mainNode.AddChildModel(teapotmodel);
+            Model floormodel = new Model(floor, wood, shader, Matrix4.CreateTranslation(new Vector3(0,0.1f,0)));
+
+            FurModel furry = new FurModel(mesh,wood,fur,shader,furshader,Matrix4.Identity);
+
+            //mainNode.AddChildModel(teapotmodel);
             mainNode.AddChildModel(floormodel);
+            mainNode.AddChildModel(furry);
             scene.mainNode = mainNode;
         }
 
@@ -87,16 +97,22 @@ namespace Template_P3
             a += 0.001f * frameDuration;
             if (a > 2 * PI) a -= 2 * PI;
 
+            GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
+
+            GL.Enable(EnableCap.Blend);
+            //GL.DepthMask(false);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+
             if (useRenderTarget)
             {
                 // enable render target
                 target.Bind();
-
                 // render scene to render target
                 scene.Render(transform);
-
                 // render quad
                 target.Unbind();
+
+
                 quad.Render(postproc, target.GetTextureID());
             } else
             {

@@ -36,12 +36,12 @@ void main()
 	vec4 color = texture(pixels, uv);
 
 	//Color specifics for Phong
-	vec4 ambientcolor = 0.1f * color;
+	vec4 ambientcolor = vec4((0.1f * color).rgb,color.w);
 	vec4 diffusecolor = color;
 	vec4 specularcolor = color;
 
 	//Final phong output
     outputColor =	(ambientcolor) +
-					(attenuation * diffusecolor * clamp(dot(nnormal,lightdir),0,1) * lightdiffuseintensity) +
-					(attenuation * specularcolor * pow( clamp(dot(lightdir,cameradir),0,1),specularpower )*lightspecularintensity);
+					(attenuation * diffusecolor * clamp(dot(nnormal,lightdir),0,1) * vec4(lightdiffuseintensity,1)) +
+					(attenuation * specularcolor * pow( clamp(dot(lightdir,cameradir),0,1),specularpower )* vec4(lightspecularintensity,1));
 }
