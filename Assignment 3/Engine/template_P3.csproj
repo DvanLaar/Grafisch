@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Camera.cs" />
     <Compile Include="FurModel.cs" />
     <Compile Include="furshader.cs" />
     <Compile Include="game.cs" />

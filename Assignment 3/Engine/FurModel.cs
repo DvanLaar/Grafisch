@@ -14,7 +14,7 @@ namespace template_P3
         public Texture furtexture;
         public Shader furshader;
 
-        public FurModel(Mesh mesh, Texture texture, Texture furtexture, Shader shader, Shader furshader, Matrix4 modeltranform):base(mesh,texture,shader,modeltranform)
+        public FurModel(Mesh mesh, Texture texture, Texture furtexture, Shader shader, Shader furshader, Matrix4 modeltranform):base(mesh,texture,shader,Matrix4.Identity)
         {
             this.furtexture = furtexture;
             this.furshader = furshader;
@@ -23,7 +23,7 @@ namespace template_P3
         public override void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
         {
             Matrix4 mtw = ModelToWorld * modeltransform;
-            Matrix4 wts = WorldToScreen * modeltransform;
+            Matrix4 wts = WorldToScreen;
             mesh.Render(shader, mtw, wts,texture);
             
             for (int i = 0; i < 32; i++)

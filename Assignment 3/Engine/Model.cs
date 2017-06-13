@@ -20,12 +20,12 @@ namespace template_P3
             this.mesh = mesh;
             this.texture = texture;
             this.shader = shader;
-            this.modeltransform = modeltransform;
+            this.modeltransform = Matrix4.Identity;
         }
 
         public virtual void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
         {
-            mesh.Render(shader, ModelToWorld * modeltransform, WorldToScreen * modeltransform, texture);
+            mesh.Render(shader, ModelToWorld * modeltransform, WorldToScreen, texture);
         }
     }
 }
