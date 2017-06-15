@@ -20,6 +20,9 @@ namespace Template_P3
             GL.Enable(EnableCap.Texture2D);
             GL.Disable(EnableCap.DepthTest);
             GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
+
+            Console.WriteLine("gl version: " + GL.GetString(StringName.Version));
+
             ClientSize = new Size(640, 400);
             game = new Game();
             game.screen = new Surface(Width, Height);

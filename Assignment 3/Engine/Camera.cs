@@ -9,86 +9,86 @@ namespace template_P3
     // Inspired by and partially copied: http://neokabuto.blogspot.nl/2014/01/opentk-tutorial-5-basic-camera.html
     class Camera
     {
+        const float Near = 0.1f, Far = 1000f;
+        private static Vector3 Up = Vector3.UnitY;
 
         public Vector3 Position;
-        public Vector3 Orientation;
+        private Quaternion _rotation;
+        private Matrix4 _matrix;
 
-        public float Near = 0.1f;
-        public float Far = 1000f;
+        public Quaternion Rotation { get { return _rotation; } }
+        public Matrix4 Matrix { get { return _matrix; } }
 
-        public Vector3 Up = Vector3.UnitY;
-
-        public Matrix4 Matrix
+        public Camera(Vector3 position)
         {
-            get
-            {
-                return matrix;
-            }
-        }
-        private Matrix4 matrix = Matrix4.Identity;
-
-        public Camera(Vector3 position, Vector3 orientation)
-        {
-            this.Position = position;
-            this.Orientation = orientation;
-            updateMatrix();
+            Position = position;
+            _rotation = Quaternion.Identity;
+            UpdateMatrix();
         }
 
         #region Translation
-
         public void Translate(Vector3 translation)
         {
             Position += translation;
-            updateMatrix();
+            UpdateMatrix();
         }
 
         public void UpdatePosition(Vector3 position)
         {
-            this.Position = position;
-            updateMatrix();
+            Position = position;
+            UpdateMatrix();
         }
 
-        public void Move(Vector3 movement)
+        public void Move(Vector3 translation)
         {
-            Vector3 offset = new Vector3();
+            if (translation == Vector3.Zero) return;
 
-            Vector3 forward = new Vector3((float)Math.Sin((float)Orientation.X), 0, (float)Math.Cos((float)Orientation.X));
-            Vector3 right = new Vector3(-forward.Z, 0, forward.X);
+            Position += Rotation * translation;
 
-            offset += movement.X * right;
-            offset += movement.Z * forward;
-            offset.Y += movement.Y;
-
-            offset.NormalizeFast();
-            offset = 0.5f * offset;
-
-            Position += offset;
-            updateMatrix();
+            UpdateMatrix();
         }
 
         public void AddRotation(Vector2 rotation)
         {
-            Orientation.X = (Orientation.X + rotation.X) % ((float)Math.PI * 2.0f);
-            Orientation.Y = Math.Max(Math.Min(Orientation.Y + rotation.Y, (float)Math.PI / 2.0f - 0.1f), (float)-Math.PI / 2.0f + 0.1f);
-            updateMatrix();
+            if (rotation == Vector2.Zero) return;
+
+            Quaternion deltaY = Quaternion.FromAxisAngle(Vector3.UnitY, rotation.X);
+            Vector3 dirX = deltaY * _rotation * Vector3.UnitX;
+            Quaternion deltaX = Quaternion.FromAxisAngle(dirX, rotation.Y);
+            _rotation = deltaX * deltaY * _rotation;
+
+            UpdateMatrix();
         }
 
+        public void AddTransformation(Vector2 rotation, Vector3 translation)
+        {
+            if (rotation != Vector2.Zero)
+            {
+                Console.WriteLine("Add rotation " + rotation.ToString());
+                Quaternion deltaY = Quaternion.FromAxisAngle(Vector3.UnitY, rotation.X);
+                Vector3 dirX = deltaY * _rotation * Vector3.UnitX;
+                Quaternion deltaX = Quaternion.FromAxisAngle(dirX, rotation.Y);
+                Console.WriteLine("Before: " + _rotation);
+                _rotation = deltaX * deltaY * _rotation;
+                Console.WriteLine("After: " + _rotation);
+                Console.WriteLine("Add rotation " + deltaX + " ; " + deltaY);
+
+                if (translation == Vector3.Zero) UpdateMatrix();
+            }
+            if (translation != Vector3.Zero)
+            {
+                Position += Rotation * translation;
+                UpdateMatrix();
+            }
+        }
         #endregion
 
-
-        private void updateMatrix()
+        private void UpdateMatrix()
         {
-            matrix  = Matrix4.Identity;
-
-            Vector3 lookat = new Vector3();
-
-            lookat.X = (float)(Math.Sin((float)Orientation.X) * Math.Cos((float)Orientation.Y));
-            lookat.Y = (float)Math.Sin((float)Orientation.Y);
-            lookat.Z = (float)(Math.Cos((float)Orientation.X) * Math.Cos((float)Orientation.Y));
-
-            matrix *= Matrix4.LookAt(Position, Position + lookat, Up);
-            matrix *= Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, Near, Far);
+            // _matrix = Matrix4.CreateFromQuaternion(_rotation);
+            Vector3 lookat = _rotation * -Vector3.UnitZ;
+            _matrix = Matrix4.LookAt(Position, Position + lookat, Up);
+            _matrix *= Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, Near, Far);
         }
-
     }
 }

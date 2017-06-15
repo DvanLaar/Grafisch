@@ -40,7 +40,7 @@ namespace Template_P3
         public void Init()
         {
             // initialize camera
-            camera = new Camera(new Vector3(0,-4,15),new Vector3((float)Math.PI,0f,0f));
+            camera = new Camera(new Vector3(0, -4, 15));
             // initialize stopwatch
             timer = new Stopwatch();
             timer.Reset();
@@ -65,8 +65,8 @@ namespace Template_P3
             teapotmodel = new Model(mesh, wood, shader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
             Model floormodel = new Model(floor, wood, shader, Matrix4.Identity);
 
-            FurModel furry = new FurModel(mesh, wood, fur, shader, furshader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
-            mainNode.AddChildModel(furry);
+            // FurModel furry = new FurModel(mesh, wood, fur, shader, furshader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
+            // mainNode.AddChildModel(furry);
             mainNode.AddChildModel(teapotmodel);
             mainNode.AddChildModel(floormodel);
 
@@ -75,16 +75,24 @@ namespace Template_P3
 
         public void processKeyboard(KeyboardState keyboard)
         {
-            if (keyboard[Key.Up]) camera.AddRotation(new Vector2(0,0.1f));
-            if (keyboard[Key.Down]) camera.AddRotation(new Vector2(0, -0.1f));
-            if (keyboard[Key.Left]) camera.AddRotation(new Vector2(0.1f, 0));
-            if (keyboard[Key.Right]) camera.AddRotation(new Vector2(-0.1f, 0));
-            if (keyboard[Key.W]) camera.Move(new Vector3(0,0,1));
-            if (keyboard[Key.S]) camera.Move(new Vector3(0, 0, -1));
-            if (keyboard[Key.Q]) camera.Move(new Vector3(0, 1, 0));
-            if (keyboard[Key.E]) camera.Move(new Vector3(0, -1, 0));
-            if (keyboard[Key.A]) camera.Move(new Vector3(-1, 0, 0));
-            if (keyboard[Key.D]) camera.Move(new Vector3(1, 0, 0));
+            // rotation.X : left/right
+            // rotation.Y : up/down
+            Vector2 rotation = Vector2.Zero;
+            Vector3 translation = Vector3.Zero;
+
+            if (keyboard[Key.Up]) rotation += Vector2.UnitY;
+            if (keyboard[Key.Down]) rotation -= Vector2.UnitY;
+            if (keyboard[Key.Left]) rotation += Vector2.UnitX;
+            if (keyboard[Key.Right]) rotation -= Vector2.UnitX;
+
+            if (keyboard[Key.S]) translation += Vector3.UnitZ;
+            if (keyboard[Key.W]) translation -= Vector3.UnitZ;
+            if (keyboard[Key.E]) translation += Vector3.UnitY;
+            if (keyboard[Key.Q]) translation -= Vector3.UnitY;
+            if (keyboard[Key.D]) translation += Vector3.UnitX;
+            if (keyboard[Key.A]) translation -= Vector3.UnitX;
+
+            camera.AddTransformation(rotation * 0.1f, translation);
         }
 
         // tick for background surface
@@ -110,7 +118,7 @@ namespace Template_P3
 
             // update rotation
             //camera.RotateYaw(0.001f * frameDuration);
-            
+
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
 
             GL.Enable(EnableCap.Blend);
