@@ -19,7 +19,7 @@ namespace Template_P3
         public Surface screen;                  // background surface for printing etc.
         Mesh mesh, floor;                       // a mesh to draw using OpenGL
         const float PI = 3.1415926535f;         // PI
-        float yaw = 0, pitch;                   // teapot rotation angle
+        Camera camera;                          // teapot rotation angle
         Stopwatch timer;                        // timer for measuring frame duration
         Shader shader;                          // shader to use for rendering
         FurShader furshader;
@@ -39,7 +39,8 @@ namespace Template_P3
         // initialize
         public void Init()
         {
-
+            // initialize camera
+            camera = new Camera(new Vector3(0,-4,15),new Vector3((float)Math.PI,0f,0f));
             // initialize stopwatch
             timer = new Stopwatch();
             timer.Reset();
@@ -61,21 +62,29 @@ namespace Template_P3
             scene = new SceneGraph();
 
             SceneNode mainNode = new SceneNode();
-            teapotmodel = new Model(mesh, wood, shader, Matrix4.Identity);
-            Model floormodel = new Model(floor, wood, shader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
+            teapotmodel = new Model(mesh, wood, shader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
+            Model floormodel = new Model(floor, wood, shader, Matrix4.Identity);
 
-            FurModel furry = new FurModel(mesh, wood, fur, shader, furshader, Matrix4.Identity);
-
-            // mainNode.AddChildModel(teapotmodel);
-            mainNode.AddChildModel(floormodel);
+            FurModel furry = new FurModel(mesh, wood, fur, shader, furshader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
             mainNode.AddChildModel(furry);
+            mainNode.AddChildModel(teapotmodel);
+            mainNode.AddChildModel(floormodel);
+
             scene.mainNode = mainNode;
         }
 
         public void processKeyboard(KeyboardState keyboard)
         {
-            if (keyboard[Key.Up]) pitch += 0.05f;
-            if (keyboard[Key.Down]) pitch -= 0.05f;
+            if (keyboard[Key.Up]) camera.AddRotation(new Vector2(0,0.1f));
+            if (keyboard[Key.Down]) camera.AddRotation(new Vector2(0, -0.1f));
+            if (keyboard[Key.Left]) camera.AddRotation(new Vector2(0.1f, 0));
+            if (keyboard[Key.Right]) camera.AddRotation(new Vector2(-0.1f, 0));
+            if (keyboard[Key.W]) camera.Move(new Vector3(0,0,1));
+            if (keyboard[Key.S]) camera.Move(new Vector3(0, 0, -1));
+            if (keyboard[Key.Q]) camera.Move(new Vector3(0, 1, 0));
+            if (keyboard[Key.E]) camera.Move(new Vector3(0, -1, 0));
+            if (keyboard[Key.A]) camera.Move(new Vector3(-1, 0, 0));
+            if (keyboard[Key.D]) camera.Move(new Vector3(1, 0, 0));
         }
 
         // tick for background surface
@@ -94,15 +103,13 @@ namespace Template_P3
             timer.Start();
 
             // prepare matrix for vertex shader
-            Matrix4 transform = Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), yaw);
-            transform *= Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), pitch);
-            transform *= Matrix4.CreateTranslation(0, -4, -15);
-            transform *= Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, .1f, 1000);
-            camerapos = transform.Column3.Xyz;
+            Matrix4 transform = camera.Matrix;
+
+            camerapos = camera.Position;
 
 
             // update rotation
-            yaw += 0.001f * frameDuration;
+            //camera.RotateYaw(0.001f * frameDuration);
             
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
 

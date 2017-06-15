@@ -40,7 +40,7 @@ namespace template_P3
         public void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
         {
             ModelToWorld = ModelToWorld * Transform;
-            WorldToScreen = WorldToScreen * Transform;
+            //WorldToScreen = WorldToScreen * Transform; //Wow, such fail, very weird
             foreach (Model model in ChildrenModels)
                 model.Render(ModelToWorld,WorldToScreen);
 
