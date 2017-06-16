@@ -11,7 +11,7 @@ out vec3 outputColor;
 void main()
 {
 	// retrieve input pixel
-	outputColor = texture( pixels, uv ).rgb;
+	outputColor = texture(pixels, uv).rgb;
 	// apply dummy postprocessing effect
 	float dx = P.x - 0.5, dy = P.y - 0.5;
 	float distance = sqrt( dx * dx + dy * dy );

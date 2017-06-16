@@ -29,7 +29,7 @@ namespace Template_P3
         Texture fur;
         RenderTarget target;                    // intermediate render target
         ScreenQuad quad;                        // screen filling quad for post processing
-        bool useRenderTarget = false;
+        bool useRenderTarget = true;
 
         SceneGraph scene;
         Model teapotmodel;
@@ -121,7 +121,6 @@ namespace Template_P3
 
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
 
-            GL.Enable(EnableCap.Blend);
             //GL.DepthMask(false);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
@@ -133,7 +132,6 @@ namespace Template_P3
                 scene.Render(transform);
                 // render quad
                 target.Unbind();
-
 
                 quad.Render(postproc, target.GetTextureID());
             }
