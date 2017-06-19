@@ -5,8 +5,6 @@ using OpenTK;
 
 namespace template_P3
 {
-
-    // Inspired by and partially copied: http://neokabuto.blogspot.nl/2014/01/opentk-tutorial-5-basic-camera.html
     class Camera
     {
         const float Near = 0.1f, Far = 1000f;
@@ -85,10 +83,9 @@ namespace template_P3
 
         private void UpdateMatrix()
         {
-            // _matrix = Matrix4.CreateFromQuaternion(_rotation);
             Vector3 lookat = _rotation * -Vector3.UnitZ;
             _matrix = Matrix4.LookAt(Position, Position + lookat, Up);
-            _matrix *= Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, Near, Far);
+            _matrix = _matrix * Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, Near, Far);
         }
     }
 }

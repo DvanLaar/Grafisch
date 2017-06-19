@@ -26,7 +26,7 @@ namespace Template_P3
 
         Shader postproc;                        // shader to use for post processing
 
-        postKernelShader kernelshader;
+        PostKernelShader kernelshader;
         Kernel kernel;
 
         Texture wood;                           // texture to use for rendering
@@ -44,7 +44,7 @@ namespace Template_P3
         public void Init()
         {
             // initialize camera
-            camera = new Camera(new Vector3(0, -4, 15));
+            camera = new Camera(new Vector3(0, 3, 15));
             // initialize stopwatch
             timer = new Stopwatch();
             timer.Reset();
@@ -53,7 +53,7 @@ namespace Template_P3
             shader = new Shader("../../shaders/vs.glsl", "../../shaders/fs.glsl");
             furshader = new FurShader("../../shaders/vs_fur.glsl", "../../shaders/fs_fur.glsl");
             postproc = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_post.glsl");
-            kernelshader = new postKernelShader("../../shaders/vs_post.glsl", "../../shaders/fs_kernel.glsl");
+            kernelshader = new PostKernelShader("../../shaders/vs_post.glsl", "../../shaders/fs_kernel.glsl");
             // load teapot
             mesh = new Mesh("../../assets/teapot.obj");
             floor = new Mesh("../../assets/floor.obj");
@@ -141,7 +141,7 @@ namespace Template_P3
                 target.Unbind();
 
                 //quad.Render(postproc, target.GetTextureID());
-                quad.KernelRender(kernelshader, target.GetTextureID(),640f,400f,kernel);
+                quad.KernelRender(kernelshader, target.GetTextureID(), 640f, 400f, kernel);
             }
             else
             {

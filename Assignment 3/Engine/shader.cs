@@ -9,12 +9,8 @@ namespace Template_P3
     {
         // data members
         public int programID, vsID, fsID;
-        public int attribute_vpos;
-        public int attribute_vnrm;
-        public int attribute_vuvs;
-        public int uniform_modeltoworld;
-        public int uniform_worldtoscreen;
-        public int uniform_camerapos;
+        public int attribute_vpos, attribute_vnrm, attribute_vuvs;
+        public int uniform_modeltoworld, uniform_worldtoscreen, uniform_camerapos;
 
         // constructor
         public Shader(String vertexShader, String fragmentShader)
@@ -30,6 +26,7 @@ namespace Template_P3
             attribute_vpos = GL.GetAttribLocation(programID, "vPosition");
             attribute_vnrm = GL.GetAttribLocation(programID, "vNormal");
             attribute_vuvs = GL.GetAttribLocation(programID, "vUV");
+
             uniform_modeltoworld = GL.GetUniformLocation(programID, "modelToWorld");
             uniform_worldtoscreen = GL.GetUniformLocation(programID, "worldToScreen");
             uniform_camerapos = GL.GetUniformLocation(programID, "camerapos");

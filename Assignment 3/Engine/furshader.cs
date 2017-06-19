@@ -10,8 +10,6 @@ namespace template_P3
 {
     public class FurShader : Shader 
     {
-
-
         public int uniform_furoffset;
 
         public FurShader(string vertexShader,string fragmentShader):base(vertexShader,fragmentShader)
