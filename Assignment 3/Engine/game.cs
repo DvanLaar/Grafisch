@@ -25,6 +25,10 @@ namespace Template_P3
         FurShader furshader;
 
         Shader postproc;                        // shader to use for post processing
+
+        postKernelShader kernelshader;
+        Kernel kernel;
+
         Texture wood;                           // texture to use for rendering
         Texture fur;
         RenderTarget target;                    // intermediate render target
@@ -49,6 +53,7 @@ namespace Template_P3
             shader = new Shader("../../shaders/vs.glsl", "../../shaders/fs.glsl");
             furshader = new FurShader("../../shaders/vs_fur.glsl", "../../shaders/fs_fur.glsl");
             postproc = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_post.glsl");
+            kernelshader = new postKernelShader("../../shaders/vs_post.glsl", "../../shaders/fs_kernel.glsl");
             // load teapot
             mesh = new Mesh("../../assets/teapot.obj");
             floor = new Mesh("../../assets/floor.obj");
@@ -71,6 +76,8 @@ namespace Template_P3
             mainNode.AddChildModel(floormodel);
 
             scene.mainNode = mainNode;
+
+            kernel = Kernel.SmallGaussianBlur;
         }
 
         public void processKeyboard(KeyboardState keyboard)
@@ -133,7 +140,8 @@ namespace Template_P3
                 // render quad
                 target.Unbind();
 
-                quad.Render(postproc, target.GetTextureID());
+                //quad.Render(postproc, target.GetTextureID());
+                quad.KernelRender(kernelshader, target.GetTextureID(),640f,400f,kernel);
             }
             else
             {

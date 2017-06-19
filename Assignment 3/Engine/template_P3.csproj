@@ -72,6 +72,7 @@
     <Compile Include="mesh.cs" />
     <Compile Include="meshLoader.cs" />
     <Compile Include="Model.cs" />
+    <Compile Include="postKernelShader.cs" />
     <Compile Include="quad.cs" />
     <Compile Include="rendertarget.cs" />
     <Compile Include="SceneGraph.cs" />
