@@ -62,14 +62,10 @@ namespace template_P3
         {
             if (rotation != Vector2.Zero)
             {
-                Console.WriteLine("Add rotation " + rotation.ToString());
                 Quaternion deltaY = Quaternion.FromAxisAngle(Vector3.UnitY, rotation.X);
                 Vector3 dirX = deltaY * _rotation * Vector3.UnitX;
                 Quaternion deltaX = Quaternion.FromAxisAngle(dirX, rotation.Y);
-                Console.WriteLine("Before: " + _rotation);
                 _rotation = deltaX * deltaY * _rotation;
-                Console.WriteLine("After: " + _rotation);
-                Console.WriteLine("Add rotation " + deltaX + " ; " + deltaY);
 
                 if (translation == Vector3.Zero) UpdateMatrix();
             }
@@ -83,9 +79,11 @@ namespace template_P3
 
         private void UpdateMatrix()
         {
-            Vector3 lookat = _rotation * -Vector3.UnitZ;
-            _matrix = Matrix4.LookAt(Position, Position + lookat, Up);
-            _matrix = _matrix * Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, Near, Far);
+            Matrix4 rot = Matrix4.Rotate(_rotation);
+            rot.Transpose();
+            Matrix4 trans = Matrix4.CreateTranslation(-Position);
+            Matrix4 persp = Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, Near, Far);
+            _matrix = trans * rot * persp;
         }
     }
 }

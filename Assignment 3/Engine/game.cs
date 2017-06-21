@@ -51,7 +51,6 @@ namespace Template_P3
             camera = new Camera(new Vector3(0, 3, 15));
             // initialize stopwatch
             timer = new Stopwatch();
-            timer.Reset();
             timer.Start();
             // create shaders
             shader = new Shader("../../shaders/vs.glsl", "../../shaders/fs.glsl");
@@ -65,9 +64,9 @@ namespace Template_P3
             // load a texture
             fur = new Texture("../../assets/fur.png");
             wood = new Texture("../../assets/wood.jpg");
-            // create the render target
-            target = new RenderTarget(screen.width, screen.height);
-            target2 = new RenderTarget(screen.width, screen.height);
+
+            Resize();
+
             quad = new ScreenQuad();
 
             scene = new SceneGraph();
@@ -86,8 +85,20 @@ namespace Template_P3
             kernel = Kernel.SmallGaussianBlur;
         }
 
+        public void Resize()
+        {
+            // create the render target
+            target = new RenderTarget(screen.width, screen.height);
+            target2 = new RenderTarget(screen.width, screen.height);
+        }
+
         public void processKeyboard(KeyboardState keyboard)
         {
+            // measure frame duration
+            timer.Stop();
+            float frameDuration = timer.ElapsedMilliseconds;
+            timer.Restart();
+
             // rotation.X : left/right
             // rotation.Y : up/down
             Vector2 rotation = Vector2.Zero;
@@ -105,7 +116,7 @@ namespace Template_P3
             if (keyboard[Key.D]) translation += Vector3.UnitX;
             if (keyboard[Key.A]) translation -= Vector3.UnitX;
 
-            camera.AddTransformation(rotation * 0.1f, translation);
+            camera.AddTransformation(0.005f * frameDuration * rotation, 0.02f * frameDuration * translation);
         }
 
         // tick for background surface
@@ -118,11 +129,6 @@ namespace Template_P3
         // tick for OpenGL rendering code
         public void RenderGL()
         {
-            // measure frame duration
-            float frameDuration = timer.ElapsedMilliseconds;
-            timer.Reset();
-            timer.Start();
-
             // prepare matrix for vertex shader
             Matrix4 transform = camera.Matrix;
 
