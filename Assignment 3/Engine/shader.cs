@@ -20,7 +20,11 @@ namespace Template_P3
             Load(vertexShader, ShaderType.VertexShader, programID, out vsID);
             Load(fragmentShader, ShaderType.FragmentShader, programID, out fsID);
             GL.LinkProgram(programID);
-            Console.WriteLine(GL.GetProgramInfoLog(programID));
+            string log = GL.GetProgramInfoLog(programID);
+            if (log != "")
+            {
+                Console.WriteLine("Shader log for " + vertexShader + ":\n" + log);
+            }
 
             // get locations of shader parameters
             attribute_vpos = GL.GetAttribLocation(programID, "vPosition");
@@ -41,7 +45,11 @@ namespace Template_P3
             using (StreamReader sr = new StreamReader(filename)) GL.ShaderSource(ID, sr.ReadToEnd());
             GL.CompileShader(ID);
             GL.AttachShader(program, ID);
-            Console.WriteLine(GL.GetShaderInfoLog(ID));
+            string log = GL.GetShaderInfoLog(ID);
+            if (log != "")
+            {
+                Console.WriteLine("While loading shader "+ filename + ":\n" + log);
+            }
         }
     }
 

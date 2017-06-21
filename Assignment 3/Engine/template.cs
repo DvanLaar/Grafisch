@@ -40,6 +40,12 @@ namespace Template_P3
         {
             // called upon window resize
             GL.Viewport(0, 0, Width, Height);
+
+            Console.WriteLine("wh: " + Width + ", " + Height);
+            ClientSize = new Size(Width, Height);
+            Sprite.target = game.screen = new Surface(Width, Height);
+            game.Resize();
+
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             GL.Ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 4.0);
