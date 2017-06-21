@@ -73,6 +73,7 @@
     <Compile Include="meshLoader.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="PostKernelShader.cs" />
+    <Compile Include="PostVigAndChromShader.cs" />
     <Compile Include="quad.cs" />
     <Compile Include="rendertarget.cs" />
     <Compile Include="SceneGraph.cs" />
@@ -92,6 +93,7 @@
     <None Include="shaders\fs_fur.glsl" />
     <None Include="shaders\fs_kernel.glsl" />
     <None Include="shaders\fs_post.glsl" />
+    <None Include="shaders\fs_vigchrom.glsl" />
     <None Include="shaders\vs.glsl" />
     <None Include="shaders\vs_fur.glsl" />
     <None Include="shaders\vs_post.glsl" />

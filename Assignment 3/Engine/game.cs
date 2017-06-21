@@ -26,12 +26,16 @@ namespace Template_P3
 
         Shader postproc;                        // shader to use for post processing
 
+        PostVigAndChromShader vigandchromshader;
         PostKernelShader kernelshader;
         Kernel kernel;
 
         Texture wood;                           // texture to use for rendering
         Texture fur;
+
         RenderTarget target;                    // intermediate render target
+        RenderTarget target2;
+
         ScreenQuad quad;                        // screen filling quad for post processing
         bool useRenderTarget = true;
 
@@ -54,6 +58,7 @@ namespace Template_P3
             furshader = new FurShader("../../shaders/vs_fur.glsl", "../../shaders/fs_fur.glsl");
             postproc = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_post.glsl");
             kernelshader = new PostKernelShader("../../shaders/vs_post.glsl", "../../shaders/fs_kernel.glsl");
+            vigandchromshader = new PostVigAndChromShader("../../shaders/vs_post.glsl", "../../shaders/fs_vigchrom.glsl");
             // load teapot
             mesh = new Mesh("../../assets/teapot.obj");
             floor = new Mesh("../../assets/floor.obj");
@@ -62,6 +67,7 @@ namespace Template_P3
             wood = new Texture("../../assets/wood.jpg");
             // create the render target
             target = new RenderTarget(screen.width, screen.height);
+            target2 = new RenderTarget(screen.width, screen.height);
             quad = new ScreenQuad();
 
             scene = new SceneGraph();
@@ -120,7 +126,7 @@ namespace Template_P3
             // prepare matrix for vertex shader
             Matrix4 transform = camera.Matrix;
 
-            camerapos = camera.Position;
+            camerapos = -camera.Position;
 
 
             // update rotation
@@ -140,8 +146,12 @@ namespace Template_P3
                 // render quad
                 target.Unbind();
 
+                target2.Bind();
+                quad.VigAndChromRender(vigandchromshader, target.GetTextureID(),2.5f,new Vector2(0.51f,0.5f), 0.0125f * new Vector3(1f, 0f, -1f) );
+                target2.Unbind();
+
                 //quad.Render(postproc, target.GetTextureID());
-                quad.KernelRender(kernelshader, target.GetTextureID(), 640f, 400f, kernel);
+                quad.KernelRender(kernelshader, target2.GetTextureID(), 640f, 400f, kernel);
             }
             else
             {
