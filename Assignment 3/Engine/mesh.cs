@@ -48,7 +48,7 @@ namespace Template_P3
         }
 
         // render the mesh using the supplied shader and matrix
-        public void Render(Shader shader, Matrix4 modelToWorld, Matrix4 worldToScreen, Texture texture)
+        public void Render(Shader shader, Matrix4 modelToWorld, Matrix4 worldToScreen, Texture texture, Vector3 materialcolor)
         {
             // on first run, prepare buffers
             Prepare(shader);
@@ -66,6 +66,7 @@ namespace Template_P3
             GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
             GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
             GL.Uniform3(shader.uniform_camerapos,ref Game.camerapos);
+            GL.Uniform3(shader.uniform_materialcolor, ref materialcolor);
 
             // bind interleaved vertex data
             GL.EnableClientState(ArrayCap.VertexArray);

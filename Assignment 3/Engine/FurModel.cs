@@ -14,6 +14,8 @@ namespace template_P3
         public Texture furtexture;
         public Shader furshader;
 
+        public Vector3 materialcolor = new Vector3(1,1,1);
+
         public FurModel(Mesh mesh, Texture texture, Texture furtexture, Shader shader, Shader furshader, Matrix4 modeltranform):base(mesh,texture,shader,Matrix4.Identity)
         {
             this.furtexture = furtexture;
@@ -24,7 +26,7 @@ namespace template_P3
         {
             Matrix4 mtw = ModelToWorld * modeltransform;
             Matrix4 wts = WorldToScreen;
-            mesh.Render(shader, mtw, wts,texture);
+            mesh.Render(shader, mtw, wts,texture,materialcolor);
             
             for (int i = 0; i < 32; i++)
             {

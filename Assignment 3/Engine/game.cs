@@ -25,7 +25,7 @@ namespace Template_P3
         FurShader furshader;
 
         Shader postproc;                        // shader to use for post processing
-
+        Shader postbloomblend;
         PostVigAndChromShader vigandchromshader;
         PostKernelShader kernelshader;
         Kernel kernel;
@@ -35,6 +35,9 @@ namespace Template_P3
 
         RenderTarget target;                    // intermediate render target
         RenderTarget target2;
+        RenderTarget target3;
+        RenderTarget targethdr;
+        RenderTarget bloomtarget;
 
         ScreenQuad quad;                        // screen filling quad for post processing
         bool useRenderTarget = true;
@@ -59,6 +62,7 @@ namespace Template_P3
             postproc = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_post.glsl");
             kernelshader = new PostKernelShader("../../shaders/vs_post.glsl", "../../shaders/fs_kernel.glsl");
             vigandchromshader = new PostVigAndChromShader("../../shaders/vs_post.glsl", "../../shaders/fs_vigchrom.glsl");
+            postbloomblend = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_bloomblend.glsl");
             // load teapot
             mesh = new Mesh("../../assets/teapot.obj");
             floor = new Mesh("../../assets/floor.obj");
@@ -68,16 +72,22 @@ namespace Template_P3
             // create the render target
             target = new RenderTarget(screen.width, screen.height);
             target2 = new RenderTarget(screen.width, screen.height);
+            target3 = new RenderTarget(screen.width, screen.height);
+
+            targethdr = new RenderTarget(screen.width, screen.height,2);
+            bloomtarget = new RenderTarget(screen.width,screen.height);
             quad = new ScreenQuad();
 
             scene = new SceneGraph();
 
             SceneNode mainNode = new SceneNode();
             teapotmodel = new Model(mesh, wood, shader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
-            Model floormodel = new Model(floor, wood, shader, Matrix4.Identity);
 
+            Model floormodel = new Model(floor, wood, shader, Matrix4.Identity);
+            floormodel.materialcolor = new Vector3(100f, 1f, 1f);
             // FurModel furry = new FurModel(mesh, wood, fur, shader, furshader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
             // mainNode.AddChildModel(furry);
+
             mainNode.AddChildModel(teapotmodel);
             mainNode.AddChildModel(floormodel);
 
@@ -139,15 +149,30 @@ namespace Template_P3
 
             if (useRenderTarget)
             {
-                // enable render target
-                target.Bind();
-                // render scene to render target
+
+                //Bind the HDR target
+                targethdr.Bind();
+                //Let the GPU now when want to render to 2 textures
+                GL.DrawBuffers(2, new DrawBuffersEnum[2] { DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1 });
+                GL.Clear(ClearBufferMask.DepthBufferBit);
+                GL.Clear(ClearBufferMask.ColorBufferBit);
+                //Render to the textures
                 scene.Render(transform);
-                // render quad
+                //Unbind the HDR target
+                GL.DrawBuffers(1, new DrawBuffersEnum[1] { DrawBuffersEnum.ColorAttachment0});
+                targethdr.Unbind();
+
+                bloomtarget.Bind();
+                quad.KernelRender(kernelshader, targethdr.GetTextureID(1), 640f, 400f, Kernel.Uniform(19, 19, 19));
+                bloomtarget.Unbind();
+
+                //Merge bloomtarget and targethdr[0]
+                target.Bind();
+                quad.BloomBlendRender(postbloomblend, targethdr.GetTextureID(0), bloomtarget.GetTextureID());
                 target.Unbind();
 
                 target2.Bind();
-                quad.VigAndChromRender(vigandchromshader, target.GetTextureID(),2.5f,new Vector2(0.51f,0.5f), 0.0125f * new Vector3(1f, 0f, -1f) );
+                quad.VigAndChromRender(vigandchromshader, target.GetTextureID(),2.3f,new Vector2(0.51f,0.5f), 0.0125f * new Vector3(1f, 0f, -1f) );
                 target2.Unbind();
 
                 //quad.Render(postproc, target.GetTextureID());

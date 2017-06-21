@@ -64,6 +64,25 @@ namespace template_P3
             vertical = ver;
         }
 
+        public static Kernel Uniform(int width, int height, float sneakyval = 2f)
+        {
+            if(width > 32 || height > 32)
+            {
+                Console.WriteLine("The width or height of the requested Uniform kernel exceeds 32 (limited as declared in the shader)");
+                return Identity;
+            }
+            float val = sneakyval / (float)(width*height);
+            float[] hor = new float[width];
+            for (int x = 0; x < width; x++)
+                hor[x] = val;
+
+            float[] ver = new float[height];
+            for (int y = 0; y < height; y++)
+                ver[y] = val;
+
+            return new Kernel(hor,ver);
+        }
+
         public static Kernel Identity
         {
             get
@@ -87,6 +106,7 @@ namespace template_P3
                 return new Kernel(new float[3] { 1f / 4f, 2f / 4f, 1f / 4f }, new float[3] { 1f / 4f, 2f / 4f, 1f / 4f });
             }
         }
+
 
         public static Kernel EdgeDetection
         {

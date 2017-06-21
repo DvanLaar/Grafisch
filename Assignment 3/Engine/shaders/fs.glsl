@@ -7,16 +7,18 @@ in vec3 position;
 
 uniform sampler2D pixels;		// texture sampler
 uniform vec3 camerapos;
+uniform vec3 materialcolor;
 
 // shader output
-out vec4 outputColor;
+layout(location=0) out vec4 outputColor;
+layout(location=1) out vec4 outputHDR;
 
 // fragment shader
 void main()
 {
 	//Hardcoded Light Parameters
 	vec3 lightpos = vec3(10,10,10);
-	vec3 lightdiffuseintensity = vec3(80,80,80);
+	vec3 lightdiffuseintensity = vec3(100,100,100);
 	vec3 lightspecularintensity = lightdiffuseintensity;
 	float specularpower = 60;
 
@@ -41,7 +43,9 @@ void main()
 	vec4 specularcolor = color;
 
 	//Final phong output
-    outputColor =	(ambientcolor) +
-					(attenuation * diffusecolor * clamp(dot(nnormal,lightdir),0,1) * vec4(lightdiffuseintensity,1)) +
+    outputColor =	(ambientcolor) * vec4(materialcolor,1) +
+					(attenuation * diffusecolor * clamp(dot(nnormal,lightdir),0,1) * vec4(materialcolor,1) * vec4(lightdiffuseintensity,1)) +
 					(attenuation * specularcolor * pow( clamp(dot(lightdir,cameradir),0,1),specularpower )* vec4(lightspecularintensity,1));
+
+	outputHDR = clamp(outputColor-vec4(1f,1f,1f,1f),0,1);
 }

@@ -117,6 +117,46 @@ namespace Template_P3
             GL.UseProgram(0);
         }
 
+        public void BloomBlendRender(Shader shader, int textureID, int bloomID)
+        {
+            // on first run, prepare buffers
+            Prepare(shader);
+
+            // enable shader
+            GL.UseProgram(shader.programID);
+
+            // enable texture
+            int texLoc = GL.GetUniformLocation(shader.programID, "pixels");
+            GL.Uniform1(texLoc, 0);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, textureID);
+
+            int bloomLoc = GL.GetUniformLocation(shader.programID, "bloom");
+            GL.Uniform1(bloomLoc, 1);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, bloomID);
+
+
+            // enable position and uv attributes
+            GL.EnableVertexAttribArray(shader.attribute_vpos);
+            GL.EnableVertexAttribArray(shader.attribute_vuvs);
+
+            // bind interleaved vertex data
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_vert);
+            GL.InterleavedArrays(InterleavedArrayFormat.T2fV3f, 20, IntPtr.Zero);
+
+            // link vertex attributes to shader parameters 
+            GL.VertexAttribPointer(shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 20, 0);
+            GL.VertexAttribPointer(shader.attribute_vuvs, 2, VertexAttribPointerType.Float, false, 20, 3 * 4);
+
+            // bind triangle index data and render
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, vbo_idx);
+            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
+
+            // disable shader
+            GL.UseProgram(0);
+        }
     }
 
 } // namespace Template_P3

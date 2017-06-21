@@ -14,8 +14,8 @@ uniform float pixelwidth, pixelheight;
 uniform int kernelwidth, kernelheight;
 uniform float centerx, centery;
 
-// Maximum size of kernel is 20x20
-uniform float horizontal[20], vertical[20];
+// Maximum size of kernel is 64x64
+uniform float horizontal[32], vertical[32];
 
 float boxvalue(in int x, in int y)
 {
@@ -24,10 +24,13 @@ float boxvalue(in int x, in int y)
 
 void main()
 {
+	float ccenterx = floor(kernelwidth/2f);
+	float ccentery = floor(kernelheight/2f);
+	
 	vec3 finalColor = vec3(0,0,0);
 	for(int x = 0; x < kernelwidth; x++) {
 		for(int y = 0; y < kernelheight; y++) {
-			finalColor += boxvalue(x, y) * texture(pixels, vec2(uv.x - pixelwidth * (x - centerx), uv.y - pixelheight * (y - centery))).rgb;
+			finalColor += boxvalue(x, y) * texture(pixels, vec2(uv.x - pixelwidth * (x - ccenterx), uv.y - pixelheight * (y - ccentery))).rgb;
 			// finalColor += (1 / (kernelwidth * kernelheight)) * texture(pixels, vec2(uv.x - (x - centerx) * 0.1, uv.y)).rgb;
 		}
 	}

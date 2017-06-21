@@ -10,7 +10,7 @@ namespace Template_P3
         // data members
         public int programID, vsID, fsID;
         public int attribute_vpos, attribute_vnrm, attribute_vuvs;
-        public int uniform_modeltoworld, uniform_worldtoscreen, uniform_camerapos;
+        public int uniform_modeltoworld, uniform_worldtoscreen, uniform_camerapos, uniform_materialcolor;
 
         // constructor
         public Shader(String vertexShader, String fragmentShader)
@@ -30,6 +30,7 @@ namespace Template_P3
             uniform_modeltoworld = GL.GetUniformLocation(programID, "modelToWorld");
             uniform_worldtoscreen = GL.GetUniformLocation(programID, "worldToScreen");
             uniform_camerapos = GL.GetUniformLocation(programID, "camerapos");
+            uniform_materialcolor = GL.GetUniformLocation(programID, "materialcolor");
         }
 
         // loading shaders

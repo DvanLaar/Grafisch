@@ -14,6 +14,7 @@ namespace template_P3
         public Texture texture;
         public Shader shader;
         public Matrix4 modeltransform;
+        public Vector3 materialcolor = new Vector3(1, 1, 1);
 
         public Model(Mesh mesh, Texture texture, Shader shader, Matrix4 modeltransform)
         {
@@ -25,7 +26,7 @@ namespace template_P3
 
         public virtual void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
         {
-            mesh.Render(shader, ModelToWorld * modeltransform, WorldToScreen, texture);
+            mesh.Render(shader, ModelToWorld * modeltransform, WorldToScreen, texture, materialcolor);
         }
     }
 }
