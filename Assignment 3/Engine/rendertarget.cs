@@ -36,7 +36,6 @@ namespace Template_P3
                 GL.BindTexture(TextureTarget.Texture2D, 0);
                 // bind color and depth textures to fbo
                 GL.Ext.FramebufferTexture(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext + i, colorTexture[i], 0);
-
             }
 
 

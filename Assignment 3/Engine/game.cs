@@ -17,7 +17,7 @@ namespace Template_P3
     {
         // member variables
         public Surface screen;                  // background surface for printing etc.
-        Mesh mesh, floor;                       // a mesh to draw using OpenGL
+        Mesh mesh, floor, cube;                       // a mesh to draw using OpenGL
         const float PI = 3.1415926535f;         // PI
         Camera camera;                          // teapot rotation angle
         Stopwatch timer;                        // timer for measuring frame duration
@@ -26,12 +26,14 @@ namespace Template_P3
 
         Shader postproc;                        // shader to use for post processing
         Shader postbloomblend;
+        Shader skyboxshader;
         PostVigAndChromShader vigandchromshader;
         PostKernelShader kernelshader;
         Kernel kernel;
 
         Texture wood;                           // texture to use for rendering
         Texture fur;
+        CubeTexture skybox;
 
         RenderTarget target;                    // intermediate render target
         RenderTarget target2;
@@ -62,12 +64,20 @@ namespace Template_P3
             kernelshader = new PostKernelShader("../../shaders/vs_post.glsl", "../../shaders/fs_kernel.glsl");
             vigandchromshader = new PostVigAndChromShader("../../shaders/vs_post.glsl", "../../shaders/fs_vigchrom.glsl");
             postbloomblend = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_bloomblend.glsl");
+            skyboxshader = new Shader("../../shaders/vs_skybox.glsl", "../../shaders/fs_skybox.glsl");
             // load teapot
             mesh = new Mesh("../../assets/teapot.obj");
             floor = new Mesh("../../assets/floor.obj");
+            cube = new Mesh("../../assets/cube.obj");
             // load a texture
             fur = new Texture("../../assets/fur.png");
             wood = new Texture("../../assets/wood.jpg");
+            skybox = new CubeTexture("../../assets/sea_rt.JPG",
+                                     "../../assets/sea_lf.JPG",
+                                     "../../assets/sea_up.JPG",
+                                     "../../assets/sea_dn.JPG",
+                                     "../../assets/sea_bk.JPG",
+                                     "../../assets/sea_ft.JPG");
             // create the render target
             target = new RenderTarget(screen.width, screen.height);
             target2 = new RenderTarget(screen.width, screen.height);
@@ -87,6 +97,7 @@ namespace Template_P3
 
             Model floormodel = new Model(floor, wood, shader, Matrix4.Identity);
             floormodel.materialcolor = new Vector3(100f, 1f, 1f);
+
             // FurModel furry = new FurModel(mesh, wood, fur, shader, furshader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
             // mainNode.AddChildModel(furry);
 
@@ -165,10 +176,13 @@ namespace Template_P3
                 GL.DrawBuffers(2, new DrawBuffersEnum[2] { DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1 });
                 GL.Clear(ClearBufferMask.DepthBufferBit);
                 GL.Clear(ClearBufferMask.ColorBufferBit);
-                //Render to the textures
+
+                //First skybox
+                cube.SkyboxRender(skyboxshader,Matrix4.Identity,transform,skybox);
+                //Second the rest of scene
                 scene.Render(transform);
                 //Unbind the HDR target
-                GL.DrawBuffers(1, new DrawBuffersEnum[1] { DrawBuffersEnum.ColorAttachment0});
+                GL.DrawBuffers(1, new DrawBuffersEnum[1] { DrawBuffersEnum.ColorAttachment0 });
                 targethdr.Unbind();
 
                 bloomtarget.Bind();

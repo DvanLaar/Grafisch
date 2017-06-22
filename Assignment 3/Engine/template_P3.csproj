@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="assets\cube.obj" />
     <None Include="assets\floor.obj" />
     <None Include="assets\teapot.obj" />
     <None Include="OpenTK.dll.config" />
@@ -94,10 +95,12 @@
     <None Include="shaders\fs_fur.glsl" />
     <None Include="shaders\fs_kernel.glsl" />
     <None Include="shaders\fs_post.glsl" />
+    <None Include="shaders\fs_skybox.glsl" />
     <None Include="shaders\fs_vigchrom.glsl" />
     <None Include="shaders\vs.glsl" />
     <None Include="shaders\vs_fur.glsl" />
     <None Include="shaders\vs_post.glsl" />
+    <None Include="shaders\vs_skybox.glsl" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
