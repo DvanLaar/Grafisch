@@ -66,7 +66,7 @@ namespace Template_P3
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
             GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
-            GL.Uniform3(shader.uniform_camerapos, ref Game.camerapos);
+            GL.Uniform3(shader.uniform_camerapos, ref Game.cameraPosition);
 
             // bind interleaved vertex data
             GL.EnableClientState(ArrayCap.VertexArray);
@@ -100,25 +100,33 @@ namespace Template_P3
             GL.DepthMask(true);
         }
 
-        // render the mesh using the supplied shader and matrix
-        public void Render(Shader shader, Matrix4 modelToWorld, Matrix4 worldToScreen, Texture texture, Vector3 materialcolor)
+        public void Load2DTexture(Texture texture, int shaderID, string varName, TextureUnit gpuNr)
         {
-            // on first run, prepare buffers
-            Prepare(shader);
-
-            // enable texture
-            int texLoc = GL.GetUniformLocation(shader.programID, "pixels");
-            GL.Uniform1(texLoc, 0);
+            GL.Uniform1(GL.GetUniformLocation(shaderID, varName), gpuNr - TextureUnit.Texture0);
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, texture.id);
+        }
 
+        public void SetTexture(Texture texture, int shaderID)
+        {
+            Load2DTexture(texture, shaderID, "pixels", TextureUnit.Texture0);
+        }
+
+        public void SetNormal(Texture normalMap, int shaderID)
+        {
+            Load2DTexture(normalMap, shaderID, "normals", TextureUnit.Texture1);
+        }
+        
+        // render the mesh using the supplied shader and matrix
+        public void Render(Shader shader, Matrix4 modelToWorld, Matrix4 worldToScreen, Vector3 materialcolor)
+        {
             // enable shader
             GL.UseProgram(shader.programID);
 
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
             GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
-            GL.Uniform3(shader.uniform_camerapos,ref Game.camerapos);
+            GL.Uniform3(shader.uniform_camerapos,ref Game.cameraPosition);
             GL.Uniform3(shader.uniform_materialcolor, ref materialcolor);
 
             // bind interleaved vertex data

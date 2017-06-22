@@ -37,6 +37,13 @@ namespace Template_P3
             uniform_materialcolor = GL.GetUniformLocation(programID, "materialcolor");
         }
 
+        public static Shader Load(string vertexShader, string fragmentShader)
+        {
+            return new Shader(
+                "../../shaders/" + vertexShader + ".glsl",
+                "../../shaders/" + fragmentShader + ".glsl");
+        }
+
         // loading shaders
         void Load(String filename, ShaderType type, int program, out int ID)
         {
@@ -48,7 +55,7 @@ namespace Template_P3
             string log = GL.GetShaderInfoLog(ID);
             if (log != "")
             {
-                Console.WriteLine("While loading shader "+ filename + ":\n" + log);
+                Console.WriteLine("While loading shader " + filename + ":\n" + log);
             }
         }
     }

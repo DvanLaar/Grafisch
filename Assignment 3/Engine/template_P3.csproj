@@ -90,6 +90,7 @@
     <None Include="assets\teapot.obj" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
+    <None Include="shaders\fs_normal.glsl" />
     <None Include="shaders\fs.glsl" />
     <None Include="shaders\fs_bloomblend.glsl" />
     <None Include="shaders\fs_fur.glsl" />
@@ -115,7 +116,15 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="assets\brick_normal_map.png" />
     <Content Include="assets\font.png" />
+    <Content Include="assets\fur.png" />
+    <Content Include="assets\sea_bk.JPG" />
+    <Content Include="assets\sea_dn.JPG" />
+    <Content Include="assets\sea_ft.JPG" />
+    <Content Include="assets\sea_lf.JPG" />
+    <Content Include="assets\sea_rt.JPG" />
+    <Content Include="assets\sea_up.JPG" />
     <Content Include="assets\thetrump.png" />
     <Content Include="assets\wood.jpg" />
   </ItemGroup>

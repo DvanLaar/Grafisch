@@ -15,39 +15,36 @@ namespace Template_P3
 
     class Game
     {
+        const float PI = 3.1415926535f;
+        const bool useRenderTarget = true;
+
         // member variables
-        public Surface screen;                  // background surface for printing etc.
-        Mesh mesh, floor, cube;                       // a mesh to draw using OpenGL
-        const float PI = 3.1415926535f;         // PI
-        Camera camera;                          // teapot rotation angle
-        Stopwatch timer;                        // timer for measuring frame duration
-        Shader shader;                          // shader to use for rendering
-        FurShader furshader;
+        public Surface screen; // background surface for printing etc.
+        public Camera camera;
+        public Stopwatch timer; // timer for measuring frame duration
+        public ScreenQuad quad; // screen filling quad for post processing
+        public SceneGraph scene;
 
-        Shader postproc;                        // shader to use for post processing
-        Shader postbloomblend;
-        Shader skyboxshader;
-        PostVigAndChromShader vigandchromshader;
-        PostKernelShader kernelshader;
-        Kernel kernel;
+        // used shaders:
+        public Shader shaderDefault, shaderNormal, shaderFur, shaderPostProc, shaderPostBloomBlend, shaderSkybox;
+        public PostVigAndChromShader shaderVigAndChrom;
+        public PostKernelShader shaderKernel;
+        public Kernel kernel;
 
-        Texture wood;                           // texture to use for rendering
-        Texture fur;
-        CubeTexture skybox;
+        // used meshes:
+        public Mesh meshTeapot, meshFloor, meshCube;
 
-        RenderTarget target;                    // intermediate render target
-        RenderTarget target2;
-        RenderTarget target3;
-        RenderTarget targethdr;
-        RenderTarget bloomtarget;
+        // used textures:
+        public Texture textureWood, textureFur, textureWall;
+        public CubeTexture textureSkybox;
 
-        ScreenQuad quad;                        // screen filling quad for post processing
-        bool useRenderTarget = true;
+        // used render targets:
+        public RenderTarget targetMain, targetVigAndChrom, targetUnused, targetHDR, targetBloom;
+        
+        // used models:
+        public Model modelTeapot, modelFloor;
 
-        SceneGraph scene;
-        Model teapotmodel;
-
-        public static Vector3 camerapos;
+        public static Vector3 cameraPosition;
 
         // initialize
         public void Init()
@@ -58,50 +55,45 @@ namespace Template_P3
             timer = new Stopwatch();
             timer.Start();
             // create shaders
-            shader = new Shader("../../shaders/vs.glsl", "../../shaders/fs.glsl");
-            furshader = new FurShader("../../shaders/vs_fur.glsl", "../../shaders/fs_fur.glsl");
-            postproc = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_post.glsl");
-            kernelshader = new PostKernelShader("../../shaders/vs_post.glsl", "../../shaders/fs_kernel.glsl");
-            vigandchromshader = new PostVigAndChromShader("../../shaders/vs_post.glsl", "../../shaders/fs_vigchrom.glsl");
-            postbloomblend = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_bloomblend.glsl");
-            skyboxshader = new Shader("../../shaders/vs_skybox.glsl", "../../shaders/fs_skybox.glsl");
+            shaderDefault = Shader.Load("vs", "fs");
+            shaderNormal = Shader.Load("vs", "fs_normal");
+            shaderFur = new FurShader("../../shaders/vs_fur.glsl", "../../shaders/fs_fur.glsl");
+            shaderPostProc = Shader.Load("vs_post", "fs_post");
+            shaderKernel = new PostKernelShader("../../shaders/vs_post.glsl", "../../shaders/fs_kernel.glsl");
+            shaderVigAndChrom = new PostVigAndChromShader("../../shaders/vs_post.glsl", "../../shaders/fs_vigchrom.glsl");
+            shaderPostBloomBlend = Shader.Load("vs_post", "fs_bloomblend");
+            shaderSkybox = Shader.Load("vs_skybox", "fs_skybox");
             // load teapot
-            mesh = new Mesh("../../assets/teapot.obj");
-            floor = new Mesh("../../assets/floor.obj");
-            cube = new Mesh("../../assets/cube.obj");
+            meshTeapot = new Mesh("../../assets/teapot.obj");
+            meshFloor = new Mesh("../../assets/floor.obj");
+            meshCube = new Mesh("../../assets/cube.obj");
             // load a texture
-            fur = new Texture("../../assets/fur.png");
-            wood = new Texture("../../assets/wood.jpg");
-            skybox = new CubeTexture("../../assets/sea_rt.JPG",
+            textureFur = Texture.Load("fur.png");
+            textureWood = Texture.Load("wood.jpg");
+            textureWall = Texture.Load("brick_normal_map.png");
+            textureSkybox = new CubeTexture("../../assets/sea_rt.JPG",
                                      "../../assets/sea_lf.JPG",
                                      "../../assets/sea_up.JPG",
                                      "../../assets/sea_dn.JPG",
                                      "../../assets/sea_bk.JPG",
                                      "../../assets/sea_ft.JPG");
-            // create the render target
-            target = new RenderTarget(screen.width, screen.height);
-            target2 = new RenderTarget(screen.width, screen.height);
-            target3 = new RenderTarget(screen.width, screen.height);
-
-            targethdr = new RenderTarget(screen.width, screen.height,2);
-            bloomtarget = new RenderTarget(screen.width,screen.height);
 
             Resize();
-
             quad = new ScreenQuad();
             scene = new SceneGraph();
 
             SceneNode mainNode = new SceneNode();
-            teapotmodel = new Model(mesh, wood, shader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
+            modelTeapot = new Model(meshTeapot, textureWood, shaderDefault, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
 
-            Model floormodel = new Model(floor, wood, shader, Matrix4.Identity);
-            floormodel.materialcolor = new Vector3(100f, 1f, 1f);
+            modelFloor = new Model(meshFloor, textureWood, shaderNormal, Matrix4.Identity);
+            modelFloor.MaterialColor = new Vector3(1f, 1f, 1f);
+            modelFloor.NormalMap = textureWall;
 
             // FurModel furry = new FurModel(mesh, wood, fur, shader, furshader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
             // mainNode.AddChildModel(furry);
 
-            mainNode.AddChildModel(teapotmodel);
-            mainNode.AddChildModel(floormodel);
+            mainNode.AddChildModel(modelTeapot);
+            mainNode.AddChildModel(modelFloor);
 
             scene.mainNode = mainNode;
 
@@ -111,12 +103,12 @@ namespace Template_P3
         public void Resize()
         {
             // create the render target
-            target = new RenderTarget(screen.width, screen.height);
-            target2 = new RenderTarget(screen.width, screen.height);
-            target3 = new RenderTarget(screen.width, screen.height);
+            targetMain = new RenderTarget(screen.width, screen.height);
+            targetVigAndChrom = new RenderTarget(screen.width, screen.height);
+            targetUnused = new RenderTarget(screen.width, screen.height);
 
-            targethdr = new RenderTarget(screen.width, screen.height, 2);
-            bloomtarget = new RenderTarget(screen.width, screen.height);
+            targetHDR = new RenderTarget(screen.width, screen.height, 2);
+            targetBloom = new RenderTarget(screen.width, screen.height);
         }
 
         public void processKeyboard(KeyboardState keyboard)
@@ -125,6 +117,14 @@ namespace Template_P3
             timer.Stop();
             float frameDuration = timer.ElapsedMilliseconds;
             timer.Restart();
+
+            if (keyboard[Key.ShiftLeft] || keyboard[Key.ShiftRight])
+                frameDuration *= 10f;
+
+            if (keyboard[Key.Enter])
+            {
+                this.modelFloor.modeltransform *= Matrix4.CreateRotationX(0.1f);
+            }
 
             // rotation.X : left/right
             // rotation.Y : up/down
@@ -159,7 +159,7 @@ namespace Template_P3
             // prepare matrix for vertex shader
             Matrix4 transform = camera.Matrix;
 
-            camerapos = -camera.Position;
+            cameraPosition = -camera.Position;
 
 
             // update rotation
@@ -174,35 +174,35 @@ namespace Template_P3
             {
 
                 //Bind the HDR target
-                targethdr.Bind();
+                targetHDR.Bind();
                 //Let the GPU now when want to render to 2 textures
                 GL.DrawBuffers(2, new DrawBuffersEnum[2] { DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1 });
                 GL.Clear(ClearBufferMask.DepthBufferBit);
                 GL.Clear(ClearBufferMask.ColorBufferBit);
 
                 //First skybox
-                cube.SkyboxRender(skyboxshader,Matrix4.Identity,transform,skybox);
+                meshCube.SkyboxRender(shaderSkybox, Matrix4.Identity, transform, textureSkybox);
                 //Second the rest of scene
                 scene.Render(transform);
                 //Unbind the HDR target
                 GL.DrawBuffers(1, new DrawBuffersEnum[1] { DrawBuffersEnum.ColorAttachment0 });
-                targethdr.Unbind();
+                targetHDR.Unbind();
 
-                bloomtarget.Bind();
-                quad.KernelRender(kernelshader, targethdr.GetTextureID(1), 640f, 400f, Kernel.Uniform(19, 19, 19));
-                bloomtarget.Unbind();
+                targetBloom.Bind();
+                quad.KernelRender(shaderKernel, targetHDR.GetTextureID(1), 640f, 400f, Kernel.Uniform(19, 19, 19));
+                targetBloom.Unbind();
 
                 //Merge bloomtarget and targethdr[0]
-                target.Bind();
-                quad.BloomBlendRender(postbloomblend, targethdr.GetTextureID(0), bloomtarget.GetTextureID());
-                target.Unbind();
+                targetMain.Bind();
+                quad.BloomBlendRender(shaderPostBloomBlend, targetHDR.GetTextureID(0), targetBloom.GetTextureID());
+                targetMain.Unbind();
 
-                target2.Bind();
-                quad.VigAndChromRender(vigandchromshader, target.GetTextureID(),2.3f,new Vector2(0.51f,0.5f), 0.0125f * new Vector3(1f, 0f, -1f) );
-                target2.Unbind();
+                targetVigAndChrom.Bind();
+                quad.VigAndChromRender(shaderVigAndChrom, targetMain.GetTextureID(), 2.3f, new Vector2(0.51f, 0.5f), 0.0125f * new Vector3(1f, 0f, -1f));
+                targetVigAndChrom.Unbind();
 
                 //quad.Render(postproc, target.GetTextureID());
-                quad.KernelRender(kernelshader, target2.GetTextureID(), 640f, 400f, kernel);
+                quad.KernelRender(shaderKernel, targetVigAndChrom.GetTextureID(), 640f, 400f, kernel);
             }
             else
             {
