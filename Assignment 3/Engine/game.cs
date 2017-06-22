@@ -89,7 +89,6 @@ namespace Template_P3
             Resize();
 
             quad = new ScreenQuad();
-
             scene = new SceneGraph();
 
             SceneNode mainNode = new SceneNode();
@@ -114,6 +113,10 @@ namespace Template_P3
             // create the render target
             target = new RenderTarget(screen.width, screen.height);
             target2 = new RenderTarget(screen.width, screen.height);
+            target3 = new RenderTarget(screen.width, screen.height);
+
+            targethdr = new RenderTarget(screen.width, screen.height, 2);
+            bloomtarget = new RenderTarget(screen.width, screen.height);
         }
 
         public void processKeyboard(KeyboardState keyboard)
@@ -140,7 +143,7 @@ namespace Template_P3
             if (keyboard[Key.D]) translation += Vector3.UnitX;
             if (keyboard[Key.A]) translation -= Vector3.UnitX;
 
-            camera.AddTransformation(0.005f * frameDuration * rotation, 0.02f * frameDuration * translation);
+            camera.AddTransformation(0.004f * frameDuration * rotation, 0.03f * frameDuration * translation);
         }
 
         // tick for background surface

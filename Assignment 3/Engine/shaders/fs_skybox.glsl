@@ -11,5 +11,5 @@ layout(location=1) out vec4 outputHDR;
 void main()
 {
 	outputColor = texture(pixels, uv);
-	outputHDR = clamp(outputColor-vec4(1f,1f,1f,1f),0,1);
+	outputHDR = clamp(outputColor*1.5f-vec4(1f,1f,1f,1f),0,1);
 }

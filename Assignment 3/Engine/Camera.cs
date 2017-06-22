@@ -79,7 +79,7 @@ namespace template_P3
 
         private void UpdateMatrix()
         {
-            Matrix4 rot = Matrix4.Rotate(_rotation);
+            Matrix4 rot = Matrix4.CreateFromQuaternion(_rotation);
             rot.Transpose();
             Matrix4 trans = Matrix4.CreateTranslation(-Position);
             Matrix4 persp = Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, Near, Far);
