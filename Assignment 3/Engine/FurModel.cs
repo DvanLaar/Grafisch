@@ -16,7 +16,7 @@ namespace template_P3
 
         public Vector3 materialcolor = new Vector3(1,1,1);
 
-        public FurModel(Mesh mesh, Texture texture, Texture furtexture, Shader shader, Shader furshader, Matrix4 modeltranform):base(mesh,texture,shader,Matrix4.Identity)
+        public FurModel(Mesh mesh, Texture texture, Texture furtexture, Shader shader, Shader furshader, Matrix4 modeltranform):base(mesh,texture,shader,modeltranform)
         {
             this.furtexture = furtexture;
             this.furshader = furshader;

@@ -4,7 +4,7 @@
 in vec2 P, uv;
 uniform sampler2D pixels;
 uniform sampler2D bloom;
-
+ 
 out vec4 outputColor;
 
 void main()

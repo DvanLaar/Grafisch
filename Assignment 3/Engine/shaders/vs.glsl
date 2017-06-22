@@ -18,7 +18,7 @@ uniform mat4 worldToScreen;
 void main()
 {
 	// transform vertex using supplied matrix
-	gl_Position = (modelToWorld*worldToScreen) * vec4(vPosition, 1.0);
+	gl_Position = (worldToScreen*modelToWorld) * vec4(vPosition, 1.0);
 	position = (modelToWorld * vec4(vPosition,1.0)).xyz;
 
 	// forward normal and uv coordinate; will be interpolated over triangle

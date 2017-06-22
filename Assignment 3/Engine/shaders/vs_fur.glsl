@@ -22,7 +22,7 @@ void main()
 	vec3 position = vPosition;
 	position = position + (furoffset*0.015*vNormal);
 
-	gl_Position = (modelToWorld*worldToScreen) * vec4(position, 1.0);
+	gl_Position = (worldToScreen*modelToWorld) * vec4(position, 1.0);
 
 	// forward normal and uv coordinate; will be interpolated over triangle
 	normal = modelToWorld * vec4( vNormal, 0.0f );

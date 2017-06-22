@@ -27,6 +27,7 @@ namespace Template_P3
         Shader postproc;                        // shader to use for post processing
         Shader postbloomblend;
         Shader skyboxshader;
+        Shader reflectiveshader;
         PostVigAndChromShader vigandchromshader;
         PostKernelShader kernelshader;
         Kernel kernel;
@@ -65,8 +66,10 @@ namespace Template_P3
             vigandchromshader = new PostVigAndChromShader("../../shaders/vs_post.glsl", "../../shaders/fs_vigchrom.glsl");
             postbloomblend = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_bloomblend.glsl");
             skyboxshader = new Shader("../../shaders/vs_skybox.glsl", "../../shaders/fs_skybox.glsl");
+            reflectiveshader = new Shader("../../shaders/vs.glsl","../../shaders/fs_reflective.glsl");
             // load teapot
             mesh = new Mesh("../../assets/teapot.obj");
+            Mesh teapot2 = new Mesh("../../assets/teapot.obj");
             floor = new Mesh("../../assets/floor.obj");
             cube = new Mesh("../../assets/cube.obj");
             // load a texture
@@ -92,16 +95,19 @@ namespace Template_P3
             scene = new SceneGraph();
 
             SceneNode mainNode = new SceneNode();
-            teapotmodel = new Model(mesh, wood, shader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
+            teapotmodel = new Model(mesh, wood, shader, Matrix4.CreateTranslation(new Vector3(0, 0f, 0)));
 
             Model floormodel = new Model(floor, wood, shader, Matrix4.Identity);
             floormodel.materialcolor = new Vector3(100f, 1f, 1f);
 
-            // FurModel furry = new FurModel(mesh, wood, fur, shader, furshader, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
-            // mainNode.AddChildModel(furry);
+            FurModel furry = new FurModel(mesh, wood, fur, shader, furshader, Matrix4.CreateTranslation(new Vector3(0, 20f, 0)));
+            mainNode.AddChildModel(furry);
+
+            ReflectiveModel refl = new ReflectiveModel(teapot2,reflectiveshader,Matrix4.CreateTranslation(0,10f,0),skybox);
 
             mainNode.AddChildModel(teapotmodel);
             mainNode.AddChildModel(floormodel);
+            mainNode.AddChildModel(refl);
 
             scene.mainNode = mainNode;
 
@@ -198,11 +204,11 @@ namespace Template_P3
                 target.Unbind();
 
                 target2.Bind();
-                quad.VigAndChromRender(vigandchromshader, target.GetTextureID(),2.3f,new Vector2(0.51f,0.5f), 0.0125f * new Vector3(1f, 0f, -1f) );
+                quad.VigAndChromRender(vigandchromshader, target.GetTextureID(),2.3f,new Vector2(0.5f,0.5f), 0.0125f * new Vector3(1f, 0f, -1f) );
                 target2.Unbind();
 
                 //quad.Render(postproc, target.GetTextureID());
-                quad.KernelRender(kernelshader, target2.GetTextureID(), 640f, 400f, kernel);
+                quad.KernelRender(kernelshader, target2.GetTextureID(), 640f, 400f, Kernel.SmallGaussianBlur);
             }
             else
             {

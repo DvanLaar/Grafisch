@@ -75,6 +75,7 @@
     <Compile Include="PostKernelShader.cs" />
     <Compile Include="PostVigAndChromShader.cs" />
     <Compile Include="quad.cs" />
+    <Compile Include="ReflectiveModel.cs" />
     <Compile Include="rendertarget.cs" />
     <Compile Include="SceneGraph.cs" />
     <Compile Include="shader.cs" />
@@ -95,6 +96,7 @@
     <None Include="shaders\fs_fur.glsl" />
     <None Include="shaders\fs_kernel.glsl" />
     <None Include="shaders\fs_post.glsl" />
+    <None Include="shaders\fs_reflective.glsl" />
     <None Include="shaders\fs_skybox.glsl" />
     <None Include="shaders\fs_vigchrom.glsl" />
     <None Include="shaders\vs.glsl" />

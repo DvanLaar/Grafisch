@@ -21,7 +21,7 @@ namespace template_P3
             this.mesh = mesh;
             this.texture = texture;
             this.shader = shader;
-            this.modeltransform = Matrix4.Identity;
+            this.modeltransform = modeltransform;
         }
 
         public virtual void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
