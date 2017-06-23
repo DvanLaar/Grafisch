@@ -24,9 +24,11 @@ namespace template_P3
 
         public override void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
         {
-            Matrix4 mtw = ModelToWorld * modeltransform;
+            Matrix4 mtw = ModelToWorld * meshToModel;
             Matrix4 wts = WorldToScreen;
             mesh.Prepare(shader);
+            // enable shader
+            GL.UseProgram(shader.programID);
             mesh.Render(shader, mtw, wts, materialcolor);
 
             for (int i = 0; i < 32; i++)

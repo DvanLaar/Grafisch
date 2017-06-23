@@ -8,16 +8,17 @@ namespace Template_P3
 {
 
     // mesh and loader based on work by JTalton; http://www.opentk.com/node/642
-
     public class Mesh
     {
         // data members
         public ObjVertex[] vertices;            // vertex positions, model space
         public ObjTriangle[] triangles;         // triangles (3 vertex indices)
         public ObjQuad[] quads;                 // quads (4 vertex indices)
-        int vertexBufferId;                     // vertex buffer
-        int triangleBufferId;                   // triangle buffer
-        int quadBufferId;                       // quad buffer
+
+        // The buffers belonging to these IDs contain all the data from above, in a format more useful to the GPU
+        private int vertexBufferId, triangleBufferId, quadBufferId;
+
+        public Mesh() { }
 
         // constructor
         public Mesh(string fileName)
@@ -47,64 +48,11 @@ namespace Template_P3
             GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(quads.Length * Marshal.SizeOf(typeof(ObjQuad))), quads, BufferUsageHint.StaticDraw);
         }
 
-        // render the mesh using the supplied shader and matrix
-        public void SkyboxRender(Shader shader, Matrix4 modelToWorld, Matrix4 worldToScreen, CubeTexture texture)
+        public void Load2DTexture(Texture texture, int shaderID, string varName, TextureUnit unit)
         {
-            GL.DepthMask(false);
-            // on first run, prepare buffers
-            Prepare(shader);
-
-            // enable texture
-            int texLoc = GL.GetUniformLocation(shader.programID, "pixels");
-            GL.Uniform1(texLoc, 0);
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.TextureCubeMap, texture.id);
-
-            // enable shader
-            GL.UseProgram(shader.programID);
-
-            // pass transform to vertex shader
-            GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
-            GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
-            GL.Uniform3(shader.uniform_camerapos, ref Game.cameraPosition);
-
-            // bind interleaved vertex data
-            GL.EnableClientState(ArrayCap.VertexArray);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferId);
-            GL.InterleavedArrays(InterleavedArrayFormat.T2fN3fV3f, Marshal.SizeOf(typeof(ObjVertex)), IntPtr.Zero);
-
-            // link vertex attributes to shader parameters 
-            GL.VertexAttribPointer(shader.attribute_vuvs, 2, VertexAttribPointerType.Float, false, 32, 0);
-            GL.VertexAttribPointer(shader.attribute_vnrm, 3, VertexAttribPointerType.Float, true, 32, 2 * 4);
-            GL.VertexAttribPointer(shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 32, 5 * 4);
-
-            // enable position, normal and uv attributes
-            GL.EnableVertexAttribArray(shader.attribute_vpos);
-            GL.EnableVertexAttribArray(shader.attribute_vnrm);
-            GL.EnableVertexAttribArray(shader.attribute_vuvs);
-
-            // bind triangle index data and render
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, triangleBufferId);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, triangles.Length * 3);
-
-            // bind quad index data and render
-            if (quads.Length > 0)
-            {
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, quadBufferId);
-                GL.DrawArrays(PrimitiveType.Quads, 0, quads.Length * 4);
-            }
-
-            // restore previous OpenGL state
-            GL.UseProgram(0);
-
-            GL.DepthMask(true);
-        }
-
-        public void Load2DTexture(Texture texture, int shaderID, string varName, TextureUnit gpuNr)
-        {
-            GL.Uniform1(GL.GetUniformLocation(shaderID, varName), gpuNr - TextureUnit.Texture0);
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, texture.id);
+            GL.Uniform1(GL.GetUniformLocation(shaderID, varName), unit - TextureUnit.Texture0);
+            GL.ActiveTexture(unit);
+            GL.BindTexture(TextureTarget.Texture2D, texture == null ? -1 : texture.id);
         }
 
         public void SetTexture(Texture texture, int shaderID)
@@ -116,37 +64,32 @@ namespace Template_P3
         {
             Load2DTexture(normalMap, shaderID, "normals", TextureUnit.Texture1);
         }
-        
-        // render the mesh using the supplied shader and matrix
-        public void Render(Shader shader, Matrix4 modelToWorld, Matrix4 worldToScreen, Vector3 materialcolor)
+
+        private void drawMesh(Shader shader)
         {
-            // enable shader
-            GL.UseProgram(shader.programID);
-
-            // pass transform to vertex shader
-            GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
-            GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
-            GL.Uniform3(shader.uniform_camerapos,ref Game.cameraPosition);
-            GL.Uniform3(shader.uniform_materialcolor, ref materialcolor);
-
             // bind interleaved vertex data
             GL.EnableClientState(ArrayCap.VertexArray);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferId);
-            GL.InterleavedArrays(InterleavedArrayFormat.T2fN3fV3f, Marshal.SizeOf(typeof(ObjVertex)), IntPtr.Zero);
+            GL.InterleavedArrays(InterleavedArrayFormat.T2fC4fN3fV3f, Marshal.SizeOf(typeof(ObjVertex)), IntPtr.Zero);
 
             // link vertex attributes to shader parameters 
-            GL.VertexAttribPointer(shader.attribute_vuvs, 2, VertexAttribPointerType.Float, false, 32, 0);
-            GL.VertexAttribPointer(shader.attribute_vnrm, 3, VertexAttribPointerType.Float, true, 32, 2 * 4);
-            GL.VertexAttribPointer(shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 32, 5 * 4);
+            GL.VertexAttribPointer(shader.attribute_vuvs, 2, VertexAttribPointerType.Float, false, 48, 0);
+            GL.VertexAttribPointer(shader.attribute_vtan, 3, VertexAttribPointerType.Float, true, 32, 8);
+            GL.VertexAttribPointer(shader.attribute_vnrm, 3, VertexAttribPointerType.Float, true, 48, 24);
+            GL.VertexAttribPointer(shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 48, 36);
 
             // enable position, normal and uv attributes
-            GL.EnableVertexAttribArray(shader.attribute_vpos);
-            GL.EnableVertexAttribArray(shader.attribute_vnrm);
             GL.EnableVertexAttribArray(shader.attribute_vuvs);
+            GL.EnableVertexAttribArray(shader.attribute_vtan);
+            GL.EnableVertexAttribArray(shader.attribute_vnrm);
+            GL.EnableVertexAttribArray(shader.attribute_vpos);
 
             // bind triangle index data and render
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, triangleBufferId);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, triangles.Length * 3);
+            if (triangles.Length > 0)
+            {
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, triangleBufferId);
+                GL.DrawArrays(PrimitiveType.Triangles, 0, triangles.Length * 3);
+            }
 
             // bind quad index data and render
             if (quads.Length > 0)
@@ -160,10 +103,51 @@ namespace Template_P3
         }
 
         // render the mesh using the supplied shader and matrix
+        public void Render(Shader shader, Matrix4 modelToWorld, Matrix4 worldToScreen, Vector3 materialcolor)
+        {
+            // pass transform to vertex shader
+            GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
+            GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
+            GL.Uniform3(shader.uniform_camerapos, ref Game.cameraPosition);
+            GL.Uniform3(shader.uniform_lightpos, ref Game.lightPosition);
+            GL.Uniform3(shader.uniform_materialcolor, ref materialcolor);
+
+            drawMesh(shader);
+        }
+
+        // render the mesh using the supplied shader and matrix
+        public void SkyboxRender(Shader shader, Matrix4 modelToWorld, Matrix4 worldToScreen, CubeTexture texture)
+        {
+            GL.DepthMask(false);
+            // on first run, prepare buffers
+            Prepare(shader);
+
+            // enable shader
+            GL.UseProgram(shader.programID);
+            
+            // enable texture
+            int texLoc = GL.GetUniformLocation(shader.programID, "pixels");
+            GL.Uniform1(texLoc, 0);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.TextureCubeMap, texture.id);
+
+            // pass transform to vertex shader
+            GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
+            GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
+            GL.Uniform3(shader.uniform_camerapos, ref Game.cameraPosition);
+
+            drawMesh(shader);
+            GL.DepthMask(true);
+        }
+
+        // render the mesh using the supplied shader and matrix
         public void ReflectiveRender(Shader shader, Matrix4 modelToWorld, Matrix4 worldToScreen, CubeTexture skybox, Vector3 materialcolor)
         {
             // on first run, prepare buffers
             Prepare(shader);
+
+            // enable shader
+            GL.UseProgram(shader.programID);
 
             // enable texture
             int texLoc = GL.GetUniformLocation(shader.programID, "skybox");
@@ -171,42 +155,12 @@ namespace Template_P3
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.TextureCubeMap, skybox.id);
 
-            // enable shader
-            GL.UseProgram(shader.programID);
-
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
             GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
             GL.Uniform3(GL.GetUniformLocation(shader.programID, "materialcolor"), materialcolor);
 
-            // bind interleaved vertex data
-            GL.EnableClientState(ArrayCap.VertexArray);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferId);
-            GL.InterleavedArrays(InterleavedArrayFormat.T2fN3fV3f, Marshal.SizeOf(typeof(ObjVertex)), IntPtr.Zero);
-
-            // link vertex attributes to shader parameters 
-            GL.VertexAttribPointer(shader.attribute_vuvs, 2, VertexAttribPointerType.Float, false, 32, 0);
-            GL.VertexAttribPointer(shader.attribute_vnrm, 3, VertexAttribPointerType.Float, true, 32, 2 * 4);
-            GL.VertexAttribPointer(shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 32, 5 * 4);
-
-            // enable position, normal and uv attributes
-            GL.EnableVertexAttribArray(shader.attribute_vpos);
-            GL.EnableVertexAttribArray(shader.attribute_vnrm);
-            GL.EnableVertexAttribArray(shader.attribute_vuvs);
-
-            // bind triangle index data and render
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, triangleBufferId);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, triangles.Length * 3);
-
-            // bind quad index data and render
-            if (quads.Length > 0)
-            {
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, quadBufferId);
-                GL.DrawArrays(PrimitiveType.Quads, 0, quads.Length * 4);
-            }
-
-            // restore previous OpenGL state
-            GL.UseProgram(0);
+            drawMesh(shader);
         }
 
 
@@ -216,57 +170,42 @@ namespace Template_P3
             // on first run, prepare buffers
             Prepare(shader);
 
+            // enable shader
+            GL.UseProgram(shader.programID);
+
             // enable texture
             int texLoc = GL.GetUniformLocation(shader.programID, "pixels");
             GL.Uniform1(texLoc, 0);
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, texture.id);
 
-            // enable shader
-            GL.UseProgram(shader.programID);
-
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
             GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
             GL.Uniform1(((FurShader)shader).uniform_furoffset, offset);
 
-            // bind interleaved vertex data
-            GL.EnableClientState(ArrayCap.VertexArray);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferId);
-            GL.InterleavedArrays(InterleavedArrayFormat.T2fN3fV3f, Marshal.SizeOf(typeof(ObjVertex)), IntPtr.Zero);
-
-            // link vertex attributes to shader parameters 
-            GL.VertexAttribPointer(shader.attribute_vuvs, 2, VertexAttribPointerType.Float, false, 32, 0);
-            GL.VertexAttribPointer(shader.attribute_vnrm, 3, VertexAttribPointerType.Float, true, 32, 2 * 4);
-            GL.VertexAttribPointer(shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 32, 5 * 4);
-
-            // enable position, normal and uv attributes
-            GL.EnableVertexAttribArray(shader.attribute_vpos);
-            GL.EnableVertexAttribArray(shader.attribute_vnrm);
-            GL.EnableVertexAttribArray(shader.attribute_vuvs);
-
-            // bind triangle index data and render
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, triangleBufferId);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, triangles.Length * 3);
-
-            // bind quad index data and render
-            if (quads.Length > 0)
-            {
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, quadBufferId);
-                GL.DrawArrays(PrimitiveType.Quads, 0, quads.Length * 4);
-            }
-
-            // restore previous OpenGL state
-            GL.UseProgram(0);
+            drawMesh(shader);
         }
 
         // layout of a single vertex
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Explicit)]
         public struct ObjVertex
         {
-            public Vector2 TexCoord;
-            public Vector3 Normal;
-            public Vector3 Vertex;
+            [FieldOffset(0)] public Vector2 TexCoord;
+            [FieldOffset(8)] public Vector3 Tangent;
+            [FieldOffset(24)] public Vector3 Normal;
+            [FieldOffset(36)] public Vector3 Vertex;
+
+            public ObjVertex(Vector2 TexCoord, Vector3 Normal, Vector3 Vertex) : this(TexCoord, Vector3.Zero, Normal, Vertex) { }
+            public ObjVertex(ObjVertex obj, Vector3 tangent) : this(obj.TexCoord, tangent, obj.Normal, obj.Vertex) { }
+
+            public ObjVertex(Vector2 TexCoord, Vector3 Tangent, Vector3 Normal, Vector3 Vertex)
+            {
+                this.TexCoord = TexCoord;
+                this.Tangent = Tangent;
+                this.Normal = Normal;
+                this.Vertex = Vertex;
+            }
         }
 
         // layout of a single triangle
@@ -274,6 +213,13 @@ namespace Template_P3
         public struct ObjTriangle
         {
             public int Index0, Index1, Index2;
+
+            public ObjTriangle(int Index0, int Index1, int Index2)
+            {
+                this.Index0 = Index0;
+                this.Index1 = Index1;
+                this.Index2 = Index2;
+            }
         }
 
         // layout of a single quad
@@ -281,6 +227,14 @@ namespace Template_P3
         public struct ObjQuad
         {
             public int Index0, Index1, Index2, Index3;
+
+            public ObjQuad(int Index0, int Index1, int Index2, int Index3)
+            {
+                this.Index0 = Index0;
+                this.Index1 = Index1;
+                this.Index2 = Index2;
+                this.Index3 = Index3;
+            }
         }
     }
 

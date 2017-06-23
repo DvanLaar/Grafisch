@@ -1,9 +1,5 @@
 ﻿using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OpenTK.Graphics.OpenGL;
 using Template_P3;
 
 namespace template_P3
@@ -13,7 +9,7 @@ namespace template_P3
         public Mesh mesh;
         public Texture texture, NormalMap = null;
         public Shader shader;
-        public Matrix4 modeltransform;
+        public Matrix4 meshToModel;
         public Vector3 MaterialColor = new Vector3(1, 1, 1);
 
         public Model(Mesh mesh, Texture texture, Shader shader, Matrix4 modeltransform)
@@ -21,16 +17,19 @@ namespace template_P3
             this.mesh = mesh;
             this.texture = texture;
             this.shader = shader;
-            this.modeltransform = modeltransform;
+            this.meshToModel = modeltransform;
         }
 
         public virtual void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
         {
+            if (mesh == null) return;
             mesh.Prepare(shader);
+            // enable shader
+            GL.UseProgram(shader.programID);
+
             mesh.SetTexture(texture, shader.programID);
-            if (NormalMap != null)
-                mesh.SetNormal(NormalMap, shader.programID);
-            mesh.Render(shader, ModelToWorld * modeltransform, WorldToScreen, MaterialColor);
+            mesh.SetNormal(NormalMap, shader.programID);
+            mesh.Render(shader, ModelToWorld * meshToModel, WorldToScreen, MaterialColor);
         }
     }
 }

@@ -53,8 +53,7 @@ namespace Template_P3
         public void Bind()
         {
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fbo);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
         }
         public void Unbind()
         {

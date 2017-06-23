@@ -17,5 +17,5 @@ uniform vec3 camerapos;
 void main()
 {
 	uv = vPosition;
-	gl_Position = (modelToWorld * worldToScreen) * vec4(vPosition-camerapos, 1.0);
+	gl_Position = worldToScreen * modelToWorld * vec4(vPosition + camerapos, 1.0);
 }

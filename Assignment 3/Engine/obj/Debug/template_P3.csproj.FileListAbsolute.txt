@@ -14,3 +14,11 @@ D:\Projecten\Studie\Grafisch\Assignment 3\Engine\bin\Debug\OpenTK.xml
 D:\Projecten\Studie\Grafisch\Assignment 3\Engine\obj\Debug\template_P3.exe
 D:\Projecten\Studie\Grafisch\Assignment 3\Engine\obj\Debug\template_P3.pdb
 C:\_UNI\Grafisch\Assignment 3\Engine\bin\Debug\OpenTK.xml
+D:\Studie\2016-2017\Graphics\Grafisch\Assignment 3\Engine\bin\Debug\template_P3.exe.config
+D:\Studie\2016-2017\Graphics\Grafisch\Assignment 3\Engine\bin\Debug\template_P3.exe
+D:\Studie\2016-2017\Graphics\Grafisch\Assignment 3\Engine\bin\Debug\template_P3.pdb
+D:\Studie\2016-2017\Graphics\Grafisch\Assignment 3\Engine\bin\Debug\OpenTK.dll
+D:\Studie\2016-2017\Graphics\Grafisch\Assignment 3\Engine\bin\Debug\OpenTK.xml
+D:\Studie\2016-2017\Graphics\Grafisch\Assignment 3\Engine\obj\Debug\template_P3.csprojResolveAssemblyReference.cache
+D:\Studie\2016-2017\Graphics\Grafisch\Assignment 3\Engine\obj\Debug\template_P3.exe
+D:\Studie\2016-2017\Graphics\Grafisch\Assignment 3\Engine\obj\Debug\template_P3.pdb

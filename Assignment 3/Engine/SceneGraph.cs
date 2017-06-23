@@ -10,24 +10,20 @@ namespace template_P3
 {
     public class SceneGraph
     {
-        public SceneNode mainNode;
-
-        public SceneGraph()
-        {
-
-        }
+        private SceneNode mainNode;
+        
+        public SceneGraph(SceneNode mainNode) { this.mainNode = mainNode; }
 
         public void Render(Matrix4 camera)
         {
             mainNode.Render(Matrix4.Identity, camera);
         }
-
     }
 
     public class SceneNode
     {
-        public List<SceneNode> ChildrenNodes;
-        public List<Model> ChildrenModels;
+        private List<SceneNode> ChildrenNodes;
+        private List<Model> ChildrenModels;
         public Matrix4 Transform;
 
         public SceneNode()
@@ -39,13 +35,13 @@ namespace template_P3
 
         public void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
         {
-            ModelToWorld = ModelToWorld * Transform;
+            ModelToWorld = Transform * ModelToWorld;
             //WorldToScreen = WorldToScreen * Transform; //Wow, such fail, very weird
             foreach (Model model in ChildrenModels)
-                model.Render(ModelToWorld,WorldToScreen);
+                model.Render(ModelToWorld, WorldToScreen);
 
             foreach (SceneNode node in ChildrenNodes)
-                node.Render(ModelToWorld,WorldToScreen);
+                node.Render(ModelToWorld, WorldToScreen);
         }
 
         public void AddChildNode(SceneNode node)
@@ -57,6 +53,5 @@ namespace template_P3
         {
             ChildrenModels.Add(model);
         }
-
     }
 }
