@@ -134,13 +134,8 @@ namespace Template_P3
             if (keyboard[Key.ShiftLeft] || keyboard[Key.ShiftRight])
                 frameDuration *= 10f;
 
-            if (keyboard[Key.Enter])
-            {
-                this.modelFloor.meshToModel *= Matrix4.CreateRotationX(0.01f * frameDuration);
-            }
-
-            if (keyboard[Key.O]) modelFloor.shader = modelTeapot.shader = modelHeightMap.shader = shaderDefault;
-            if (keyboard[Key.P]) modelFloor.shader = modelTeapot.shader = modelHeightMap.shader = shaderNormal;
+            if (keyboard[Key.O]) modelFloor.shader = modelHeightMap.shader = shaderDefault;
+            if (keyboard[Key.P]) modelFloor.shader = modelHeightMap.shader = shaderNormal;
 
             float speed = 0.0075f;
             if (keyboard[Key.L]) lightPosition += speed * Vector3.UnitX * frameDuration;
@@ -207,9 +202,9 @@ namespace Template_P3
                 GL.DrawBuffers(1, new DrawBuffersEnum[1] { DrawBuffersEnum.ColorAttachment0 });
                 targetHDR.Unbind();
 
-                //targetBloom.Bind();
-                //quad.KernelRender(shaderKernel, targetHDR.GetTextureID(1), 640f, 400f, Kernel.Uniform(19, 19, 19));
-                //targetBloom.Unbind();
+                targetBloom.Bind();
+                quad.KernelRender(shaderKernel, targetHDR.GetTextureID(1), 640f, 400f, Kernel.Uniform(19, 19, 19));
+                targetBloom.Unbind();
 
                 // Merge bloomtarget and targethdr[0]
                 targetMain.Bind();
