@@ -47,6 +47,8 @@ namespace Template_P3
 
         public static Vector3 lightPosition = new Vector3(7f, 1f, 5f), cameraPosition;
 
+        public SceneNode subNode1;
+
         // initialize
         public void Init()
         {
@@ -100,12 +102,22 @@ namespace Template_P3
             modelFloor.NormalMap = normalBrickWall;
             modelHeightMap.NormalMap = normalHeightMap;
 
-            ReflectiveModel refl = new ReflectiveModel(meshTeapot, shaderReflective, Matrix4.CreateTranslation(0, 10f, 0), textureSkybox);
+            ReflectiveModel refl = new ReflectiveModel(meshTeapot, shaderReflective, Matrix4.CreateTranslation(0, 20f, 0), textureSkybox);
+
+            FurModel furmod = new FurModel(meshTeapot, textureBrickWall, textureFur, shaderDefault, shaderFur, Matrix4.CreateRotationX((float)Math.PI/2f)* Matrix4.CreateTranslation(new Vector3(0, 40f, 0)));
+            Model teapot2 = new Model(meshTeapot, textureWood, shaderDefault, Matrix4.CreateRotationY(1.5f)*Matrix4.CreateTranslation(new Vector3(0, 60f, 0)));
 
             SceneNode mainNode = new SceneNode();
+
+            subNode1 = new SceneNode();
+            subNode1.AddChildModel(refl);
+            subNode1.AddChildModel(furmod);
+            subNode1.AddChildModel(teapot2);
+
+            mainNode.AddChildNode(subNode1);
+
             mainNode.AddChildModel(modelFloor);
             mainNode.AddChildModel(modelTeapot);
-            mainNode.AddChildModel(refl);
             mainNode.AddChildModel(modelLightPos);
             mainNode.AddChildModel(modelHeightMap);
             scene = new SceneGraph(mainNode);
@@ -162,6 +174,12 @@ namespace Template_P3
             if (keyboard[Key.Q]) translation -= Vector3.UnitY;
             if (keyboard[Key.D]) translation += Vector3.UnitX;
             if (keyboard[Key.A]) translation -= Vector3.UnitX;
+
+            if (keyboard[Key.Number1]) subNode1.Transform = Matrix4.CreateTranslation(new Vector3(0,0,0.1f)) * subNode1.Transform;
+            if (keyboard[Key.Number2]) subNode1.Transform = Matrix4.CreateTranslation(new Vector3(0, 0, -0.1f)) * subNode1.Transform;
+
+            if (keyboard[Key.Number3]) subNode1.Transform = Matrix4.CreateRotationX(0.1f) * subNode1.Transform;
+            if (keyboard[Key.Number4]) subNode1.Transform = Matrix4.CreateRotationX(-0.1f) * subNode1.Transform;
 
             camera.AddTransformation(0.004f * frameDuration * rotation, 0.03f * frameDuration * translation);
         }

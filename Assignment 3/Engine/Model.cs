@@ -29,7 +29,7 @@ namespace template_P3
 
             mesh.SetTexture(texture, shader.programID);
             mesh.SetNormal(NormalMap, shader.programID);
-            mesh.Render(shader, ModelToWorld * meshToModel, WorldToScreen, MaterialColor);
+            mesh.Render(shader, meshToModel * ModelToWorld, WorldToScreen, MaterialColor);
         }
     }
 }

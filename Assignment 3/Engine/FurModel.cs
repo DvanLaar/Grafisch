@@ -16,7 +16,7 @@ namespace template_P3
 
         public Vector3 materialcolor = new Vector3(1, 1, 1);
 
-        public FurModel(Mesh mesh, Texture texture, Texture furtexture, Shader shader, Shader furshader, Matrix4 modeltranform) : base(mesh, texture, shader, Matrix4.Identity)
+        public FurModel(Mesh mesh, Texture texture, Texture furtexture, Shader shader, Shader furshader, Matrix4 modeltranform) : base(mesh, texture, shader, modeltranform)
         {
             this.furtexture = furtexture;
             this.furshader = furshader;
@@ -24,7 +24,7 @@ namespace template_P3
 
         public override void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
         {
-            Matrix4 mtw = ModelToWorld * meshToModel;
+            Matrix4 mtw = meshToModel * ModelToWorld;
             Matrix4 wts = WorldToScreen;
             mesh.Prepare(shader);
             // enable shader

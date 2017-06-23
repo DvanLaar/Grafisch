@@ -15,7 +15,7 @@ namespace template_P3
         public override void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
         {
             if (mesh == null) return;
-            Matrix4 mtw = ModelToWorld * meshToModel;
+            Matrix4 mtw = meshToModel * ModelToWorld;
             Matrix4 wts = WorldToScreen;
             mesh.ReflectiveRender(base.shader, mtw, wts, skybox, MaterialColor);
         }
