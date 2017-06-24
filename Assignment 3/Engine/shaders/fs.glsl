@@ -5,7 +5,8 @@ in vec2 uv; // interpolated texture coordinates
 in vec3 normal, position; // interpolated normal and position in world coordinates
 
 uniform sampler2D pixels; // texture sampler
-uniform vec3 lightpos, camerapos, materialcolor;
+uniform vec3 camerapos, materialcolor;
+uniform vec3[] lightpos;
 
 // shader output
 layout(location = 0) out vec4 outputColor;
@@ -24,34 +25,32 @@ void main()
     vec4 lightdiffuseintensity = vec4(400, 400, 400, 1), lightspecularintensity = lightdiffuseintensity;
     int specularPowerLog2 = 6;
 
-    // Direction from position to light for diffuse part
-    vec3 lightdir = lightpos - position;
-    float attenuation = 1f / dot(lightdir, lightdir);
-    lightdir = normalize(lightdir);
+	vec4 ambientcolor = vec4((0.1f * color).rgb, color.w);
+	outputColor = ambientcolor * vec4(materialcolor, 1);
 
-    // Normalized normal
-    vec3 nnormal = normalize(normal);
+	for (int i = 0; i < 4; i++)
+	{
+		vec3 lightdir = lightpos[i];
+		float attenuation = 1f / dot(lightdir, lightdir);
+		lightdir = normalize(lightdir);
 
-    // direction and reflection from the camera to the position for specular part
-    vec3 cameradir = normalize(camerapos - position);
-    vec3 reflection = 2 * dot(cameradir, nnormal) * nnormal - cameradir;
+		vec3 diffuse = attenuation * lightdiffuseintensity * materialcolor * max(0.0f, dot(normal, lightdir));
+		vec3 specular;
+		if (dot(normal, light) < 0.0f)
+		{
+			specular = vec3(0, 0, 0)
+		}
+		else
+		{
+		    vec3 cameradir = normalize(camerapos - position);
+			vec3 reflection = 2 * dot(cameradir, nnormal) * nnormal - cameradir;
+			specular = attenuation * lightspecularintensity * materialcolor * powself(max(0.0, dot(reflect(-lightdir, normal), cameradir)), reflection)
+		}
 
-    // Color of the fragment in general
-    vec4 color = texture(pixels, uv);
-
-    // Color specifics for Phong
-    vec4 ambientcolor = vec4((0.1f * color).rgb, color.w);
-    vec4 diffusecolor = color;
-    vec4 specularcolor = color;
-
-    // just add something to it :)
-    vec4 ambient = ambientcolor * vec4(materialcolor, 1);
-    // diffuse = c_{diff} * (N . L) * L_{diff}
-    vec4 diffuse = diffusecolor * clamp(dot(nnormal, lightdir), 0, 1) * vec4(materialcolor, 1) * lightdiffuseintensity;
-    // specular = c_{spec} * (L . R)^\alpha * L_{spec}
-    vec4 specular = specularcolor * powself(clamp(dot(lightdir, reflection), 0, 1), specularPowerLog2) * lightspecularintensity;
+		outputColor = outputColor + diffuse + specular;
+	}
 
     // Final phong output
-    outputColor = ambient + attenuation * (diffuse + specular);
+    outputColor = outputColor;
     outputHDR = clamp(outputColor - vec4(1f, 1f, 1f, 1f), 0, 1);
 }
