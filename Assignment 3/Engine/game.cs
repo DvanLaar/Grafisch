@@ -100,6 +100,7 @@ namespace Template_P3
 
             // modelFloor.MaterialColor = new Vector3(1f, 1f, 1f);
             modelFloor.NormalMap = normalBrickWall;
+            modelTeapot.NormalMap = normalBrickWall;
             modelHeightMap.NormalMap = normalHeightMap;
 
             ReflectiveModel refl = new ReflectiveModel(meshTeapot, shaderReflective, Matrix4.CreateTranslation(0, 20f, 0), textureSkybox);
@@ -146,8 +147,8 @@ namespace Template_P3
             if (keyboard[Key.ShiftLeft] || keyboard[Key.ShiftRight])
                 frameDuration *= 10f;
 
-            if (keyboard[Key.O]) modelFloor.shader = modelHeightMap.shader = shaderDefault;
-            if (keyboard[Key.P]) modelFloor.shader = modelHeightMap.shader = shaderNormal;
+            if (keyboard[Key.O]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderDefault;
+            if (keyboard[Key.P]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderNormal;
 
             float speed = 0.0075f;
             if (keyboard[Key.L]) lightPosition += speed * Vector3.UnitX * frameDuration;
