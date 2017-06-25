@@ -60,7 +60,8 @@ namespace rasterizer
         /// </summary>
         private static List<Vector3> lightPosition = new List<Vector3>(new Vector3[] {
             new Vector3(7f, 10f, 5f),
-            new Vector3(-7f, 3f, 6f)
+            new Vector3(-7f, 3f, 6f),
+            new Vector3(-7f, 30f, 7f)
         });
 
         /// <summary>
@@ -126,7 +127,7 @@ namespace rasterizer
             modelFloor = new Model(meshFloor, textureBrickWall, shaderNormal, Matrix4.Identity);
             modelLightPos = new Model(meshCube, null, shaderConstant, Matrix4.Identity);
             modelHeightMap = new Model(meshHeightMap, textureTrump, shaderDefault, Matrix4.CreateScale(10f) * Matrix4.CreateTranslation(20f, 0f, 0f));
-            Model teapot2 = new Model(meshTeapot, textureWood, shaderDefault, Matrix4.CreateRotationY(1.5f) * Matrix4.CreateTranslation(new Vector3(0, 60f, 0)));
+            Model teapot2 = new Model(meshTeapot, textureWood, shaderDefault, Matrix4.CreateScale(0.5f, 1f, 0.5f) * Matrix4.CreateRotationY(1.5f) * Matrix4.CreateTranslation(new Vector3(0, 24f, 0)));
 
             // set normal maps of specific models
             modelFloor.normalMap = normalBrickWall;
@@ -135,8 +136,8 @@ namespace rasterizer
             modelHeightMap.normalMap = normalHeightMap;
 
             // create special models
-            ReflectiveModel refl = new ReflectiveModel(meshTeapot, shaderReflective, Matrix4.CreateTranslation(0, 20f, 0), textureSkyBox);
-            FurModel furmod = new FurModel(meshTeapot, textureBrickWall, textureFur, shaderDefault, shaderFur, Matrix4.CreateRotationX((float)Math.PI / 2f) * Matrix4.CreateTranslation(new Vector3(0, 40f, 0)));
+            ReflectiveModel refl = new ReflectiveModel(meshTeapot, shaderReflective, Matrix4.CreateTranslation(0, 12f, 0), textureSkyBox);
+            FurModel furmod = new FurModel(meshTeapot, textureBrickWall, textureFur, shaderDefault, shaderFur, Matrix4.CreateRotationX((float)Math.PI / 2f) * Matrix4.CreateTranslation(new Vector3(0, 36f, 0)));
 
             // set up scenegraph
             SceneNode mainNode = new SceneNode();
@@ -242,7 +243,7 @@ namespace rasterizer
             if (keyboard[Key.A]) translation -= Vector3.UnitX;
 
             // apply the transformation:
-            camera.AddTransformation(0.004f * frameDuration * rotation, 0.03f * frameDuration * translation);
+            camera.AddTransformation(0.002f * frameDuration * rotation, 0.03f * frameDuration * translation);
 
             // subnode movements to show working scenegraph
             rotation = Vector2.Zero;
@@ -256,7 +257,7 @@ namespace rasterizer
             if (keyboard[Key.Number4]) rotation -= Vector2.UnitX;
 
             // apply the transformation
-            subScene.Transformation = Matrix4.CreateTranslation(0.004f * frameDuration * translation) * subScene.Transformation * Matrix4.CreateRotationX(0.03f * rotation.X);
+            subScene.Transformation = Matrix4.CreateTranslation(0.004f * frameDuration * translation) * Matrix4.CreateRotationX(0.05f * rotation.X) * subScene.Transformation;
 
             // set this keyboard as the last, so we can record changes in key presses.
             lastKeyboard = keyboard;

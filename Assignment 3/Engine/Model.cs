@@ -31,7 +31,7 @@ namespace rasterizer
 
             shader.SetTexture(texture);
             shader.SetNormal(normalMap);
-            mesh.Render(shader, ModelToWorld * meshToModel, WorldToScreen, color);
+            mesh.Render(shader, meshToModel * ModelToWorld, WorldToScreen, color);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace rasterizer
 
         public override void Render(Matrix4 modelToWorld, Matrix4 worldToScreen)
         {
-            Matrix4 meshToWorld = modelToWorld * meshToModel;
+            Matrix4 meshToWorld = meshToModel * modelToWorld;
 
             // enable shader
             mesh.Prepare(shader);
