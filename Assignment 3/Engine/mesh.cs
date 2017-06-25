@@ -109,8 +109,11 @@ namespace Template_P3
             GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
             GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
             GL.Uniform3(shader.uniform_camerapos, ref Game.cameraPosition);
-            GL.Uniform1(shader.uniform_lightpos, 12, Game.lightPosition);
             GL.Uniform3(shader.uniform_materialcolor, ref materialcolor);
+
+            float[] lightpos = Game.GetLightPositions();
+            GL.Uniform1(shader.uniform_nlights, lightpos.Length / 3);
+            GL.Uniform3(shader.uniform_lightpos, lightpos.Length, lightpos);
 
             drawMesh(shader);
         }
@@ -124,7 +127,7 @@ namespace Template_P3
 
             // enable shader
             GL.UseProgram(shader.programID);
-            
+
             // enable texture
             int texLoc = GL.GetUniformLocation(shader.programID, "pixels");
             GL.Uniform1(texLoc, 0);
