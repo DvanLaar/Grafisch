@@ -14,7 +14,7 @@ namespace rasterizer
         public override void Render(Matrix4 modelToWorld, Matrix4 worldToScreen)
         {
             if (mesh == null) return;
-            mesh.ReflectiveRender(shader, modelToWorld * meshToModel, worldToScreen, skyBox, color);
+            mesh.ReflectiveRender(shader, meshToModel * modelToWorld, worldToScreen, skyBox, color);
         }
     }
 }
