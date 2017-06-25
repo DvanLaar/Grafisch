@@ -14,6 +14,7 @@ namespace template_P3
     {
         public HeightMap(string fileName) : base()
         {
+            // Load heightmap
             Bitmap bmp;
             using (Stream bmpStream = File.Open(fileName, FileMode.Open))
             {
@@ -37,6 +38,7 @@ namespace template_P3
             triangles = new ObjTriangle[2 * (h - 1) * (w - 1)];
             quads = new ObjQuad[0];
 
+            // Calculate per triangle per vertex tangents
             for (int i = 0; i + 1 < h; i++)
                 for (int j = 0; j + 1 < w; j++)
                     for (int k = 0; k < 2; k++)

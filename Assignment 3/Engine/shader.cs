@@ -32,7 +32,7 @@ namespace Template_P3
             attribute_vnrm = GL.GetAttribLocation(programID, "vNormal");
             attribute_vtan = GL.GetAttribLocation(programID, "vTangent");
             attribute_vpos = GL.GetAttribLocation(programID, "vPosition");
-
+            // get locations of most common used uniforms
             uniform_modeltoworld = GL.GetUniformLocation(programID, "modelToWorld");
             uniform_worldtoscreen = GL.GetUniformLocation(programID, "worldToScreen");
             uniform_lightpos = GL.GetUniformLocation(programID, "lightpos");

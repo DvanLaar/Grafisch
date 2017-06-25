@@ -31,6 +31,7 @@ namespace template_P3
             GL.UseProgram(shader.programID);
             mesh.Render(shader, mtw, wts, materialcolor);
 
+            // Render 32 layers of basic short fur
             for (int i = 0; i < 32; i++)
                 mesh.FurRender(furshader, mtw, wts, furtexture, i);
         }

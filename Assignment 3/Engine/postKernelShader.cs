@@ -64,6 +64,14 @@ namespace template_P3
             vertical = ver;
         }
 
+
+        /// <summary>
+        /// Uniform kernel of variable size with little sneaky value to make it not so uniform
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="sneakyval"></param>
+        /// <returns></returns>
         public static Kernel Uniform(int width, int height, float sneakyval = 2f)
         {
             if(width > 32 || height > 32)
@@ -83,6 +91,9 @@ namespace template_P3
             return new Kernel(hor,ver);
         }
 
+        /// <summary>
+        /// Identity Kernel [1]
+        /// </summary>
         public static Kernel Identity
         {
             get
@@ -91,6 +102,9 @@ namespace template_P3
             }
         }
 
+        /// <summary>
+        /// Basic uniform 3x3
+        /// </summary>
         public static Kernel BoxBlur
         {
             get
@@ -99,6 +113,9 @@ namespace template_P3
             }
         }
 
+        /// <summary>
+        /// Small (3x3) approximation of Gaussian blur
+        /// </summary>
         public static Kernel SmallGaussianBlur
         {
             get
@@ -107,7 +124,9 @@ namespace template_P3
             }
         }
 
-
+        /// <summary>
+        /// Simple 3x3 edge detection kernel
+        /// </summary>
         public static Kernel EdgeDetection
         {
             get
@@ -116,6 +135,9 @@ namespace template_P3
             }
         }
 
+        /// <summary>
+        /// Horizontal Sobel Operator
+        /// </summary>
         public static Kernel SobelHorizontal
         {
             get
@@ -124,6 +146,9 @@ namespace template_P3
             }
         }
 
+        /// <summary>
+        /// Vertical Sobel Operator
+        /// </summary>
         public static Kernel SobelVertical
         {
             get
@@ -132,6 +157,9 @@ namespace template_P3
             }
         }
 
+        /// <summary>
+        /// Horizontal Prewitt Operator
+        /// </summary>
         public static Kernel PrewittHorizontal
         {
             get
@@ -140,6 +168,9 @@ namespace template_P3
             }
         }
 
+        /// <summary>
+        /// Vertical Prewitt Operator
+        /// </summary>
         public static Kernel PrewittVertical
         {
             get

@@ -58,24 +58,25 @@ namespace Template_P3
             timer = new Stopwatch();
             timer.Start();
 
-            // create shaders
+            // create model shaders
             shaderDefault = Shader.Load("vs", "fs");
             shaderNormal = Shader.Load("vs_normal", "fs_normal");
             shaderFur = new FurShader("../../shaders/vs_fur.glsl", "../../shaders/fs_fur.glsl");
+            shaderSkybox = Shader.Load("vs_skybox", "fs_skybox");
+            shaderReflective = Shader.Load("vs", "fs_reflective");
+            // create post processing shaders
             shaderPostProc = Shader.Load("vs_post", "fs_post");
             shaderKernel = new PostKernelShader("../../shaders/vs_post.glsl", "../../shaders/fs_kernel.glsl");
             shaderVigAndChrom = new PostVigAndChromShader("../../shaders/vs_post.glsl", "../../shaders/fs_vigchrom.glsl");
             shaderPostBloomBlend = Shader.Load("vs_post", "fs_bloomblend");
-            shaderSkybox = Shader.Load("vs_skybox", "fs_skybox");
-            shaderReflective = Shader.Load("vs", "fs_reflective");
 
-            // load teapot
+            // load meshes
             meshTeapot = new Mesh("../../assets/teapot.obj");
             meshFloor = new Mesh("../../assets/floor.obj");
             meshCube = new Mesh("../../assets/cube.obj");
             meshHeightMap = new HeightMap("../../assets/heightmap.png");
 
-            // load a texture
+            // load textures
             textureFur = Texture.Load("fur.png");
             textureWood = Texture.Load("wood.jpg");
             textureTrump = Texture.Load("thetrump.png");
@@ -85,7 +86,7 @@ namespace Template_P3
                 "../../assets/sea_up.JPG", "../../assets/sea_dn.JPG",
                 "../../assets/sea_bk.JPG", "../../assets/sea_ft.JPG"
             );
-
+            // load normal maps
             normalNormal = Texture.Load("normal_normal.png");
             normalBrickWall = Texture.Load("brickwall_normal.jpg");
             normalHeightMap = Texture.Load("heightmap_normal.png");
@@ -93,21 +94,23 @@ namespace Template_P3
             Resize();
             quad = new ScreenQuad();
 
+            // create models
             modelTeapot = new Model(meshTeapot, textureWood, shaderDefault, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
             modelFloor = new Model(meshFloor, textureBrickWall, shaderNormal, Matrix4.Identity);
             modelLightPos = new Model(meshCube, null, shaderDefault, Matrix4.Identity);
             modelHeightMap = new Model(meshHeightMap, textureTrump, shaderDefault, Matrix4.CreateScale(10f) * Matrix4.CreateTranslation(20f, 0f, 0f));
+            Model teapot2 = new Model(meshTeapot, textureWood, shaderDefault, Matrix4.CreateRotationY(1.5f) * Matrix4.CreateTranslation(new Vector3(0, 60f, 0)));
 
-            // modelFloor.MaterialColor = new Vector3(1f, 1f, 1f);
+            // set normal maps of specific models
             modelFloor.NormalMap = normalBrickWall;
             modelTeapot.NormalMap = normalBrickWall;
             modelHeightMap.NormalMap = normalHeightMap;
 
+            // create special models
             ReflectiveModel refl = new ReflectiveModel(meshTeapot, shaderReflective, Matrix4.CreateTranslation(0, 20f, 0), textureSkybox);
-
             FurModel furmod = new FurModel(meshTeapot, textureBrickWall, textureFur, shaderDefault, shaderFur, Matrix4.CreateRotationX((float)Math.PI/2f)* Matrix4.CreateTranslation(new Vector3(0, 40f, 0)));
-            Model teapot2 = new Model(meshTeapot, textureWood, shaderDefault, Matrix4.CreateRotationY(1.5f)*Matrix4.CreateTranslation(new Vector3(0, 60f, 0)));
 
+            // set up scenegraph
             SceneNode mainNode = new SceneNode();
 
             subNode1 = new SceneNode();
@@ -123,6 +126,7 @@ namespace Template_P3
             mainNode.AddChildModel(modelHeightMap);
             scene = new SceneGraph(mainNode);
 
+            // set kernel used for final post processing step
             kernel = Kernel.SmallGaussianBlur;
         }
 
@@ -144,12 +148,15 @@ namespace Template_P3
             float frameDuration = timer.ElapsedMilliseconds;
             timer.Restart();
 
+            // slow-down
             if (keyboard[Key.ShiftLeft] || keyboard[Key.ShiftRight])
                 frameDuration *= 10f;
 
+            // enable/disable normalmapping
             if (keyboard[Key.O]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderDefault;
             if (keyboard[Key.P]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderNormal;
 
+            // move lightposition
             float speed = 0.0075f;
             if (keyboard[Key.L]) lightPosition += speed * Vector3.UnitX * frameDuration;
             if (keyboard[Key.H]) lightPosition -= speed * Vector3.UnitX * frameDuration;
@@ -159,6 +166,7 @@ namespace Template_P3
             if (keyboard[Key.K]) lightPosition -= speed * Vector3.UnitZ * frameDuration;
             modelLightPos.meshToModel = Matrix4.CreateTranslation(lightPosition);
 
+            // camera movements
             // rotation.X : left/right
             // rotation.Y : up/down
             Vector2 rotation = Vector2.Zero;
@@ -176,12 +184,14 @@ namespace Template_P3
             if (keyboard[Key.D]) translation += Vector3.UnitX;
             if (keyboard[Key.A]) translation -= Vector3.UnitX;
 
+            // subnode movements to show working scenegraph
             if (keyboard[Key.Number1]) subNode1.Transform = Matrix4.CreateTranslation(new Vector3(0,0,0.1f)) * subNode1.Transform;
             if (keyboard[Key.Number2]) subNode1.Transform = Matrix4.CreateTranslation(new Vector3(0, 0, -0.1f)) * subNode1.Transform;
 
             if (keyboard[Key.Number3]) subNode1.Transform = Matrix4.CreateRotationX(0.1f) * subNode1.Transform;
             if (keyboard[Key.Number4]) subNode1.Transform = Matrix4.CreateRotationX(-0.1f) * subNode1.Transform;
 
+            // update camera
             camera.AddTransformation(0.004f * frameDuration * rotation, 0.03f * frameDuration * translation);
         }
 
@@ -221,24 +231,27 @@ namespace Template_P3
                 GL.DrawBuffers(1, new DrawBuffersEnum[1] { DrawBuffersEnum.ColorAttachment0 });
                 targetHDR.Unbind();
 
+                // blur the HDR
                 targetBloom.Bind();
                 quad.KernelRender(shaderKernel, targetHDR.GetTextureID(1), 640f, 400f, Kernel.Uniform(19, 19, 19));
                 targetBloom.Unbind();
 
-                // Merge bloomtarget and targethdr[0]
+                // Merge bloomtarget and "normal" scene
                 targetMain.Bind();
                 quad.BloomBlendRender(shaderPostBloomBlend, targetHDR.GetTextureID(0), targetBloom.GetTextureID());
                 targetMain.Unbind();
 
+                // add vignetting and chromatic aberation. ooohhh classy
                 targetVigAndChrom.Bind();
                 quad.VigAndChromRender(shaderVigAndChrom, targetMain.GetTextureID(), 2.3f, new Vector2(0.51f, 0.5f), 0.0125f * new Vector3(1f, 0f, -1f));
                 targetVigAndChrom.Unbind();
 
+                // render to screen with final postprocessing kernel
                 quad.KernelRender(shaderKernel, targetVigAndChrom.GetTextureID(), 640f, 400f, kernel);
             }
             else
             {
-                // render scene directly to the screen
+                // render scene directly to the screen and make it look not so nice. boo
                 scene.Render(transform);
             }
         }

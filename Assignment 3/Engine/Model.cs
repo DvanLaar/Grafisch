@@ -12,6 +12,9 @@ namespace template_P3
         public Matrix4 meshToModel;
         public Vector3 MaterialColor = new Vector3(1, 1, 1);
 
+        /// <summary>
+        /// Normal model that doesn't require a lot of extra features
+        /// </summary>
         public Model(Mesh mesh, Texture texture, Shader shader, Matrix4 modeltransform)
         {
             this.mesh = mesh;

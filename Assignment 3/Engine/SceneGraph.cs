@@ -14,6 +14,10 @@ namespace template_P3
         
         public SceneGraph(SceneNode mainNode) { this.mainNode = mainNode; }
 
+        /// <summary>
+        /// Render the whole scene using the given camera matrix starting in the main node
+        /// </summary>
+        /// <param name="camera"></param>
         public void Render(Matrix4 camera)
         {
             mainNode.Render(Matrix4.Identity, camera);
@@ -36,10 +40,12 @@ namespace template_P3
         public void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
         {
             ModelToWorld = Transform * ModelToWorld;
-            //WorldToScreen = WorldToScreen * Transform; //Wow, such fail, very weird
+            
+            // FIRST render all the models
             foreach (Model model in ChildrenModels)
                 model.Render(ModelToWorld, WorldToScreen);
 
+            // SECOND recursion through the other nodes
             foreach (SceneNode node in ChildrenNodes)
                 node.Render(ModelToWorld, WorldToScreen);
         }

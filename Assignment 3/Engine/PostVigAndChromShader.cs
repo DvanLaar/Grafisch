@@ -19,7 +19,6 @@ namespace template_P3
         {
             uniform_vignettingfactor = GL.GetUniformLocation(programID, "vignettingfactor");
             uniform_center = GL.GetUniformLocation(programID, "center");
-
             uniform_ca_factor = GL.GetUniformLocation(programID, "ca_factor");
         }
 

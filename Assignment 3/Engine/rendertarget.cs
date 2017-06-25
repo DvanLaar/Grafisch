@@ -23,7 +23,7 @@ namespace Template_P3
             GL.Ext.GenFramebuffers(1, out fbo);
             GL.Ext.GenRenderbuffers(1, out depthBuffer);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fbo);
-            // create color texture
+            // create color textures
             colorTexture = new int[targets];
             GL.GenTextures(targets, colorTexture);
             for (int i = 0; i < targets; i++) {
@@ -38,7 +38,6 @@ namespace Template_P3
                 GL.Ext.FramebufferTexture(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext + i, colorTexture[i], 0);
             }
 
-
             GL.Ext.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, depthBuffer);
             GL.Ext.RenderbufferStorage(RenderbufferTarget.RenderbufferExt, (RenderbufferStorage)All.DepthComponent24, width, height);
             GL.Ext.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
@@ -46,20 +45,24 @@ namespace Template_P3
             bool untestedBoolean = CheckFBOStatus();
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0); // return to regular framebuffer
         }
+
         public int GetTextureID(int texnum = 0)
         {
             return colorTexture[texnum];
         }
+
         public void Bind()
         {
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fbo);
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
         }
+
         public void Unbind()
         {
             // return to regular framebuffer
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
         }
+
         private bool CheckFBOStatus()
         {
             switch (GL.Ext.CheckFramebufferStatus(FramebufferTarget.FramebufferExt))
