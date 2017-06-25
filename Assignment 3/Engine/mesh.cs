@@ -108,7 +108,7 @@ namespace Template_P3
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
             GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
-            GL.Uniform3(shader.uniform_camerapos, ref Game.cameraPosition);
+            GL.Uniform3(GL.GetUniformLocation(shader.programID, "camerapos"), ref Game.cameraPosition);
             GL.Uniform3(shader.uniform_lightpos, ref Game.lightPosition);
             GL.Uniform3(shader.uniform_materialcolor, ref materialcolor);
 
@@ -158,7 +158,7 @@ namespace Template_P3
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
             GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
-            GL.Uniform3(shader.uniform_camerapos, ref Game.cameraPosition);
+            GL.Uniform3(GL.GetUniformLocation(shader.programID, "camerapos"), ref Game.cameraPosition);
             GL.Uniform3(GL.GetUniformLocation(shader.programID, "materialcolor"), materialcolor);
 
             drawMesh(shader);

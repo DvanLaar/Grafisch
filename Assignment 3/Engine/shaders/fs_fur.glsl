@@ -13,6 +13,7 @@ out vec4 outputColor;
 void main()
 {
     vec4 color = texture(pixels, uv);
+	// Easy opacity
     if (color.a < 0.1) {
         discard;
     }

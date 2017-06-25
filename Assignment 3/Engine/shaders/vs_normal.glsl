@@ -24,6 +24,7 @@ void main()
 	// forward normal and uv coordinate; will be interpolated over triangle
 	vec3 N = normalize((modelToWorld * vec4(vNormal, 1.0f)).xyz);
     vec3 T = normalize((modelToWorld * vec4(vTangent, 1.0f)).xyz);
+
     // get orthogonal part:
     vec3 B = cross(N, T);
     TBN = mat3(T, B, N);

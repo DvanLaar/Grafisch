@@ -17,6 +17,7 @@ void main()
 {
     // transform vertex using supplied matrix
     gl_Position = worldToScreen * modelToWorld * vec4(vPosition, 1.0);
+	// send position to fragment shader to use for shading
     position = (modelToWorld * vec4(vPosition, 1.0)).xyz;
 
     // forward normal and uv coordinate; will be interpolated over triangle
