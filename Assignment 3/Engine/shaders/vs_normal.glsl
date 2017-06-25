@@ -21,12 +21,21 @@ void main()
 	gl_Position = worldToScreen * modelToWorld * vec4(vPosition, 1.0);
 	position = (modelToWorld * vec4(vPosition,1.0)).xyz;
 
+    vec3 tangent = vTangent;
+    // VERSION 1: don't orthonormalize T:
+    // vec3 T = normalize((modelToWorld * vec4(vTangent, 1.0f)).xyz);
+    // VERSION 2: do orthonormalize T:
+    // tangent = tangent - dot(tangent, vNormal) * vNormal;
+
+    if (-1e-10 < dot(tangent, tangent) && dot(tangent, tangent) < 1e-10) {
+        gl_Position = worldToScreen * vec4(0, 0, 0, 1f);
+    }
+
 	// forward normal and uv coordinate; will be interpolated over triangle
 	vec3 N = normalize((modelToWorld * vec4(vNormal, 1.0f)).xyz);
-    vec3 T = normalize((modelToWorld * vec4(vTangent, 1.0f)).xyz);
+    vec3 T = normalize((modelToWorld * vec4(tangent, 1.0f)).xyz);
+    vec3 B = cross(N, T); // calculate the bitangent (orthogonal part)
 
-    // get orthogonal part:
-    vec3 B = cross(N, T);
     TBN = mat3(T, B, N);
 	uv = vUV;
 }

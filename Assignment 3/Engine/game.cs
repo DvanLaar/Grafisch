@@ -6,6 +6,7 @@ using template_P3;
 using System;
 using System.Drawing;
 using OpenTK.Input;
+using System.Collections.Generic;
 
 // minimal OpenTK rendering framework for UU/INFOGR
 // Jacco Bikker, 2016
@@ -45,13 +46,24 @@ namespace Template_P3
         // used models:
         public Model modelTeapot, modelFloor, modelLightPos, modelHeightMap;
 
-        public static Vector3 lightPosition = new Vector3(7f, 1f, 5f), cameraPosition;
+        private static List<Vector3> lightPosition = new List<Vector3>(new Vector3[] {
+            new Vector3(7f, 1f, 5f),
+            new Vector3(-7f, 3f, 6f)
+        });
+
+        /// <summary>
+        /// Is the index to the current movable light in the list 'lightPosition'.
+        /// </summary>
+        private static int lightIndex = 0;
+
+        public static Vector3 cameraPosition;
 
         public SceneNode subNode1;
 
         // initialize
         public void Init()
         {
+
             // initialize camera
             camera = new Camera(new Vector3(0, 3, 15));
             // initialize stopwatch
@@ -95,7 +107,7 @@ namespace Template_P3
             quad = new ScreenQuad();
 
             // create models
-            modelTeapot = new Model(meshTeapot, textureWood, shaderDefault, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
+            modelTeapot = new Model(meshTeapot, textureWood, shaderNormal, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
             modelFloor = new Model(meshFloor, textureBrickWall, shaderNormal, Matrix4.Identity);
             modelLightPos = new Model(meshCube, null, shaderDefault, Matrix4.Identity);
             modelHeightMap = new Model(meshHeightMap, textureTrump, shaderDefault, Matrix4.CreateScale(10f) * Matrix4.CreateTranslation(20f, 0f, 0f));
@@ -108,7 +120,7 @@ namespace Template_P3
 
             // create special models
             ReflectiveModel refl = new ReflectiveModel(meshTeapot, shaderReflective, Matrix4.CreateTranslation(0, 20f, 0), textureSkybox);
-            FurModel furmod = new FurModel(meshTeapot, textureBrickWall, textureFur, shaderDefault, shaderFur, Matrix4.CreateRotationX((float)Math.PI/2f)* Matrix4.CreateTranslation(new Vector3(0, 40f, 0)));
+            FurModel furmod = new FurModel(meshTeapot, textureBrickWall, textureFur, shaderDefault, shaderFur, Matrix4.CreateRotationX((float)Math.PI / 2f) * Matrix4.CreateTranslation(new Vector3(0, 40f, 0)));
 
             // set up scenegraph
             SceneNode mainNode = new SceneNode();
@@ -141,6 +153,8 @@ namespace Template_P3
             targetBloom = new RenderTarget(screen.width, screen.height);
         }
 
+        private KeyboardState lKeyboard;
+
         public void processKeyboard(KeyboardState keyboard)
         {
             // measure frame duration
@@ -152,19 +166,50 @@ namespace Template_P3
             if (keyboard[Key.ShiftLeft] || keyboard[Key.ShiftRight])
                 frameDuration *= 10f;
 
+            bool f1 = keyboard[Key.BackSlash] && !lKeyboard[Key.BackSlash];
+            bool f2 = keyboard[Key.Enter] && !lKeyboard[Key.Enter];
+            if (f1 || f2)
+            {
+                if (f1) MeshLoader.divideByDet = !MeshLoader.divideByDet;
+                if (f2) MeshLoader.averageTangents = !MeshLoader.averageTangents;
+                Console.WriteLine("averageTangents = " + MeshLoader.averageTangents + ", divideByDet = " + MeshLoader.divideByDet);
+                modelTeapot.mesh = new Mesh("../../assets/teapot.obj");
+            }
+
             // enable/disable normalmapping
             if (keyboard[Key.O]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderDefault;
             if (keyboard[Key.P]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderNormal;
 
             // move lightposition
+            if (keyboard[Key.Insert] && !lKeyboard[Key.Insert])
+            {
+                lightIndex = lightPosition.Count;
+                lightPosition.Add(Vector3.Zero);
+            }
+            if (keyboard[Key.Delete] && !lKeyboard[Key.Delete] && lightPosition.Count > 0)
+            {
+                lightPosition.RemoveAt(lightIndex);
+                if (lightIndex == lightPosition.Count) lightIndex = 0;
+            }
+
+            if (keyboard[Key.Comma] && !lKeyboard[Key.Comma])
+                lightIndex = (lightIndex == 0 ? lightPosition.Count : lightIndex) - 1;
+            if (keyboard[Key.Period] && !lKeyboard[Key.Period])
+                if (++lightIndex == lightPosition.Count) lightIndex = 0;
+
             float speed = 0.0075f;
-            if (keyboard[Key.L]) lightPosition += speed * Vector3.UnitX * frameDuration;
-            if (keyboard[Key.H]) lightPosition -= speed * Vector3.UnitX * frameDuration;
-            if (keyboard[Key.N]) lightPosition += speed * Vector3.UnitY * frameDuration;
-            if (keyboard[Key.M]) lightPosition -= speed * Vector3.UnitY * frameDuration;
-            if (keyboard[Key.J]) lightPosition += speed * Vector3.UnitZ * frameDuration;
-            if (keyboard[Key.K]) lightPosition -= speed * Vector3.UnitZ * frameDuration;
-            modelLightPos.meshToModel = Matrix4.CreateTranslation(lightPosition);
+            Vector3 boxTranslation = -1e9f * Vector3.UnitZ;
+            if (lightPosition.Count > 0)
+            {
+                if (keyboard[Key.L]) lightPosition[lightIndex] += speed * frameDuration * Vector3.UnitX;
+                if (keyboard[Key.H]) lightPosition[lightIndex] -= speed * frameDuration * Vector3.UnitX;
+                if (keyboard[Key.N]) lightPosition[lightIndex] += speed * frameDuration * Vector3.UnitY;
+                if (keyboard[Key.M]) lightPosition[lightIndex] -= speed * frameDuration * Vector3.UnitY;
+                if (keyboard[Key.J]) lightPosition[lightIndex] += speed * frameDuration * Vector3.UnitZ;
+                if (keyboard[Key.K]) lightPosition[lightIndex] -= speed * frameDuration * Vector3.UnitZ;
+                boxTranslation = lightPosition[lightIndex];
+            }
+            modelLightPos.meshToModel = Matrix4.CreateTranslation(boxTranslation);
 
             // camera movements
             // rotation.X : left/right
@@ -172,6 +217,7 @@ namespace Template_P3
             Vector2 rotation = Vector2.Zero;
             Vector3 translation = Vector3.Zero;
 
+            // rotate the camera:
             if (keyboard[Key.Up]) rotation += Vector2.UnitY;
             if (keyboard[Key.Down]) rotation -= Vector2.UnitY;
             if (keyboard[Key.Left]) rotation += Vector2.UnitX;
@@ -184,15 +230,21 @@ namespace Template_P3
             if (keyboard[Key.D]) translation += Vector3.UnitX;
             if (keyboard[Key.A]) translation -= Vector3.UnitX;
 
-            // subnode movements to show working scenegraph
-            if (keyboard[Key.Number1]) subNode1.Transform = Matrix4.CreateTranslation(new Vector3(0,0,0.1f)) * subNode1.Transform;
-            if (keyboard[Key.Number2]) subNode1.Transform = Matrix4.CreateTranslation(new Vector3(0, 0, -0.1f)) * subNode1.Transform;
-
-            if (keyboard[Key.Number3]) subNode1.Transform = Matrix4.CreateRotationX(0.1f) * subNode1.Transform;
-            if (keyboard[Key.Number4]) subNode1.Transform = Matrix4.CreateRotationX(-0.1f) * subNode1.Transform;
-
-            // update camera
             camera.AddTransformation(0.004f * frameDuration * rotation, 0.03f * frameDuration * translation);
+
+            // subnode movements to show working scenegraph
+            rotation = Vector2.Zero;
+            translation = Vector3.Zero;
+
+            if (keyboard[Key.Number1]) translation += Vector3.UnitY;
+            if (keyboard[Key.Number2]) translation -= Vector3.UnitY;
+            if (keyboard[Key.Number3]) rotation += Vector2.UnitX;
+            if (keyboard[Key.Number4]) rotation -= Vector2.UnitX;
+
+            // apply the transformation
+            subNode1.Transform = Matrix4.CreateRotationX(0.03f * rotation.X) * Matrix4.CreateTranslation(0.004f * frameDuration * translation) * subNode1.Transform;
+
+            lKeyboard = keyboard;
         }
 
         // tick for background surface
@@ -255,6 +307,18 @@ namespace Template_P3
                 scene.Render(transform);
             }
         }
-    }
 
+        public static float[] GetLightPositions()
+        {
+            int nlights = lightPosition.Count;
+            float[] values = new float[3 * nlights];
+            for (int i = nlights; i-- > 0;)
+            {
+                values[3 * i + 0] = lightPosition[i].X;
+                values[3 * i + 1] = lightPosition[i].Y;
+                values[3 * i + 2] = lightPosition[i].Z;
+            }
+            return values;
+        }
+    }
 } // namespace Template_P3

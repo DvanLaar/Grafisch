@@ -18,12 +18,14 @@ namespace Template_P3
         // The buffers belonging to these IDs contain all the data from above, in a format more useful to the GPU
         private int vertexBufferId, triangleBufferId, quadBufferId;
 
+        private static MeshLoader loader = new MeshLoader();
+
         public Mesh() { }
 
         // constructor
         public Mesh(string fileName)
         {
-            MeshLoader loader = new MeshLoader();
+            // MeshLoader loader = new MeshLoader();
             loader.Load(this, fileName);
         }
 
@@ -108,9 +110,12 @@ namespace Template_P3
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
             GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
-            GL.Uniform3(GL.GetUniformLocation(shader.programID, "camerapos"), ref Game.cameraPosition);
-            GL.Uniform3(shader.uniform_lightpos, ref Game.lightPosition);
+            GL.Uniform3(shader.uniform_camerapos, ref Game.cameraPosition);
             GL.Uniform3(shader.uniform_materialcolor, ref materialcolor);
+
+            float[] lightpos = Game.GetLightPositions();
+            GL.Uniform1(shader.uniform_nlights, lightpos.Length / 3);
+            GL.Uniform3(shader.uniform_lightpos, lightpos.Length, lightpos);
 
             drawMesh(shader);
         }
@@ -124,7 +129,7 @@ namespace Template_P3
 
             // enable shader
             GL.UseProgram(shader.programID);
-            
+
             // enable texture
             int texLoc = GL.GetUniformLocation(shader.programID, "pixels");
             GL.Uniform1(texLoc, 0);
