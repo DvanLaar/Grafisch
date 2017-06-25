@@ -6,7 +6,7 @@ in vec3 normal, position; // interpolated normal and position in world coordinat
 
 uniform sampler2D pixels; // texture sampler
 uniform vec3 camerapos, materialcolor;
-uniform vec3[] lightpos;
+uniform float[] lightpos;
 
 // shader output
 layout(location = 0) out vec4 outputColor;
@@ -28,9 +28,11 @@ void main()
 	vec4 ambientcolor = vec4((0.1f * color).rgb, color.w);
 	outputColor = ambientcolor * vec4(materialcolor, 1);
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 12; i+=3)
 	{
-		vec3 lightdir = lightpos[i];
+		vec3 lpos = vec3(lightpos[i], lightpos[i+1], lightpos[i+2]);
+
+		vec3 lightdir = lpos;
 		float attenuation = 1f / dot(lightdir, lightdir);
 		lightdir = normalize(lightdir);
 

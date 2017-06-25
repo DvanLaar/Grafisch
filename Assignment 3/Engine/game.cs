@@ -45,7 +45,9 @@ namespace Template_P3
         // used models:
         public Model modelTeapot, modelFloor, modelLightPos, modelHeightMap;
 
-        public static Vector3 lightPosition = new Vector3(7f, 1f, 5f), cameraPosition;
+        public static float[] lightPosition = new float[12] {7f, 1f, 5f, 6f, 1f, 5f, 8f, 1f, 5f, 7f, 1f, 6f};
+            
+        public static Vector3 cameraPosition;
 
         public SceneNode subNode1;
 
@@ -151,13 +153,13 @@ namespace Template_P3
             if (keyboard[Key.P]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderNormal;
 
             float speed = 0.0075f;
-            if (keyboard[Key.L]) lightPosition += speed * Vector3.UnitX * frameDuration;
-            if (keyboard[Key.H]) lightPosition -= speed * Vector3.UnitX * frameDuration;
-            if (keyboard[Key.N]) lightPosition += speed * Vector3.UnitY * frameDuration;
-            if (keyboard[Key.M]) lightPosition -= speed * Vector3.UnitY * frameDuration;
-            if (keyboard[Key.J]) lightPosition += speed * Vector3.UnitZ * frameDuration;
-            if (keyboard[Key.K]) lightPosition -= speed * Vector3.UnitZ * frameDuration;
-            modelLightPos.meshToModel = Matrix4.CreateTranslation(lightPosition);
+            if (keyboard[Key.L]) lightPosition[0] += speed * frameDuration;
+            if (keyboard[Key.H]) lightPosition[0] -= speed * frameDuration;
+            if (keyboard[Key.N]) lightPosition[1] += speed * frameDuration;
+            if (keyboard[Key.M]) lightPosition[1] -= speed * frameDuration;
+            if (keyboard[Key.J]) lightPosition[2] += speed * frameDuration;
+            if (keyboard[Key.K]) lightPosition[2] -= speed * frameDuration;
+            modelLightPos.meshToModel = Matrix4.CreateTranslation(new Vector3(lightPosition[0], lightPosition[1], lightPosition[2]));
 
             // rotation.X : left/right
             // rotation.Y : up/down

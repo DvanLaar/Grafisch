@@ -109,7 +109,7 @@ namespace Template_P3
             GL.UniformMatrix4(shader.uniform_modeltoworld, false, ref modelToWorld);
             GL.UniformMatrix4(shader.uniform_worldtoscreen, false, ref worldToScreen);
             GL.Uniform3(shader.uniform_camerapos, ref Game.cameraPosition);
-            GL.Uniform3(shader.uniform_lightpos, ref Game.lightPosition);
+            GL.Uniform1(shader.uniform_lightpos, 12, Game.lightPosition);
             GL.Uniform3(shader.uniform_materialcolor, ref materialcolor);
 
             drawMesh(shader);
