@@ -17,10 +17,10 @@ namespace template_P3
         public Quaternion Rotation { get { return _rotation; } }
         public Matrix4 Matrix { get { return _matrix; } }
 
-        public Camera(Vector3 position)
+        public Camera(Vector3 position, Quaternion rotation)
         {
             Position = position;
-            _rotation = Quaternion.Identity;
+            _rotation = rotation;
             UpdateMatrix();
         }
 

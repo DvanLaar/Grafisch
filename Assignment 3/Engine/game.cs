@@ -27,7 +27,7 @@ namespace Template_P3
         public SceneGraph scene;
 
         // used shaders:
-        public Shader shaderDefault, shaderNormal, shaderFur, shaderPostProc, shaderPostBloomBlend, shaderSkybox, shaderReflective;
+        public Shader shaderDefault, shaderNormal, shaderConstant, shaderFur, shaderPostProc, shaderPostBloomBlend, shaderSkybox, shaderReflective;
         public PostVigAndChromShader shaderVigAndChrom;
         public PostKernelShader shaderKernel;
         public Kernel kernel;
@@ -47,7 +47,7 @@ namespace Template_P3
         public Model modelTeapot, modelFloor, modelLightPos, modelHeightMap;
 
         private static List<Vector3> lightPosition = new List<Vector3>(new Vector3[] {
-            new Vector3(7f, 1f, 5f),
+            new Vector3(7f, 10f, 5f),
             new Vector3(-7f, 3f, 6f)
         });
 
@@ -65,7 +65,8 @@ namespace Template_P3
         {
 
             // initialize camera
-            camera = new Camera(new Vector3(0, 3, 15));
+            camera = new Camera(new Vector3(0, 10, 15), Quaternion.FromAxisAngle(Vector3.UnitX, -0.5f));
+
             // initialize stopwatch
             timer = new Stopwatch();
             timer.Start();
@@ -73,6 +74,7 @@ namespace Template_P3
             // create model shaders
             shaderDefault = Shader.Load("vs", "fs");
             shaderNormal = Shader.Load("vs_normal", "fs_normal");
+            shaderConstant = Shader.Load("vs", "fs_const");
             shaderFur = new FurShader("../../shaders/vs_fur.glsl", "../../shaders/fs_fur.glsl");
             shaderSkybox = Shader.Load("vs_skybox", "fs_skybox");
             shaderReflective = Shader.Load("vs", "fs_reflective");
@@ -109,13 +111,14 @@ namespace Template_P3
             // create models
             modelTeapot = new Model(meshTeapot, textureWood, shaderNormal, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
             modelFloor = new Model(meshFloor, textureBrickWall, shaderNormal, Matrix4.Identity);
-            modelLightPos = new Model(meshCube, null, shaderDefault, Matrix4.Identity);
+            modelLightPos = new Model(meshCube, null, shaderConstant, Matrix4.Identity);
             modelHeightMap = new Model(meshHeightMap, textureTrump, shaderDefault, Matrix4.CreateScale(10f) * Matrix4.CreateTranslation(20f, 0f, 0f));
             Model teapot2 = new Model(meshTeapot, textureWood, shaderDefault, Matrix4.CreateRotationY(1.5f) * Matrix4.CreateTranslation(new Vector3(0, 60f, 0)));
 
             // set normal maps of specific models
             modelFloor.NormalMap = normalBrickWall;
             modelTeapot.NormalMap = normalBrickWall;
+            modelLightPos.MaterialColor = new Vector3(1f, 1f, .5f);
             modelHeightMap.NormalMap = normalHeightMap;
 
             // create special models
@@ -165,7 +168,7 @@ namespace Template_P3
             // slow-down
             if (keyboard[Key.ShiftLeft] || keyboard[Key.ShiftRight])
                 frameDuration *= 10f;
-
+            /*
             bool f1 = keyboard[Key.BackSlash] && !lKeyboard[Key.BackSlash];
             bool f2 = keyboard[Key.Enter] && !lKeyboard[Key.Enter];
             if (f1 || f2)
@@ -175,6 +178,7 @@ namespace Template_P3
                 Console.WriteLine("averageTangents = " + MeshLoader.averageTangents + ", divideByDet = " + MeshLoader.divideByDet);
                 modelTeapot.mesh = new Mesh("../../assets/teapot.obj");
             }
+            */
 
             // enable/disable normalmapping
             if (keyboard[Key.O]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderDefault;
@@ -209,7 +213,7 @@ namespace Template_P3
                 if (keyboard[Key.K]) lightPosition[lightIndex] -= speed * frameDuration * Vector3.UnitZ;
                 boxTranslation = lightPosition[lightIndex];
             }
-            modelLightPos.meshToModel = Matrix4.CreateTranslation(boxTranslation);
+            modelLightPos.meshToModel = Matrix4.CreateScale(0.5f) * Matrix4.CreateTranslation(boxTranslation);
 
             // camera movements
             // rotation.X : left/right

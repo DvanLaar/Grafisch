@@ -92,6 +92,7 @@
     <None Include="assets\teapot.obj" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
+    <None Include="shaders\fs_const.glsl" />
     <None Include="shaders\fs_normal.glsl" />
     <None Include="shaders\fs.glsl" />
     <None Include="shaders\fs_bloomblend.glsl" />
