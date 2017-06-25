@@ -1,23 +1,20 @@
 ﻿using OpenTK;
-using Template_P3;
 
-namespace template_P3
+namespace rasterizer
 {
     class ReflectiveModel : Model
     {
-        private CubeTexture skybox;
+        private CubeTexture skyBox;
 
-        public ReflectiveModel(Mesh mesh, Shader shader, Matrix4 modeltranform, CubeTexture skybox) : base(mesh, null, shader, modeltranform)
+        public ReflectiveModel(Mesh mesh, Shader shader, Matrix4 transformation, CubeTexture skybox) : base(mesh, null, shader, transformation)
         {
-            this.skybox = skybox;
+            this.skyBox = skybox;
         }
 
-        public override void Render(Matrix4 ModelToWorld, Matrix4 WorldToScreen)
+        public override void Render(Matrix4 modelToWorld, Matrix4 worldToScreen)
         {
             if (mesh == null) return;
-            Matrix4 mtw = meshToModel * ModelToWorld;
-            Matrix4 wts = WorldToScreen;
-            mesh.ReflectiveRender(base.shader, mtw, wts, skybox, MaterialColor);
+            mesh.ReflectiveRender(shader, modelToWorld * meshToModel, worldToScreen, skyBox, color);
         }
     }
 }

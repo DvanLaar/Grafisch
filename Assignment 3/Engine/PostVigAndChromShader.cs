@@ -4,16 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
-using Template_P3;
+using rasterizer;
 using OpenTK;
 
-namespace template_P3
+namespace rasterizer
 {
     public class PostVigAndChromShader : Shader
     {
-        private int uniform_vignettingfactor,
-                    uniform_center,
-                    uniform_ca_factor;
+        private int uniform_vignettingfactor, uniform_center, uniform_ca_factor;
 
         public PostVigAndChromShader(string vertexShader, string fragmentShader) : base(vertexShader, fragmentShader)
         {
@@ -24,14 +22,8 @@ namespace template_P3
 
         public void KernelRender(int textureID, float vignettingfactor, Vector2 center, Vector3 ca_factor)
         {
-            // enable texture
-            int texLoc = GL.GetUniformLocation(programID, "pixels");
-            GL.Uniform1(texLoc, 0);
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, textureID);
-
-            // enable shader
             GL.UseProgram(programID);
+            SetTexture(textureID);
 
             // set uniforms
             GL.Uniform1(uniform_vignettingfactor, vignettingfactor);

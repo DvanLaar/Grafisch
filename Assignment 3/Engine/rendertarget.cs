@@ -1,20 +1,15 @@
 ﻿using System;
-using OpenTK;
-using OpenTK.Input;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
 // based on http://www.opentk.com/doc/graphics/frame-buffer-objects
-
-namespace Template_P3
+namespace rasterizer
 {
-
     class RenderTarget
     {
-        uint fbo;
-        int[] colorTexture;
-        uint depthBuffer;
-        int width, height;
+        private uint fbo, depthBuffer;
+        private int[] colorTexture;
+        private int width, height;
+
         public RenderTarget(int screenWidth, int screenHeight, int targets = 1)
         {
             width = screenWidth;
@@ -26,7 +21,8 @@ namespace Template_P3
             // create color textures
             colorTexture = new int[targets];
             GL.GenTextures(targets, colorTexture);
-            for (int i = 0; i < targets; i++) {
+            for (int i = 0; i < targets; i++)
+            {
                 GL.BindTexture(TextureTarget.Texture2D, colorTexture[i]);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
@@ -34,6 +30,7 @@ namespace Template_P3
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
                 GL.BindTexture(TextureTarget.Texture2D, 0);
+
                 // bind color and depth textures to fbo
                 GL.Ext.FramebufferTexture(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext + i, colorTexture[i], 0);
             }
@@ -98,5 +95,4 @@ namespace Template_P3
             return false;
         }
     }
-
-} // namespace Template_P3
+}

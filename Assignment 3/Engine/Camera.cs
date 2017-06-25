@@ -1,89 +1,62 @@
-﻿using System;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Input;
-using OpenTK;
+﻿using OpenTK;
 
-namespace template_P3
+namespace rasterizer
 {
     class Camera
     {
         const float Near = 0.1f, Far = 1000f;
-        private static Vector3 Up = Vector3.UnitY;
 
         public Vector3 Position;
-        private Quaternion _rotation;
-        private Matrix4 _matrix;
+        private Quaternion rotation;
+        private Matrix4 rotationMatrix;
 
-        public Quaternion Rotation { get { return _rotation; } }
-        public Matrix4 Matrix { get { return _matrix; } }
+        public Matrix4 Matrix { get { return rotationMatrix; } }
 
         public Camera(Vector3 position, Quaternion rotation)
         {
             Position = position;
-            _rotation = rotation;
+            this.rotation = rotation;
             UpdateMatrix();
         }
 
-        #region Translation
-        public void Translate(Vector3 translation)
-        {
-            Position += translation;
-            UpdateMatrix();
-        }
-
-        public void UpdatePosition(Vector3 position)
-        {
-            Position = position;
-            UpdateMatrix();
-        }
-
-        public void Move(Vector3 translation)
-        {
-            if (translation == Vector3.Zero) return;
-
-            Position += Rotation * translation;
-
-            UpdateMatrix();
-        }
-
-        public void AddRotation(Vector2 rotation)
-        {
-            if (rotation == Vector2.Zero) return;
-
-            Quaternion deltaY = Quaternion.FromAxisAngle(Vector3.UnitY, rotation.X);
-            Vector3 dirX = deltaY * _rotation * Vector3.UnitX;
-            Quaternion deltaX = Quaternion.FromAxisAngle(dirX, rotation.Y);
-            _rotation = deltaX * deltaY * _rotation;
-
-            UpdateMatrix();
-        }
-
+        /// <summary>
+        /// Rotates and translates the camera.
+        /// It first rotates around the Y-axis with rotation.X degrees.
+        /// After that, it will rotate around its own X-axis with rotation.Y degrees.
+        /// After this, it will apply the translation to its own coordinate system.
+        /// </summary>
+        /// <param name="rotation">degrees of rotation around (Y-axis, X-axis)</param>
+        /// <param name="translation">translation of the camera in 3 dimensions of its own coordinate system.</param>
         public void AddTransformation(Vector2 rotation, Vector3 translation)
         {
             if (rotation != Vector2.Zero)
             {
                 Quaternion deltaY = Quaternion.FromAxisAngle(Vector3.UnitY, rotation.X);
-                Vector3 dirX = deltaY * _rotation * Vector3.UnitX;
+                Vector3 dirX = deltaY * this.rotation * Vector3.UnitX;
                 Quaternion deltaX = Quaternion.FromAxisAngle(dirX, rotation.Y);
-                _rotation = deltaX * deltaY * _rotation;
-
-                if (translation == Vector3.Zero) UpdateMatrix();
+                this.rotation = deltaX * deltaY * this.rotation;
             }
             if (translation != Vector3.Zero)
-            {
-                Position += Rotation * translation;
-                UpdateMatrix();
-            }
-        }
-        #endregion
+                Position += this.rotation * translation;
 
+            // Update the matrix only once, so only if we are done after the rotation.
+            if (rotation != Vector2.Zero || translation != Vector3.Zero)
+                UpdateMatrix();
+        }
+
+        /// <summary>
+        /// Updates the matrix belonging to this rotation.
+        /// Matrixes are needed to concatenate transformations.
+        /// However, quaternions are nicer to work with, while concatenating only rotations.
+        /// That's why we have made it this way.
+        /// </summary>
         private void UpdateMatrix()
         {
-            Matrix4 rot = Matrix4.CreateFromQuaternion(_rotation);
+            Matrix4 rot = Matrix4.CreateFromQuaternion(rotation);
             rot.Transpose();
             Matrix4 trans = Matrix4.CreateTranslation(-Position);
             Matrix4 persp = Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, Near, Far);
-            _matrix = trans * rot * persp;
+            rotationMatrix = trans * rot * persp;
         }
     }
 }

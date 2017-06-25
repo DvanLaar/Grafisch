@@ -1,51 +1,63 @@
 ﻿using System.Diagnostics;
 using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
-using template_P3;
 using System;
-using System.Drawing;
 using OpenTK.Input;
 using System.Collections.Generic;
 
-// minimal OpenTK rendering framework for UU/INFOGR
-// Jacco Bikker, 2016
-
-namespace Template_P3
+/// minimal OpenTK rendering framework for UU/INFOGR
+/// Jacco Bikker, 2016
+namespace rasterizer
 {
-
     class Game
     {
+        // constants:
         const float PI = 3.1415926535f;
-        const bool useRenderTarget = true;
+        const bool USE_RENDER_TARGET = true;
 
-        // member variables
+        // member variables:
         public Surface screen; // background surface for printing etc.
-        public Camera camera;
-        public Stopwatch timer; // timer for measuring frame duration
-        public ScreenQuad quad; // screen filling quad for post processing
-        public SceneGraph scene;
+        private Camera camera;
+        private Stopwatch timer; // timer for measuring frame duration
+        private ScreenQuad quad; // screen filling quad for post processing
 
-        // used shaders:
-        public Shader shaderDefault, shaderNormal, shaderConstant, shaderFur, shaderPostProc, shaderPostBloomBlend, shaderSkybox, shaderReflective;
-        public PostVigAndChromShader shaderVigAndChrom;
-        public PostKernelShader shaderKernel;
-        public Kernel kernel;
+        private SceneGraph scene;
+        public SceneNode subScene;
 
-        // used meshes:
-        public Mesh meshTeapot, meshFloor, meshCube, meshHeightMap;
+        /// <summary>
+        /// used shaders
+        /// </summary>        
+        private Shader shaderDefault, shaderNormal, shaderConstant, shaderPostProc, shaderPostBloomBlend, shaderSkyBox, shaderReflective;
+        private FurShader shaderFur;
+        private PostVigAndChromShader shaderVigAndChrom;
+        private PostKernelShader shaderKernel;
+        private Kernel kernel;
 
-        // used textures:
-        public Texture textureWood, textureFur, textureBrickWall, textureTrump;
-        public CubeTexture textureSkybox;
-        public Texture normalBrickWall, normalNormal, normalHeightMap;
+        /// <summary>
+        /// used meshes
+        /// </summary>
+        private Mesh meshTeapot, meshFloor, meshCube, meshHeightMap;
 
-        // used render targets:
-        public RenderTarget targetMain, targetVigAndChrom, targetUnused, targetHDR, targetBloom;
+        /// <summary>
+        /// used textures
+        /// </summary>
+        private Texture textureWood, textureFur, textureBrickWall, textureTrump;
+        private CubeTexture textureSkyBox;
+        private Texture normalBrickWall, normalNormal, normalHeightMap;
 
-        // used models:
-        public Model modelTeapot, modelFloor, modelLightPos, modelHeightMap;
+        /// <summary>
+        /// used render targets
+        /// </summary>
+        private RenderTarget targetMain, targetVigAndChrom, targetUnused, targetHDR, targetBloom;
 
+        /// <summary>
+        /// used models
+        /// </summary>
+        private Model modelTeapot, modelFloor, modelLightPos, modelHeightMap;
+
+        /// <summary>
+        /// Contains all positions of the point lights
+        /// </summary>
         private static List<Vector3> lightPosition = new List<Vector3>(new Vector3[] {
             new Vector3(7f, 10f, 5f),
             new Vector3(-7f, 3f, 6f)
@@ -56,9 +68,10 @@ namespace Template_P3
         /// </summary>
         private static int lightIndex = 0;
 
+        /// <summary>
+        /// Static reference to the position of the camera, used in the rendering...
+        /// </summary>
         public static Vector3 cameraPosition;
-
-        public SceneNode subNode1;
 
         // initialize
         public void Init()
@@ -76,7 +89,7 @@ namespace Template_P3
             shaderNormal = Shader.Load("vs_normal", "fs_normal");
             shaderConstant = Shader.Load("vs", "fs_const");
             shaderFur = new FurShader("../../shaders/vs_fur.glsl", "../../shaders/fs_fur.glsl");
-            shaderSkybox = Shader.Load("vs_skybox", "fs_skybox");
+            shaderSkyBox = Shader.Load("vs_skybox", "fs_skybox");
             shaderReflective = Shader.Load("vs", "fs_reflective");
             // create post processing shaders
             shaderPostProc = Shader.Load("vs_post", "fs_post");
@@ -95,7 +108,7 @@ namespace Template_P3
             textureWood = Texture.Load("wood.jpg");
             textureTrump = Texture.Load("thetrump.png");
             textureBrickWall = Texture.Load("brickwall.jpg");
-            textureSkybox = new CubeTexture(
+            textureSkyBox = new CubeTexture(
                 "../../assets/sea_rt.JPG", "../../assets/sea_lf.JPG",
                 "../../assets/sea_up.JPG", "../../assets/sea_dn.JPG",
                 "../../assets/sea_bk.JPG", "../../assets/sea_ft.JPG"
@@ -105,7 +118,7 @@ namespace Template_P3
             normalBrickWall = Texture.Load("brickwall_normal.jpg");
             normalHeightMap = Texture.Load("heightmap_normal.png");
 
-            Resize();
+            ResizeWindow();
             quad = new ScreenQuad();
 
             // create models
@@ -116,24 +129,24 @@ namespace Template_P3
             Model teapot2 = new Model(meshTeapot, textureWood, shaderDefault, Matrix4.CreateRotationY(1.5f) * Matrix4.CreateTranslation(new Vector3(0, 60f, 0)));
 
             // set normal maps of specific models
-            modelFloor.NormalMap = normalBrickWall;
-            modelTeapot.NormalMap = normalBrickWall;
-            modelLightPos.MaterialColor = new Vector3(1f, 1f, .5f);
-            modelHeightMap.NormalMap = normalHeightMap;
+            modelFloor.normalMap = normalBrickWall;
+            modelTeapot.normalMap = normalBrickWall;
+            modelLightPos.color = new Vector3(1f, 1f, .5f);
+            modelHeightMap.normalMap = normalHeightMap;
 
             // create special models
-            ReflectiveModel refl = new ReflectiveModel(meshTeapot, shaderReflective, Matrix4.CreateTranslation(0, 20f, 0), textureSkybox);
+            ReflectiveModel refl = new ReflectiveModel(meshTeapot, shaderReflective, Matrix4.CreateTranslation(0, 20f, 0), textureSkyBox);
             FurModel furmod = new FurModel(meshTeapot, textureBrickWall, textureFur, shaderDefault, shaderFur, Matrix4.CreateRotationX((float)Math.PI / 2f) * Matrix4.CreateTranslation(new Vector3(0, 40f, 0)));
 
             // set up scenegraph
             SceneNode mainNode = new SceneNode();
 
-            subNode1 = new SceneNode();
-            subNode1.AddChildModel(refl);
-            subNode1.AddChildModel(furmod);
-            subNode1.AddChildModel(teapot2);
+            subScene = new SceneNode();
+            subScene.AddChildModel(refl);
+            subScene.AddChildModel(furmod);
+            subScene.AddChildModel(teapot2);
 
-            mainNode.AddChildNode(subNode1);
+            mainNode.AddChildNode(subScene);
 
             mainNode.AddChildModel(modelFloor);
             mainNode.AddChildModel(modelTeapot);
@@ -145,7 +158,7 @@ namespace Template_P3
             kernel = Kernel.SmallGaussianBlur;
         }
 
-        public void Resize()
+        public void ResizeWindow()
         {
             // create the render target
             targetMain = new RenderTarget(screen.width, screen.height);
@@ -156,7 +169,7 @@ namespace Template_P3
             targetBloom = new RenderTarget(screen.width, screen.height);
         }
 
-        private KeyboardState lKeyboard;
+        private KeyboardState lastKeyboard;
 
         public void processKeyboard(KeyboardState keyboard)
         {
@@ -168,43 +181,36 @@ namespace Template_P3
             // slow-down
             if (keyboard[Key.ShiftLeft] || keyboard[Key.ShiftRight])
                 frameDuration *= 10f;
-            /*
-            bool f1 = keyboard[Key.BackSlash] && !lKeyboard[Key.BackSlash];
-            bool f2 = keyboard[Key.Enter] && !lKeyboard[Key.Enter];
-            if (f1 || f2)
-            {
-                if (f1) MeshLoader.divideByDet = !MeshLoader.divideByDet;
-                if (f2) MeshLoader.averageTangents = !MeshLoader.averageTangents;
-                Console.WriteLine("averageTangents = " + MeshLoader.averageTangents + ", divideByDet = " + MeshLoader.divideByDet);
-                modelTeapot.mesh = new Mesh("../../assets/teapot.obj");
-            }
-            */
 
             // enable/disable normalmapping
             if (keyboard[Key.O]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderDefault;
             if (keyboard[Key.P]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderNormal;
 
-            // move lightposition
-            if (keyboard[Key.Insert] && !lKeyboard[Key.Insert])
+            if (keyboard[Key.Insert] && !lastKeyboard[Key.Insert])
             {
+                // add a new light to the scene
                 lightIndex = lightPosition.Count;
                 lightPosition.Add(Vector3.Zero);
             }
-            if (keyboard[Key.Delete] && !lKeyboard[Key.Delete] && lightPosition.Count > 0)
+            if (keyboard[Key.Delete] && !lastKeyboard[Key.Delete] && lightPosition.Count > 0)
             {
+                // remove a light from the scene
                 lightPosition.RemoveAt(lightIndex);
                 if (lightIndex == lightPosition.Count) lightIndex = 0;
             }
 
-            if (keyboard[Key.Comma] && !lKeyboard[Key.Comma])
+            // move to the next light
+            if (keyboard[Key.Comma] && !lastKeyboard[Key.Comma])
                 lightIndex = (lightIndex == 0 ? lightPosition.Count : lightIndex) - 1;
-            if (keyboard[Key.Period] && !lKeyboard[Key.Period])
+            // move to the previous light
+            if (keyboard[Key.Period] && !lastKeyboard[Key.Period])
                 if (++lightIndex == lightPosition.Count) lightIndex = 0;
 
             float speed = 0.0075f;
             Vector3 boxTranslation = -1e9f * Vector3.UnitZ;
             if (lightPosition.Count > 0)
             {
+                // move lightposition of the currently selected light.
                 if (keyboard[Key.L]) lightPosition[lightIndex] += speed * frameDuration * Vector3.UnitX;
                 if (keyboard[Key.H]) lightPosition[lightIndex] -= speed * frameDuration * Vector3.UnitX;
                 if (keyboard[Key.N]) lightPosition[lightIndex] += speed * frameDuration * Vector3.UnitY;
@@ -227,6 +233,7 @@ namespace Template_P3
             if (keyboard[Key.Left]) rotation += Vector2.UnitX;
             if (keyboard[Key.Right]) rotation -= Vector2.UnitX;
 
+            // translate the camera:
             if (keyboard[Key.S]) translation += Vector3.UnitZ;
             if (keyboard[Key.W]) translation -= Vector3.UnitZ;
             if (keyboard[Key.E]) translation += Vector3.UnitY;
@@ -234,84 +241,94 @@ namespace Template_P3
             if (keyboard[Key.D]) translation += Vector3.UnitX;
             if (keyboard[Key.A]) translation -= Vector3.UnitX;
 
+            // apply the transformation:
             camera.AddTransformation(0.004f * frameDuration * rotation, 0.03f * frameDuration * translation);
 
             // subnode movements to show working scenegraph
             rotation = Vector2.Zero;
             translation = Vector3.Zero;
 
+            // translate the subscene
             if (keyboard[Key.Number1]) translation += Vector3.UnitY;
             if (keyboard[Key.Number2]) translation -= Vector3.UnitY;
+            // rotate the subscene
             if (keyboard[Key.Number3]) rotation += Vector2.UnitX;
             if (keyboard[Key.Number4]) rotation -= Vector2.UnitX;
 
             // apply the transformation
-            subNode1.Transform = Matrix4.CreateRotationX(0.03f * rotation.X) * Matrix4.CreateTranslation(0.004f * frameDuration * translation) * subNode1.Transform;
+            subScene.Transformation = Matrix4.CreateTranslation(0.004f * frameDuration * translation) * subScene.Transformation * Matrix4.CreateRotationX(0.03f * rotation.X);
 
-            lKeyboard = keyboard;
+            // set this keyboard as the last, so we can record changes in key presses.
+            lastKeyboard = keyboard;
         }
 
-        // tick for background surface
+        /// <summary>
+        /// tick for background surface
+        /// </summary>
         public void Tick()
         {
             screen.Clear(0);
             screen.Print("hello world", 2, 2, 0xffff00);
         }
 
-        // tick for OpenGL rendering code
+        /// <summary>
+        /// tick for OpenGL rendering code
+        /// </summary>
         public void RenderGL()
         {
             // prepare matrix for vertex shader
             Matrix4 transform = camera.Matrix;
-
             cameraPosition = camera.Position;
-            // Console.WriteLine(cameraPosition);
 
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
             // GL.DepthMask(false);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-            if (useRenderTarget)
+            if (USE_RENDER_TARGET)
             {
                 // Bind the HDR target
                 targetHDR.Bind();
-                // Let the GPU now when want to render to 2 textures
+                // Let the GPU know when we want to render to two textures
                 GL.DrawBuffers(2, new DrawBuffersEnum[2] { DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1 });
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
 
-                // First skybox
-                meshCube.SkyboxRender(shaderSkybox, Matrix4.Identity, transform, textureSkybox);
-                // Second the rest of scene
+                // First, the skybox
+                meshCube.RenderSkyBox(shaderSkyBox, Matrix4.Identity, transform, textureSkyBox);
+                // Second, the rest of scene
                 scene.Render(transform);
-                // Unbind the HDR target
+                // Now unbind the HDR target
                 GL.DrawBuffers(1, new DrawBuffersEnum[1] { DrawBuffersEnum.ColorAttachment0 });
                 targetHDR.Unbind();
 
-                // blur the HDR
+                // Blur the HDR
                 targetBloom.Bind();
-                quad.KernelRender(shaderKernel, targetHDR.GetTextureID(1), 640f, 400f, Kernel.Uniform(19, 19, 19));
+                quad.RenderKernel(shaderKernel, targetHDR.GetTextureID(1), 640f, 400f, Kernel.Uniform(19, 19, 19));
                 targetBloom.Unbind();
 
                 // Merge bloomtarget and "normal" scene
                 targetMain.Bind();
-                quad.BloomBlendRender(shaderPostBloomBlend, targetHDR.GetTextureID(0), targetBloom.GetTextureID());
+                quad.RenderBloomBlend(shaderPostBloomBlend, targetHDR.GetTextureID(0), targetBloom.GetTextureID());
                 targetMain.Unbind();
 
-                // add vignetting and chromatic aberation. ooohhh classy
+                // Apply some vignetting and chromatic aberation :).
                 targetVigAndChrom.Bind();
-                quad.VigAndChromRender(shaderVigAndChrom, targetMain.GetTextureID(), 2.3f, new Vector2(0.51f, 0.5f), 0.0125f * new Vector3(1f, 0f, -1f));
+                quad.RenderVigAndChrom(shaderVigAndChrom, targetMain.GetTextureID(), 2.3f, new Vector2(0.51f, 0.5f), 0.0125f * new Vector3(1f, 0f, -1f));
                 targetVigAndChrom.Unbind();
 
-                // render to screen with final postprocessing kernel
-                quad.KernelRender(shaderKernel, targetVigAndChrom.GetTextureID(), 640f, 400f, kernel);
+                // Render to screen with final postprocessing kernel
+                quad.RenderKernel(shaderKernel, targetVigAndChrom.GetTextureID(), 640f, 400f, kernel);
             }
             else
             {
-                // render scene directly to the screen and make it look not so nice. boo
+                // Render the scene directly to the screen and make it look not so nice as with the code from above 8).
                 scene.Render(transform);
             }
         }
 
+        /// <summary>
+        /// Returns the raw data of all the light position vectors.
+        /// </summary>
+        /// <returns>A float array with for every 3 floats, the X, Y and Z coordinate of one light point.</returns>
         public static float[] GetLightPositions()
         {
             int nlights = lightPosition.Count;

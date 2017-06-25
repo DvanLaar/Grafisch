@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Template_P3;
+using rasterizer;
 
-namespace template_P3
+namespace rasterizer
 {
     public class PostKernelShader : Shader
     {
@@ -29,14 +29,8 @@ namespace template_P3
 
         public void KernelRender(int textureID, float textureWidth, float textureHeight, Kernel kernel)
         {
-            // enable texture
-            int texLoc = GL.GetUniformLocation(programID, "pixels");
-            GL.Uniform1(texLoc, 0);
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, textureID);
-
-            // enable shader
             GL.UseProgram(programID);
+            SetTexture(textureID);
 
             // set uniforms
             GL.Uniform1(uniform_pixelwidth, 1f / textureWidth);
@@ -64,119 +58,68 @@ namespace template_P3
             vertical = ver;
         }
 
-
         /// <summary>
         /// Uniform kernel of variable size with little sneaky value to make it not so uniform
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        /// <param name="sneakyval"></param>
+        /// <param name="desiredSum"></param>
         /// <returns></returns>
-        public static Kernel Uniform(int width, int height, float sneakyval = 2f)
+        public static Kernel Uniform(int width, int height, float desiredSum = 2f)
         {
-            if(width > 32 || height > 32)
+            if (width > 32 || height > 32)
             {
                 Console.WriteLine("The width or height of the requested Uniform kernel exceeds 32 (limited as declared in the shader)");
                 return Identity;
             }
-            float val = sneakyval / (float)(width*height);
-            float[] hor = new float[width];
-            for (int x = 0; x < width; x++)
-                hor[x] = val;
+            float val = desiredSum / (width * height);
 
-            float[] ver = new float[height];
-            for (int y = 0; y < height; y++)
-                ver[y] = val;
-
-            return new Kernel(hor,ver);
+            float[] hor = new float[width], ver = new float[height];
+            for (int i = 0; i < width; i++)
+                hor[i] = val;
+            for (int i = 0; i < height; i++)
+                ver[i] = val;
+            return new Kernel(hor, ver);
         }
 
         /// <summary>
         /// Identity Kernel [1]
         /// </summary>
-        public static Kernel Identity
-        {
-            get
-            {
-                return new Kernel(new float[1] {1}, new float[1] { 1 });
-            }
-        }
+        public static readonly Kernel Identity = new Kernel(new float[1] { 1 }, new float[1] { 1 });
 
         /// <summary>
         /// Basic uniform 3x3
         /// </summary>
-        public static Kernel BoxBlur
-        {
-            get
-            {
-                return new Kernel(new float[3] { 1/3f,1/3f,1/3f }, new float[3] { 1/3f,1/3f,1/3f });
-            }
-        }
+        public static readonly Kernel BoxBlur = new Kernel(new float[3] { 1 / 3f, 1 / 3f, 1 / 3f }, new float[3] { 1 / 3f, 1 / 3f, 1 / 3f });
 
         /// <summary>
         /// Small (3x3) approximation of Gaussian blur
         /// </summary>
-        public static Kernel SmallGaussianBlur
-        {
-            get
-            {
-                return new Kernel(new float[3] { 1f / 4f, 2f / 4f, 1f / 4f }, new float[3] { 1f / 4f, 2f / 4f, 1f / 4f });
-            }
-        }
+        public static readonly Kernel SmallGaussianBlur = new Kernel(new float[3] { 1f / 4f, 2f / 4f, 1f / 4f }, new float[3] { 1f / 4f, 2f / 4f, 1f / 4f });
 
         /// <summary>
         /// Simple 3x3 edge detection kernel
         /// </summary>
-        public static Kernel EdgeDetection
-        {
-            get
-            {
-                return new Kernel(new float[3] { 1f, 0, -1f }, new float[3] { 1f, 0, -1f });
-            }
-        }
+        public static readonly Kernel EdgeDetection = new Kernel(new float[3] { 1f, 0, -1f }, new float[3] { 1f, 0, -1f });
 
         /// <summary>
         /// Horizontal Sobel Operator
         /// </summary>
-        public static Kernel SobelHorizontal
-        {
-            get
-            {
-                return new Kernel(new float[3] { 1f, 0, -1f }, new float[3] { 1f, 2f, 1f });
-            }
-        }
+        public static readonly Kernel SobelHorizontal = new Kernel(new float[3] { 1f, 0, -1f }, new float[3] { 1f, 2f, 1f });
 
         /// <summary>
         /// Vertical Sobel Operator
         /// </summary>
-        public static Kernel SobelVertical
-        {
-            get
-            {
-                return new Kernel(new float[3] { 1f, 2f, 1f }, new float[3] { 1f, 0f, -1f });
-            }
-        }
+        public static readonly Kernel SobelVertical = new Kernel(new float[3] { 1f, 2f, 1f }, new float[3] { 1f, 0f, -1f });
 
         /// <summary>
         /// Horizontal Prewitt Operator
         /// </summary>
-        public static Kernel PrewittHorizontal
-        {
-            get
-            {
-                return new Kernel(new float[3] { 1f, 0, -1f }, new float[3] { 1f, 1f, 1f });
-            }
-        }
+        public static readonly Kernel PrewittHorizontal = new Kernel(new float[3] { 1f, 0, -1f }, new float[3] { 1f, 1f, 1f });
 
         /// <summary>
         /// Vertical Prewitt Operator
         /// </summary>
-        public static Kernel PrewittVertical
-        {
-            get
-            {
-                return new Kernel(new float[3] { 1f, 1f, 1f }, new float[3] { 1f, 0f, -1f });
-            }
-        }
+        public static readonly Kernel PrewittVertical = new Kernel(new float[3] { 1f, 1f, 1f }, new float[3] { 1f, 0f, -1f });
     }
 }
