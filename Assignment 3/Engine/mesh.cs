@@ -18,12 +18,14 @@ namespace Template_P3
         // The buffers belonging to these IDs contain all the data from above, in a format more useful to the GPU
         private int vertexBufferId, triangleBufferId, quadBufferId;
 
+        private static MeshLoader loader = new MeshLoader();
+
         public Mesh() { }
 
         // constructor
         public Mesh(string fileName)
         {
-            MeshLoader loader = new MeshLoader();
+            // MeshLoader loader = new MeshLoader();
             loader.Load(this, fileName);
         }
 

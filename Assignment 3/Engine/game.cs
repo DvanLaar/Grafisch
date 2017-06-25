@@ -105,7 +105,7 @@ namespace Template_P3
             Resize();
             quad = new ScreenQuad();
 
-            modelTeapot = new Model(meshTeapot, textureWood, shaderDefault, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
+            modelTeapot = new Model(meshTeapot, textureWood, shaderNormal, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
             modelFloor = new Model(meshFloor, textureBrickWall, shaderNormal, Matrix4.Identity);
             modelLightPos = new Model(meshCube, null, shaderDefault, Matrix4.Identity);
             modelHeightMap = new Model(meshHeightMap, textureTrump, shaderDefault, Matrix4.CreateScale(10f) * Matrix4.CreateTranslation(20f, 0f, 0f));
@@ -161,10 +161,23 @@ namespace Template_P3
             if (keyboard[Key.ShiftLeft] || keyboard[Key.ShiftRight])
                 frameDuration *= 10f;
 
+
+            bool f1 = keyboard[Key.BackSlash] && !lKeyboard[Key.BackSlash];
+            bool f2 = keyboard[Key.Enter] && !lKeyboard[Key.Enter];
+            if (f1 || f2) {
+                if (f1) MeshLoader.divideByDet = !MeshLoader.divideByDet;
+                if (f2) MeshLoader.averageTangents = !MeshLoader.averageTangents;
+                Console.WriteLine("AVERAGE TANGENTS: " + MeshLoader.averageTangents);
+                Console.WriteLine("DIVIDE BY DET: " + MeshLoader.divideByDet);
+                modelTeapot.mesh = new Mesh("../../assets/teapot.obj");
+                // modelTeapot = new Model(meshTeapot, textureWood, shaderNormal, Matrix4.CreateTranslation(new Vector3(0, 0.1f, 0)));
+                // modelTeapot.NormalMap = normalBrickWall;
+            }
+
             if (keyboard[Key.O]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderDefault;
             if (keyboard[Key.P]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderNormal;
 
-            if (keyboard[Key.Slash] && !lKeyboard[Key.Slash])
+            if (keyboard[Key.Insert] && !lKeyboard[Key.Insert])
             {
                 lightIndex = lightPosition.Count;
                 lightPosition.Add(Vector3.Zero);
@@ -199,6 +212,7 @@ namespace Template_P3
             Vector2 rotation = Vector2.Zero;
             Vector3 translation = Vector3.Zero;
 
+            // rotate the camera:
             if (keyboard[Key.Up]) rotation += Vector2.UnitY;
             if (keyboard[Key.Down]) rotation -= Vector2.UnitY;
             if (keyboard[Key.Left]) rotation += Vector2.UnitX;
@@ -211,13 +225,21 @@ namespace Template_P3
             if (keyboard[Key.D]) translation += Vector3.UnitX;
             if (keyboard[Key.A]) translation -= Vector3.UnitX;
 
-            if (keyboard[Key.Number1]) subNode1.Transform = Matrix4.CreateTranslation(new Vector3(0, 0, 0.1f)) * subNode1.Transform;
-            if (keyboard[Key.Number2]) subNode1.Transform = Matrix4.CreateTranslation(new Vector3(0, 0, -0.1f)) * subNode1.Transform;
-
-            if (keyboard[Key.Number3]) subNode1.Transform = Matrix4.CreateRotationX(0.1f) * subNode1.Transform;
-            if (keyboard[Key.Number4]) subNode1.Transform = Matrix4.CreateRotationX(-0.1f) * subNode1.Transform;
-
+            // apply the transformation
             camera.AddTransformation(0.004f * frameDuration * rotation, 0.03f * frameDuration * translation);
+
+            // rotate the subnode:
+            rotation = Vector2.Zero;
+            translation = Vector3.Zero;
+
+            if (keyboard[Key.Number1]) translation += Vector3.UnitY;
+            if (keyboard[Key.Number2]) translation -= Vector3.UnitY;
+            if (keyboard[Key.Number3]) rotation += Vector2.UnitX;
+            if (keyboard[Key.Number4]) rotation -= Vector2.UnitX;
+
+            subNode1.Transform = Matrix4.CreateRotationX(0.03f * rotation.X) * Matrix4.CreateTranslation(0.004f * frameDuration * translation) * subNode1.Transform;
+
+
 
             lKeyboard = keyboard;
         }
