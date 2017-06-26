@@ -11,7 +11,7 @@ namespace rasterizer
         public int programID, vsID, fsID;
         public int attribute_vuvs, attribute_vnrm, attribute_vtan, attribute_vpos;
         public int uniform_modeltoworld, uniform_worldtoscreen, uniform_camerapos, uniform_materialcolor;
-        public int uniform_nlights, uniform_lightpos;
+        public int uniform_nlights, uniform_lightpos, uniform_lightintensity;
 
         /// <summary>
         /// constructor
@@ -45,6 +45,7 @@ namespace rasterizer
 
             uniform_nlights = GL.GetUniformLocation(programID, "nlights");
             uniform_lightpos = GL.GetUniformLocation(programID, "lightpos");
+            uniform_lightintensity = GL.GetUniformLocation(programID, "lightintensity");
         }
 
         public static Shader Load(string vertexShader, string fragmentShader)

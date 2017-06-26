@@ -65,6 +65,15 @@ namespace rasterizer
         });
 
         /// <summary>
+        /// Contains all intensities of the point lights
+        /// </summary>
+        private static List<Vector3> lightIntensity = new List<Vector3>(new Vector3[] {
+            new Vector3(100f, 100f, 100f),
+            new Vector3(0f, 300f, 0f),
+            new Vector3(100f, 0f, 0f)
+        });
+
+        /// <summary>
         /// Is the index to the current movable light in the list 'lightPosition'.
         /// </summary>
         private static int lightIndex = 0;
@@ -339,6 +348,23 @@ namespace rasterizer
                 values[3 * i + 0] = lightPosition[i].X;
                 values[3 * i + 1] = lightPosition[i].Y;
                 values[3 * i + 2] = lightPosition[i].Z;
+            }
+            return values;
+        }
+
+        /// <summary>
+        /// Returns the raw data of all the light Intensity vectors.
+        /// </summary>
+        /// <returns>A float array with for every 3 floats, the R, G and B intensity of one light point.</returns>
+        public static float[] GetLightIntensity()
+        {
+            int nlights = lightIntensity.Count;
+            float[] values = new float[3 * nlights];
+            for (int i = nlights; i-- > 0;)
+            {
+                values[3 * i + 0] = lightIntensity[i].X;
+                values[3 * i + 1] = lightIntensity[i].Y;
+                values[3 * i + 2] = lightIntensity[i].Z;
             }
             return values;
         }

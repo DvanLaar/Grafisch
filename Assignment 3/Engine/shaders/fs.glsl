@@ -9,6 +9,7 @@ uniform vec3 camerapos, materialcolor;
 
 uniform int nlights;
 uniform vec3 lightpos[100];
+uniform vec3 lightintensity[100];
 
 // hardcoded light parameters
 const int specularPowerLog2 = 6;
@@ -54,10 +55,10 @@ void main()
 		if (NdotL <= 0f) continue;
 
 		// diffuse = c_{diff} * (N . L) * L_{diff}
-		outputColor += attenuation * diffusecolor * clamp(NdotL, 0, 1) * vec4(materialcolor, 1) * lightdiffuseintensity;
+		outputColor += attenuation * diffusecolor * clamp(NdotL, 0, 1) * vec4(materialcolor, 1) * vec4(lightintensity[i],1);
 
 		// specular = c_{spec} * (L . R)^\alpha * L_{spec}
-		outputColor += attenuation * specularcolor * powself(clamp(dot(L, R), 0, 1), specularPowerLog2) * lightspecularintensity;
+		outputColor += attenuation * specularcolor * powself(clamp(dot(L, R), 0, 1), specularPowerLog2) * vec4(lightintensity[i],1);
 	}
 	// Final phong output
 	outputHDR = clamp(outputColor - vec4(1f, 1f, 1f, 1f), 0, 1);

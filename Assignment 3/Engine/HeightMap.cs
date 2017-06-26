@@ -13,7 +13,7 @@ namespace rasterizer
         /// When set to true, we will use quads instead of triangles.
         /// However, it looks a bit more transparent in this case...
         /// </summary>
-        private const bool MAKE_QUADS = true;
+        private const bool MAKE_QUADS = false;
 
         public HeightMap(string fileName) : base()
         {

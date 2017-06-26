@@ -99,8 +99,10 @@ namespace rasterizer
             GL.Uniform3(shader.uniform_materialcolor, ref materialcolor);
 
             float[] lightpos = Game.GetLightPositions();
+            float[] lightintensity = Game.GetLightIntensity();
             GL.Uniform1(shader.uniform_nlights, lightpos.Length / 3);
             GL.Uniform3(shader.uniform_lightpos, lightpos.Length, lightpos);
+            GL.Uniform3(shader.uniform_lightintensity, lightintensity.Length, lightintensity);
 
             drawMesh(shader);
         }
