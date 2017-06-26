@@ -7,7 +7,8 @@ in vec4 normal; // interpolated normal
 uniform sampler2D pixels; // texture sampler
 
 // shader output
-out vec4 outputColor;
+layout(location = 0) out vec4 outputColor;
+layout(location = 1) out vec4 outputHDR;
 
 // passthrough shader for fur
 void main()
@@ -18,4 +19,5 @@ void main()
         discard;
     }
     outputColor = color;
+	outputHDR = clamp(color-vec4(1,1,1,1),0,1);
 }

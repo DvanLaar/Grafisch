@@ -61,7 +61,8 @@ namespace rasterizer
         private static List<Vector3> lightPosition = new List<Vector3>(new Vector3[] {
             new Vector3(7f, 10f, 5f),
             new Vector3(-7f, 3f, 6f),
-            new Vector3(-7f, 30f, 7f)
+            new Vector3(-7f, 30f, 7f),
+            new Vector3(15f, 30f, 7f)
         });
 
         /// <summary>
@@ -69,8 +70,9 @@ namespace rasterizer
         /// </summary>
         private static List<Vector3> lightIntensity = new List<Vector3>(new Vector3[] {
             new Vector3(100f, 100f, 100f),
-            new Vector3(0f, 300f, 0f),
-            new Vector3(100f, 0f, 0f)
+            new Vector3(0f, 100f, 0f),
+            new Vector3(100f, 0f, 0f),
+            new Vector3(0f, 0f, 1000f)
         });
 
         /// <summary>
@@ -188,7 +190,7 @@ namespace rasterizer
             float frameDuration = timer.ElapsedMilliseconds;
             timer.Restart();
 
-            // slow-down
+            // speedup
             if (keyboard[Key.ShiftLeft] || keyboard[Key.ShiftRight])
                 frameDuration *= 10f;
 
@@ -196,11 +198,16 @@ namespace rasterizer
             if (keyboard[Key.O]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderDefault;
             if (keyboard[Key.P]) modelFloor.shader = modelHeightMap.shader = modelTeapot.shader = shaderNormal;
 
-            if (keyboard[Key.Insert] && !lastKeyboard[Key.Insert])
+            // switch final post processing kernel
+            if (keyboard[Key.Z]) kernel = Kernel.SmallGaussianBlur;
+            if (keyboard[Key.X]) kernel = Kernel.SobelHorizontal;
+
+            if (keyboard[Key.Tab] && !lastKeyboard[Key.Tab])
             {
                 // add a new light to the scene
                 lightIndex = lightPosition.Count;
                 lightPosition.Add(Vector3.Zero);
+                lightIntensity.Add(new Vector3(100, 100, 100));
             }
             if (keyboard[Key.Delete] && !lastKeyboard[Key.Delete] && lightPosition.Count > 0)
             {
