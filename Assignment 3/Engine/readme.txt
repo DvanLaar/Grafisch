@@ -62,7 +62,7 @@ Bonus Assigments:
 	Cube mapping:
 		6 Textures worden ingeladen in een cubemap texture. Deze cubemap wordt zowel gebruikt om een skybox te creeeren als voor de statische reflectieve environment map. (Zichtbaar op een van de teapots)
 	Normal mapping:
-		Ludo...
+		Op sommige objecten zit een normal map. Dit is een texture die de richting van de normal in tangent space opgeslagen heeft als een color. Tangent space is een basis opgebouwd uit tangent, bitangent en normal. Als een pixel paarsig is, dan zijn de coordinaten dus (0, 0, 1) wat betekent dat hij in de oude richting van de normaal wijst. Met de normal map kunnen dus afwijking van de standaard normaal aangegeven worden. Hierdoor krijgt het plaatje meer diepte. Deze eigenschappen worden door een normal shader geregeld en bij het inladen van het model wordt de tangent berekend, waaruit de bitangent in de shader te berekenen is.
 	Vignetting and Chromatic Aberration:
 		De vignetting en chromatic aberration worden toegepast in dezelfde shader. Voor vignetting wordt de kleur vermenigvuldigt met de cosinus van de afstand tot een gegeven punt. (Waardoor het donkerder wordt naarmate deze afstand toeneemt)
 		Voor de chromatic aberration worden de RGB waarden gelezen met kleine afwijkingen over de lijn naar een gegeven punt.
